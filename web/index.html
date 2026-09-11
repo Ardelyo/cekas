@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CEKAS • Catatan Keuangan Kelas XI-F2 SMA Kartika XIX-1 Bandung</title>
+  
+  <!-- Fonts: Plus Jakarta Sans & Fredoka -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Fredoka"', 'cursive'],
+          },
+          colors: {
+            navy: {
+              950: '#0B1120',
+              900: '#0F172A',
+              800: '#1E293B',
+              700: '#334155',
+            },
+            pastel: {
+              peach: '#FED7AA',
+              peachLight: '#FFEDD5',
+              peachDark: '#EA580C',
+              lilac: '#DDD6FE',
+              lilacLight: '#EDE9FE',
+              lilacDark: '#7C3AED',
+              mint: '#BBF7D0',
+              mintLight: '#DCFCE7',
+              mintDark: '#16A34A',
+              lemon: '#FEF08A',
+              lemonLight: '#FEF9C3',
+              lemonDark: '#CA8A04',
+              coral: '#FECDD3',
+              coralDark: '#E11D48',
+              sky: '#BAE6FD',
+              skyDark: '#0284C7',
+            }
+          },
+          borderRadius: {
+            '2xl': '20px',
+            '3xl': '24px',
+            '4xl': '32px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar and tactile animations */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .phone-mockup {
+      width: 360px;
+      height: 740px;
+      border-radius: 44px;
+      box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.22), 0 0 0 10px #0f172a, 0 0 0 12px #334155;
+    }
+    
+    .tactile-btn {
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tactile-btn:active {
+      transform: scale(0.96);
+    }
+    
+    @keyframes gentleBob {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-4px) rotate(1deg); }
+    }
+    .mascot-bob {
+      animation: gentleBob 4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-[#EEF2F6] text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-pastel-peach selection:text-slate-900">
+
+  <!-- ========================================== -->
+  <!-- TOP CONTROL BAR (VIEW SWITCHER & BRAND)    -->
+  <!-- ========================================== -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 sm:px-8">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      
+      <!-- Brand & Class Tag -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-pastel-peach flex items-center justify-center text-xl shadow-sm border border-orange-200">
+          🪙
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-display font-bold text-xl text-slate-900 tracking-tight">CEKAS</span>
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-pastel-mintLight text-emerald-800 border border-emerald-200">v2.0 MVP</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">Catatan Keuangan • XI-F2 SMA Kartika XIX-1 Bandung</p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher Buttons -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-full border border-slate-200 text-xs font-medium text-slate-600">
+        <button id="viewBtnDesktop" onclick="switchView('desktop')" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 bg-white text-slate-900 font-bold shadow-sm">
+          <span>🖥️</span> Desktop Bento
+        </button>
+        <button id="viewBtnMockup" onclick="switchView('mockup')" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 hover:text-slate-900">
+          <span>📱</span> 3-Phone Showcase
+        </button>
+        <button id="viewBtnFluid" onclick="switchView('fluid')" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 hover:text-slate-900">
+          <span>📲</span> Mobile App View
+        </button>
+      </div>
+
+      <!-- Telegram Link & Real-time Indicator -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Firestore Live Sync</span>
+        </div>
+        <a href="https://t.me/kacekasbot" target="_blank" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-navy-900 text-white hover:bg-slate-800 transition-all flex items-center gap-1.5 tactile-btn shadow-sm">
+          <span>🤖</span> Buka Telegram
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+
+  <!-- ========================================== -->
+  <!-- VIEW 1: DESKTOP BENTO GRID DASHBOARD       -->
+  <!-- ========================================== -->
+  <main id="viewDesktop" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    
+    <!-- Top Stat Banner -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      
+      <!-- Total Saldo -->
+      <div class="bg-pastel-peach p-5 rounded-3xl border border-orange-200 flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-orange-950 uppercase tracking-wider">Total Kas Kelas</span>
+          <span class="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center text-sm shadow-xs">💰</span>
+        </div>
+        <div class="my-2">
+          <div class="text-3xl font-display font-bold text-slate-900" id="statTotalSaldo">Rp 160.000</div>
+          <p class="text-xs text-orange-900 mt-0.5">Surplus +15% dibanding minggu lalu</p>
+        </div>
+        <!-- Segmented bar -->
+        <div class="flex gap-1 h-2 w-full mt-2">
+          <div class="bg-orange-500 rounded-full w-[65%]" title="Operasional (68.8%)"></div>
+          <div class="bg-violet-500 rounded-full w-[35%]" title="Sosial (31.2%)"></div>
+        </div>
+      </div>
+
+      <!-- Pos Operasional -->
+      <div class="bg-white p-5 rounded-3xl border border-slate-200 flex flex-col justify-between shadow-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pos Operasional</span>
+          <span class="w-8 h-8 rounded-full bg-pastel-mintLight text-emerald-800 flex items-center justify-center text-sm">🧹</span>
+        </div>
+        <div class="my-2">
+          <div class="text-2xl font-display font-bold text-slate-900" id="statOps">Rp 110.000</div>
+          <span class="text-xs text-emerald-600 font-semibold">68.8% dari total kas</span>
+        </div>
+        <p class="text-[11px] text-slate-400">Spidol, penghapus, alat pel, KBM</p>
+      </div>
+
+      <!-- Pos Sosial -->
+      <div class="bg-white p-5 rounded-3xl border border-slate-200 flex flex-col justify-between shadow-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pos Sosial & Peduli</span>
+          <span class="w-8 h-8 rounded-full bg-pastel-lilacLight text-violet-800 flex items-center justify-center text-sm">🤝</span>
+        </div>
+        <div class="my-2">
+          <div class="text-2xl font-display font-bold text-slate-900" id="statSosial">Rp 50.000</div>
+          <span class="text-xs text-violet-600 font-semibold">31.2% dari total kas</span>
+        </div>
+        <p class="text-[11px] text-slate-400">Menjenguk siswa sakit, santunan</p>
+      </div>
+
+      <!-- Tagihan Kas Minggu Ini -->
+      <div class="bg-pastel-mint p-5 rounded-3xl border border-emerald-200 flex flex-col justify-between shadow-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Iuran Minggu ke-1</span>
+          <span class="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-sm">📋</span>
+        </div>
+        <div class="my-2">
+          <div class="text-3xl font-display font-bold text-emerald-950" id="statPercent">83.3%</div>
+          <p class="text-xs text-emerald-800 mt-0.5">30 Lunas • 6 Belum Bayar</p>
+        </div>
+        <div class="w-full bg-emerald-200/80 rounded-full h-2 overflow-hidden">
+          <div class="bg-emerald-600 h-2 rounded-full w-[83.3%]"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MAIN 3-COLUMN BENTO GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- ============================================== -->
+      <!-- COLUMN 1 (3 Cols): ONBOARDING & QUICK ACTION   -->
+      <!-- ============================================== -->
+      <div class="lg:col-span-3 space-y-6">
+        
+        <!-- Onboarding Hero Card -->
+        <div class="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div>
+            <div class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-pastel-lemon text-amber-900 mb-3">
+              ✨ Transparansi Kelas
+            </div>
+            <h2 class="text-2xl font-display font-bold text-slate-900 leading-tight">
+              Bingung Status Uang Kas Kamu?
+            </h2>
+            <p class="text-xs text-slate-500 mt-2">
+              Cek riwayat pembayaran, posisi iuran mingguan, atau saldo tanpa perlu tanya ke bendahara.
+            </p>
+          </div>
+
+          <!-- CTA Pill Button (Styled exactly like the left screen) -->
+          <div class="mt-5">
+            <button onclick="scrollToTagihan()" class="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200/90 rounded-full p-2 pl-4 flex items-center justify-between text-xs font-bold text-slate-800 transition-all tactile-btn">
+              <span>Cek Status Tagihan Saya</span>
+              <span class="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs">
+                →
+              </span>
+            </button>
+          </div>
+
+          <!-- Playful Geometric Mascot Cluster (from reference image) -->
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-center mascot-bob">
+            <svg width="220" height="110" viewBox="0 0 220 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Green Serene Circle -->
+              <circle cx="40" cy="55" r="28" fill="#BBF7D0" stroke="#86EFAC" stroke-width="2"/>
+              <path d="M30 52 C33 48 37 48 40 52" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M42 52 C45 48 49 48 52 52" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M36 62 C38 65 44 65 46 62" stroke="#166534" stroke-width="2" stroke-linecap="round"/>
+
+              <!-- Purple Dizzy Blob -->
+              <circle cx="95" cy="45" r="26" fill="#DDD6FE" stroke="#C4B5FD" stroke-width="2"/>
+              <circle cx="88" cy="42" r="3" fill="#5B21B6"/>
+              <circle cx="102" cy="40" r="3.5" fill="#5B21B6"/>
+              <path d="M90 54 Q95 50 100 54" stroke="#5B21B6" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+              <!-- Peach Surprised Box -->
+              <rect x="135" y="25" width="45" height="45" rx="16" fill="#FED7AA" stroke="#FDBA74" stroke-width="2"/>
+              <line x1="145" y1="40" x2="152" y2="42" stroke="#9A3412" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="168" y1="40" x2="161" y2="42" stroke="#9A3412" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="156" cy="52" r="4.5" fill="#9A3412"/>
+
+              <!-- Yellow Sparkle -->
+              <path d="M195 20 L198 32 L210 35 L198 38 L195 50 L192 38 L180 35 L192 32 Z" fill="#FEF08A" stroke="#FDE047" stroke-width="1.5"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Student Whitelist Verification Card -->
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-sm">🔍</span>
+            <h3 class="font-display font-bold text-sm text-slate-900">Verifikasi NIS Resmi</h3>
+          </div>
+          <div class="relative">
+            <input type="text" id="inputNisSearch" placeholder="Masukkan NIS (e.g. 23241001)" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-900 pr-10">
+            <button onclick="checkStudentNis()" class="absolute right-2 top-2 text-xs bg-navy-900 text-white rounded-xl px-2.5 py-1 font-bold">Cek</button>
+          </div>
+          <div id="nisResultBox" class="mt-3 text-xs hidden p-3 rounded-2xl bg-pastel-mintLight text-emerald-900 border border-emerald-200">
+            <!-- Dynamic Result -->
+          </div>
+        </div>
+
+        <!-- Telegram Bot Quick Launch -->
+        <div class="bg-navy-900 text-white p-5 rounded-3xl border border-slate-800 shadow-xs relative overflow-hidden">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-xl">
+              💬
+            </div>
+            <div>
+              <h4 class="font-display font-bold text-sm">Telegram Bot Terhubung</h4>
+              <p class="text-[11px] text-slate-400">@kacekasbot • ID 7809496541</p>
+            </div>
+          </div>
+          <div class="mt-4 flex gap-2">
+            <button onclick="simulateTelegramCommand('/saldo')" class="flex-1 bg-white/10 hover:bg-white/20 text-[11px] font-semibold py-1.5 rounded-xl transition-all">
+              /saldo
+            </button>
+            <button onclick="simulateTelegramCommand('/alokasi')" class="flex-1 bg-white/10 hover:bg-white/20 text-[11px] font-semibold py-1.5 rounded-xl transition-all">
+              /alokasi
+            </button>
+            <button onclick="simulateTelegramCommand('/tagihan')" class="flex-1 bg-white/10 hover:bg-white/20 text-[11px] font-semibold py-1.5 rounded-xl transition-all">
+              /tagihan
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================== -->
+      <!-- COLUMN 2 (5 Cols): CENTER DASHBOARD (NAVY POD) -->
+      <!-- ============================================== -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <!-- White Profile Header Card -->
+        <div class="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm">
+          
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full bg-pastel-lilac flex items-center justify-center font-display font-bold text-lg text-violet-950 border border-violet-200 shadow-xs">
+                AS
+              </div>
+              <div>
+                <span class="text-xs text-slate-400 font-medium">Selamat datang,</span>
+                <h3 class="font-display font-bold text-slate-900 text-base leading-tight">Ardellio Satria Anindito</h3>
+              </div>
+            </div>
+            
+            <div class="text-right">
+              <span class="text-[11px] text-slate-400 block font-medium" id="currentDateWib">11 September 2026</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pastel-mintLight text-emerald-800 border border-emerald-200">
+                Siswa XI-F2
+              </span>
+            </div>
+          </div>
+
+          <!-- Greeting Prompt -->
+          <div class="mt-5">
+            <h1 class="text-xl font-display font-bold text-slate-900">
+              Halo Ardellio! Bagaimana kondisi kas kelas hari ini?
+            </h1>
+          </div>
+
+          <!-- Status Mood/Kas Bar (Matching the middle screen mood selector) -->
+          <div class="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-slate-100">
+            <button onclick="filterByMood('aman')" class="p-2.5 rounded-2xl bg-pastel-mintLight border border-emerald-200 text-center tactile-btn group hover:border-emerald-400">
+              <span class="text-xl block group-hover:scale-110 transition-transform">😊</span>
+              <span class="text-[11px] font-bold text-emerald-900 mt-1 block">Aman</span>
+            </button>
+            <button onclick="filterByMood('tagihan')" class="p-2.5 rounded-2xl bg-pastel-peachLight border border-orange-200 text-center tactile-btn group hover:border-orange-400">
+              <span class="text-xl block group-hover:scale-110 transition-transform">😴</span>
+              <span class="text-[11px] font-bold text-orange-950 mt-1 block">Tagihan</span>
+            </button>
+            <button onclick="filterByMood('surplus')" class="p-2.5 rounded-2xl bg-pastel-lilacLight border border-violet-200 text-center tactile-btn group hover:border-violet-400">
+              <span class="text-xl block group-hover:scale-110 transition-transform">🚀</span>
+              <span class="text-[11px] font-bold text-violet-950 mt-1 block">Surplus</span>
+            </button>
+            <button onclick="filterByMood('audit')" class="p-2.5 rounded-2xl bg-pastel-lemonLight border border-amber-200 text-center tactile-btn group hover:border-amber-400">
+              <span class="text-xl block group-hover:scale-110 transition-transform">🛡️</span>
+              <span class="text-[11px] font-bold text-amber-950 mt-1 block">Audit</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- DARK NAVY BODY CONTAINER (Styled precisely like middle screen) -->
+        <div class="bg-navy-900 text-white p-6 rounded-4xl border border-slate-800 shadow-xl space-y-5">
+          
+          <!-- Data Widgets Row: Peach Card & Lilac Card -->
+          <div class="grid grid-cols-2 gap-4">
+            
+            <!-- Left Widget: Peach Sleep/Saldo Card -->
+            <div class="bg-pastel-peach text-slate-900 p-4 rounded-3xl flex flex-col justify-between shadow-xs">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-orange-950">
+                <span>⏱️</span>
+                <span>Arus Kas Mingguan</span>
+              </div>
+              
+              <!-- Multi-segmented vertical bar graph mockup -->
+              <div class="my-3 flex items-end gap-1.5 h-12">
+                <div class="w-2.5 bg-orange-400 rounded-full h-6"></div>
+                <div class="w-2.5 bg-orange-500 rounded-full h-9"></div>
+                <div class="w-2.5 bg-orange-400 rounded-full h-5"></div>
+                <div class="w-2.5 bg-orange-600 rounded-full h-12"></div>
+                <div class="w-2.5 bg-orange-500 rounded-full h-8"></div>
+                <div class="w-2.5 bg-orange-400 rounded-full h-10"></div>
+              </div>
+
+              <div>
+                <span class="text-xl font-display font-bold text-slate-900">+Rp 100k</span>
+                <span class="text-[10px] text-orange-900 block font-medium">Minggu 1</span>
+              </div>
+            </div>
+
+            <!-- Right Widget: Lilac Stress/Kedisiplinan Card -->
+            <div class="bg-pastel-lilac text-slate-900 p-4 rounded-3xl flex flex-col justify-between shadow-xs">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-violet-950">
+                <span>📊</span>
+                <span>Tingkat Disiplin</span>
+              </div>
+              
+              <!-- Stepped bar graph rising to right -->
+              <div class="my-3 flex items-end gap-1.5 h-12">
+                <div class="w-3 bg-violet-300 rounded-md h-3"></div>
+                <div class="w-3 bg-violet-400 rounded-md h-6"></div>
+                <div class="w-3 bg-violet-500 rounded-md h-9"></div>
+                <div class="w-3 bg-violet-600 rounded-md h-12"></div>
+              </div>
+
+              <div>
+                <span class="text-xl font-display font-bold text-violet-950">Tinggi</span>
+                <span class="text-[10px] text-violet-800 block font-medium">83.3% Lunas</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Interactive Mint Card: Yes or No Quiz / Action Card -->
+          <div class="bg-pastel-mint text-slate-900 p-5 rounded-3xl shadow-sm border border-emerald-300">
+            <div class="flex items-center justify-between text-xs font-bold text-emerald-950 mb-2">
+              <div class="flex items-center gap-1.5">
+                <span>📝</span>
+                <span>Diskusi Kas Kelas</span>
+              </div>
+              <span class="bg-white/80 px-2 py-0.5 rounded-full text-[10px]">Pertanyaan 1/3</span>
+            </div>
+
+            <p class="font-display font-bold text-slate-900 text-sm leading-snug">
+              "Apakah dana kas operasional (Rp 110.000) cukup untuk membeli spidol & penghapus papan tulis minggu ini?"
+            </p>
+
+            <div class="flex gap-2.5 mt-4">
+              <button onclick="voteQuiz('yes')" id="btnQuizYes" class="flex-1 bg-navy-900 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all tactile-btn">
+                Sangat Cukup (Ya)
+              </button>
+              <button onclick="voteQuiz('no')" id="btnQuizNo" class="flex-1 bg-white hover:bg-slate-100 text-slate-900 font-bold py-2 px-4 rounded-xl text-xs transition-all tactile-btn border border-emerald-300">
+                Perlu Tambahan
+              </button>
+            </div>
+            <div id="quizResult" class="text-[11px] font-bold text-emerald-900 mt-2 hidden text-center">
+              ✅ Terima kasih! Suara Anda telah dicatat untuk musyawarah kelas.
+            </div>
+          </div>
+
+          <!-- Quick Actions Bar inside Navy Pod -->
+          <div class="pt-2 flex items-center justify-between text-xs text-slate-400 border-t border-slate-800">
+            <span>Bendahara: <b>Tarina</b></span>
+            <span>Wali Kelas: <b>Pembimbing XI-F2</b></span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ============================================== -->
+      <!-- COLUMN 3 (4 Cols): KAS CALENDAR & METRICS      -->
+      <!-- ============================================== -->
+      <div class="lg:col-span-4 space-y-6">
+        
+        <!-- Kas Calendar Card (Matching Right Screen) -->
+        <div class="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm">
+          
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-display font-bold text-base text-slate-900">Kalender Kas</h3>
+              <p class="text-xs text-slate-400">September 2026</p>
+            </div>
+            <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">
+              📅
+            </span>
+          </div>
+
+          <!-- Day Headers -->
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 mb-2">
+            <div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div>
+          </div>
+
+          <!-- Calendar Grid of Days -->
+          <div class="grid grid-cols-7 gap-1.5 text-center text-xs" id="calendarGrid">
+            <!-- Dynamically populated or rendered -->
+            <div class="p-2 rounded-xl bg-slate-50 text-slate-300">31</div>
+            <div class="p-2 rounded-xl bg-pastel-mint text-emerald-950 font-bold" title="Kas Masuk Rp 50.000">1 💰</div>
+            <div class="p-2 rounded-xl bg-slate-50 text-slate-600">2</div>
+            <div class="p-2 rounded-xl bg-pastel-peach text-orange-950 font-bold" title="Beli Spidol Rp 15.000">3 📤</div>
+            <div class="p-2 rounded-xl bg-pastel-mint text-emerald-950 font-bold" title="Iuran Masuk">4 💰</div>
+            <div class="p-2 rounded-xl bg-slate-50 text-slate-600">5</div>
+            <div class="p-2 rounded-xl bg-slate-50 text-slate-600">6</div>
+
+            <div class="p-2 rounded-xl bg-pastel-lilac text-violet-950 font-bold" title="Donasi Sosial">7 🤝</div>
+            <div class="p-2 rounded-xl bg-pastel-mint text-emerald-950 font-bold">8 💰</div>
+            <div class="p-2 rounded-xl bg-slate-50 text-slate-600">9</div>
+            <div class="p-2 rounded-xl bg-slate-50 text-slate-600">10</div>
+            <div class="p-2 rounded-xl bg-pastel-lemon text-amber-950 font-bold ring-2 ring-amber-400" title="Hari Ini: Update Kas">11 ⭐</div>
+            <div class="p-2 rounded-xl bg-slate-50 text-slate-600">12</div>
+            <div class="p-2 rounded-xl bg-slate-50 text-slate-600">13</div>
+          </div>
+
+          <!-- Monthly Kas Summary Card (Light Mint Card like Right Screen) -->
+          <div class="mt-5 bg-pastel-mintLight border border-emerald-200 p-4 rounded-3xl flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-pastel-mint flex items-center justify-center text-2xl shrink-0">
+              😌
+            </div>
+            <div>
+              <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Ringkasan Bulan Ini</span>
+              <h4 class="font-display font-bold text-emerald-950 text-sm">Kas Sehat & Surplus</h4>
+              <p class="text-[11px] text-emerald-800 leading-tight mt-0.5">Semua pemasukan tercatat rapi di Firestore tanpa selisih.</p>
+            </div>
+          </div>
+
+          <!-- Activity Metrics (3 White Pill Cards like Right Screen) -->
+          <div class="grid grid-cols-3 gap-2 mt-4">
+            <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 text-center">
+              <span class="text-[10px] text-slate-400 block font-medium">Terkumpul</span>
+              <span class="font-display font-bold text-xs text-slate-900 block mt-0.5">Rp 300k</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 text-center">
+              <span class="text-[10px] text-slate-400 block font-medium">Pengeluaran</span>
+              <span class="font-display font-bold text-xs text-slate-900 block mt-0.5">Rp 140k</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 text-center">
+              <span class="text-[10px] text-slate-400 block font-medium">Lunas</span>
+              <span class="font-display font-bold text-xs text-emerald-600 block mt-0.5">30 Siswa</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Recent Transactions Feed Card -->
+        <div class="bg-white p-5 rounded-4xl border border-slate-200 shadow-sm" id="sectionRiwayat">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-display font-bold text-sm text-slate-900">Riwayat Mutasi Terkini</h3>
+            <span class="text-xs text-slate-400">10 Terakhir</span>
+          </div>
+          
+          <div class="space-y-2.5" id="txFeedList">
+            <!-- Item 1 -->
+            <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-pastel-mint flex items-center justify-center text-xs">📥</span>
+                <div>
+                  <div class="font-bold text-xs text-slate-900">Iuran kas Ardellio (M1)</div>
+                  <div class="text-[10px] text-slate-400">Oleh Tarina • Pos Ops</div>
+                </div>
+              </div>
+              <span class="font-display font-bold text-xs text-emerald-600">+Rp 10.000</span>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-pastel-peach flex items-center justify-center text-xs">📤</span>
+                <div>
+                  <div class="font-bold text-xs text-slate-900">Beli spidol & isi tinta</div>
+                  <div class="text-[10px] text-slate-400">Oleh Tarina • Pos Ops</div>
+                </div>
+              </div>
+              <span class="font-display font-bold text-xs text-orange-600">-Rp 15.000</span>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-pastel-lilac flex items-center justify-center text-xs">🤝</span>
+                <div>
+                  <div class="font-bold text-xs text-slate-900">Donasi santunan duka cita</div>
+                  <div class="text-[10px] text-slate-400">Oleh Tarina • Pos Sosial</div>
+                </div>
+              </div>
+              <span class="font-display font-bold text-xs text-violet-600">+Rp 25.000</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- STUDENT BILLING / TAGIHAN TABLE (COLLAPSIBLE / EXPANDED) -->
+    <div class="mt-8 bg-white p-6 rounded-4xl border border-slate-200 shadow-sm" id="sectionTagihan">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h3 class="font-display font-bold text-lg text-slate-900">Daftar Tagihan Iuran Kas Minggu ke-1</h3>
+          <p class="text-xs text-slate-500">Status kelunasan siswa kelas XI-F2 SMA Kartika XIX-1 Bandung</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-pastel-mint text-emerald-900">30 Siswa Lunas</span>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-pastel-coral text-rose-900">6 Siswa Belum</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" id="studentsGrid">
+        <!-- Rendered by JS with whitelist data -->
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- VIEW 2: 3-PHONE MOBILE SHOWCASE (MOCKUP)   -->
+  <!-- Exactly mimics the user attached screenshot -->
+  <!-- ========================================== -->
+  <main id="viewMockup" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 flex items-center justify-center">
+    
+    <div class="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-10 py-6">
+      
+      <!-- SCREEN 1: ONBOARDING / INTRO -->
+      <div class="phone-mockup bg-white p-6 flex flex-col justify-between overflow-hidden relative">
+        <div class="mt-8 text-center">
+          <h2 class="text-3xl font-display font-bold text-slate-900 leading-tight">
+            Bingung Soal Kas Kelas Kamu?
+          </h2>
+          <div class="mt-6 flex justify-center">
+            <div class="bg-slate-100 border border-slate-200 rounded-full p-2 pl-6 flex items-center justify-between gap-4 text-xs font-bold text-slate-800 shadow-xs">
+              <span>Biar CEKAS Bantu!</span>
+              <span class="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs">→</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mascot Cluster -->
+        <div class="flex items-center justify-center my-auto mascot-bob">
+          <svg width="280" height="200" viewBox="0 0 280 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Green Circle -->
+            <circle cx="70" cy="110" r="42" fill="#BBF7D0" stroke="#86EFAC" stroke-width="3"/>
+            <path d="M55 105 C60 98 68 98 73 105" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M77 105 C82 98 90 98 95 105" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M68 122 C72 126 80 126 84 122" stroke="#166534" stroke-width="3" stroke-linecap="round"/>
+
+            <!-- Purple Spiral -->
+            <circle cx="150" cy="85" r="40" fill="#DDD6FE" stroke="#C4B5FD" stroke-width="3"/>
+            <circle cx="138" cy="80" r="4.5" fill="#5B21B6"/>
+            <circle cx="160" cy="78" r="5" fill="#5B21B6"/>
+            <path d="M142 98 Q150 92 158 98" stroke="#5B21B6" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+            <!-- Orange Box -->
+            <rect x="195" y="65" width="60" height="60" rx="20" fill="#FED7AA" stroke="#FDBA74" stroke-width="3"/>
+            <line x1="208" y1="85" x2="218" y2="88" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
+            <line x1="242" y1="85" x2="232" y2="88" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="225" cy="102" r="6" fill="#9A3412"/>
+
+            <!-- Yellow Spark -->
+            <path d="M245 25 L249 42 L266 46 L249 50 L245 67 L241 50 L224 46 L241 42 Z" fill="#FEF08A" stroke="#FDE047" stroke-width="2"/>
+          </svg>
+        </div>
+
+        <div class="text-center text-xs text-slate-400 mb-4">
+          Geser untuk masuk ke dashboard kas →
+        </div>
+      </div>
+
+      <!-- SCREEN 2: MAIN DASHBOARD -->
+      <div class="phone-mockup bg-navy-900 text-white flex flex-col justify-between overflow-hidden relative">
+        
+        <!-- Top Header Card (White) -->
+        <div class="bg-white text-slate-900 p-5 rounded-b-4xl shadow-md">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-full bg-pastel-lilac flex items-center justify-center font-display font-bold text-sm text-violet-950">
+                AS
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-medium">Selamat datang</span>
+                <h4 class="font-display font-bold text-xs text-slate-900">Ardellio Satria</h4>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 font-medium">11 Sep 2026</span>
+          </div>
+
+          <h3 class="text-sm font-display font-bold text-slate-900 mt-3 leading-snug">
+            Halo Jack! Bagaimana kondisi kas kelas hari ini?
+          </h3>
+
+          <div class="grid grid-cols-4 gap-1.5 mt-3 pt-2 border-t border-slate-100">
+            <div class="p-1.5 rounded-xl bg-pastel-mintLight text-center">
+              <span class="text-base block">😊</span>
+              <span class="text-[9px] font-bold text-emerald-900">Aman</span>
+            </div>
+            <div class="p-1.5 rounded-xl bg-pastel-peachLight text-center">
+              <span class="text-base block">😴</span>
+              <span class="text-[9px] font-bold text-orange-950">Tagihan</span>
+            </div>
+            <div class="p-1.5 rounded-xl bg-pastel-lilacLight text-center">
+              <span class="text-base block">😡</span>
+              <span class="text-[9px] font-bold text-violet-950">Nunggak</span>
+            </div>
+            <div class="p-1.5 rounded-xl bg-pastel-lemonLight text-center">
+              <span class="text-base block">🚀</span>
+              <span class="text-[9px] font-bold text-amber-950">Surplus</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark Navy Body Content -->
+        <div class="p-5 flex-1 flex flex-col justify-around">
+          
+          <!-- Data Widgets -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-pastel-peach text-slate-900 p-3.5 rounded-3xl">
+              <span class="text-[10px] font-bold text-orange-950 flex items-center gap-1">⏱️ Kas Masuk</span>
+              <div class="my-2 flex items-end gap-1 h-8">
+                <div class="w-1.5 bg-orange-400 rounded-full h-4"></div>
+                <div class="w-1.5 bg-orange-500 rounded-full h-7"></div>
+                <div class="w-1.5 bg-orange-400 rounded-full h-3"></div>
+                <div class="w-1.5 bg-orange-600 rounded-full h-8"></div>
+              </div>
+              <div class="text-sm font-display font-bold">+Rp 100k</div>
+            </div>
+
+            <div class="bg-pastel-lilac text-slate-900 p-3.5 rounded-3xl">
+              <span class="text-[10px] font-bold text-violet-950 flex items-center gap-1">📊 Disiplin</span>
+              <div class="my-2 flex items-end gap-1 h-8">
+                <div class="w-2 bg-violet-300 rounded-md h-2"></div>
+                <div class="w-2 bg-violet-400 rounded-md h-4"></div>
+                <div class="w-2 bg-violet-500 rounded-md h-6"></div>
+                <div class="w-2 bg-violet-600 rounded-md h-8"></div>
+              </div>
+              <div class="text-sm font-display font-bold">83.3%</div>
+            </div>
+          </div>
+
+          <!-- Interactive Mint Card -->
+          <div class="bg-pastel-mint text-slate-900 p-4 rounded-3xl">
+            <div class="flex items-center justify-between text-[10px] font-bold text-emerald-950 mb-1">
+              <span>📝 Diskusi Kas</span>
+              <span>1/3</span>
+            </div>
+            <p class="font-display font-bold text-xs text-slate-900">
+              Apakah kas operasional cukup untuk beli spidol & pel?
+            </p>
+            <div class="flex gap-2 mt-3">
+              <button class="flex-1 bg-navy-900 text-white font-bold py-1.5 rounded-xl text-[10px]">Ya</button>
+              <button class="flex-1 bg-white text-slate-900 font-bold py-1.5 rounded-xl text-[10px] border border-emerald-300">Tidak</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Navigation Bar -->
+        <div class="bg-navy-950 px-6 py-3 border-t border-slate-800 flex items-center justify-around text-slate-400">
+          <span class="text-white text-sm">🏠</span>
+          <span class="text-sm">📊</span>
+          <span class="text-sm">📅</span>
+          <span class="text-sm">👤</span>
+        </div>
+
+      </div>
+
+      <!-- SCREEN 3: MOOD/KAS CALENDAR -->
+      <div class="phone-mockup bg-white p-5 flex flex-col justify-between overflow-hidden relative">
+        
+        <!-- Top Bar -->
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs">‹</span>
+            <div class="text-center">
+              <h4 class="font-display font-bold text-sm text-slate-900">Kalender Kas</h4>
+              <span class="text-[10px] text-slate-400">September 2026</span>
+            </div>
+            <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs">🔍</span>
+          </div>
+
+          <!-- Calendar -->
+          <div class="grid grid-cols-7 gap-1 text-center text-[9px] font-bold text-slate-400 mt-4 mb-1">
+            <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px]">
+            <div class="p-1.5 rounded-lg bg-slate-50 text-slate-300">31</div>
+            <div class="p-1.5 rounded-lg bg-pastel-mint text-emerald-950 font-bold">1</div>
+            <div class="p-1.5 rounded-lg bg-slate-50">2</div>
+            <div class="p-1.5 rounded-lg bg-pastel-peach text-orange-950 font-bold">3</div>
+            <div class="p-1.5 rounded-lg bg-pastel-mint text-emerald-950 font-bold">4</div>
+            <div class="p-1.5 rounded-lg bg-slate-50">5</div>
+            <div class="p-1.5 rounded-lg bg-slate-50">6</div>
+            <div class="p-1.5 rounded-lg bg-pastel-lilac text-violet-950 font-bold">7</div>
+            <div class="p-1.5 rounded-lg bg-pastel-mint text-emerald-950 font-bold">8</div>
+            <div class="p-1.5 rounded-lg bg-slate-50">9</div>
+            <div class="p-1.5 rounded-lg bg-slate-50">10</div>
+            <div class="p-1.5 rounded-lg bg-pastel-lemon text-amber-950 font-bold ring-2 ring-amber-400">11</div>
+            <div class="p-1.5 rounded-lg bg-slate-50">12</div>
+            <div class="p-1.5 rounded-lg bg-slate-50">13</div>
+          </div>
+
+          <!-- Monthly Summary -->
+          <div class="mt-4 bg-pastel-mintLight border border-emerald-200 p-3.5 rounded-3xl flex items-center gap-2.5">
+            <span class="text-2xl">😌</span>
+            <div>
+              <span class="text-[9px] font-bold text-emerald-800 uppercase">Status Kas</span>
+              <h5 class="font-display font-bold text-emerald-950 text-xs">Kas Sehat & Surplus</h5>
+              <p class="text-[10px] text-emerald-800">Transparansi 100% terjaga.</p>
+            </div>
+          </div>
+
+          <!-- Activity Metrics -->
+          <div class="grid grid-cols-3 gap-1.5 mt-3">
+            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+              <span class="text-[8px] text-slate-400 block">Terkumpul</span>
+              <span class="font-display font-bold text-[11px] text-slate-900">Rp 300k</span>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+              <span class="text-[8px] text-slate-400 block">Pengeluaran</span>
+              <span class="font-display font-bold text-[11px] text-slate-900">Rp 140k</span>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+              <span class="text-[8px] text-slate-400 block">Lunas</span>
+              <span class="font-display font-bold text-[11px] text-emerald-600">83.3%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="bg-navy-950 -mx-5 -mb-5 px-6 py-3 flex items-center justify-around text-slate-400 text-sm">
+          <span>🏠</span>
+          <span>📊</span>
+          <span class="text-white">📅</span>
+          <span>👤</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- VIEW 3: FLUID MOBILE APP VIEW              -->
+  <!-- ========================================== -->
+  <main id="viewFluid" class="hidden flex-1 max-w-md w-full mx-auto p-4 space-y-5 pb-20">
+    
+    <!-- Mobile App Header -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-full bg-pastel-lilac flex items-center justify-center font-display font-bold text-sm text-violet-950">
+            AS
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 font-medium">Selamat datang</span>
+            <h4 class="font-display font-bold text-xs text-slate-900">Ardellio Satria</h4>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-pastel-mint text-emerald-950">XI-F2</span>
+      </div>
+
+      <h3 class="font-display font-bold text-sm text-slate-900 mt-3">
+        Halo Ardellio! Bagaimana kondisi kas kelas hari ini?
+      </h3>
+
+      <div class="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-100">
+        <div class="p-2 rounded-2xl bg-pastel-mintLight text-center">
+          <span class="text-lg block">😊</span>
+          <span class="text-[10px] font-bold text-emerald-900">Aman</span>
+        </div>
+        <div class="p-2 rounded-2xl bg-pastel-peachLight text-center">
+          <span class="text-lg block">😴</span>
+          <span class="text-[10px] font-bold text-orange-950">Tagihan</span>
+        </div>
+        <div class="p-2 rounded-2xl bg-pastel-lilacLight text-center">
+          <span class="text-lg block">🚀</span>
+          <span class="text-[10px] font-bold text-violet-950">Surplus</span>
+        </div>
+        <div class="p-2 rounded-2xl bg-pastel-lemonLight text-center">
+          <span class="text-lg block">🛡️</span>
+          <span class="text-[10px] font-bold text-amber-950">Audit</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Saldo Card (Navy) -->
+    <div class="bg-navy-900 text-white p-5 rounded-3xl shadow-lg space-y-4">
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-slate-400">Total Saldo Kas Terkini</span>
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      </div>
+      <div class="text-3xl font-display font-bold text-white">Rp 160.000</div>
+      
+      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-xs">
+        <div>
+          <span class="text-[10px] text-slate-400 block">Pos Operasional</span>
+          <span class="font-bold text-pastel-mint">Rp 110.000</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-slate-400 block">Pos Sosial</span>
+          <span class="font-bold text-pastel-lilac">Rp 50.000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Mini Tagihan -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-display font-bold text-sm text-slate-900">Iuran Kas Minggu ke-1</h4>
+        <span class="text-xs font-bold text-emerald-600">83.3%</span>
+      </div>
+      <div class="w-full bg-slate-100 rounded-full h-2 mb-3">
+        <div class="bg-emerald-500 h-2 rounded-full w-[83.3%]"></div>
+      </div>
+      <div class="flex items-center justify-between text-xs text-slate-500">
+        <span>30 Siswa Lunas</span>
+        <span class="text-rose-600 font-bold">6 Belum Bayar</span>
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT: DATA & INTERACTIONS            -->
+  <!-- ========================================== -->
+  <script>
+    // Official Class Whitelist Data (Seeded from SMA Kartika XIX-1 Bandung XI-F2)
+    const studentsData = [
+      { nis: "23241001", nama: "Ardellio Satria Anindito", role: "siswa", paid: true },
+      { nis: "23241015", nama: "Tarina", role: "bendahara", paid: true },
+      { nis: "23241020", nama: "Nabila", role: "siswa", paid: true },
+      { nis: "23241025", nama: "Cinta", role: "siswa", paid: true },
+      { nis: "23241005", nama: "Budi Santoso", role: "siswa", paid: true },
+      { nis: "23241008", nama: "Dwi Cahyo", role: "siswa", paid: false },
+      { nis: "23241012", nama: "Farhan Maulana", role: "siswa", paid: true },
+      { nis: "23241018", nama: "Gita Pratiwi", role: "siswa", paid: false },
+      { nis: "23241022", nama: "Rian Hidayat", role: "siswa", paid: true },
+      { nis: "23241028", nama: "Zahra Amelia", role: "siswa", paid: true },
+      { nis: "23241031", nama: "Ahmad Fauzi", role: "siswa", paid: true },
+      { nis: "23241035", nama: "Bayu Pratama", role: "siswa", paid: false },
+    ];
+
+    // Initialize Students Grid
+    function renderStudentsGrid() {
+      const container = document.getElementById('studentsGrid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      studentsData.forEach(student => {
+        const card = document.createElement('div');
+        const isPaid = student.paid;
+        card.className = `p-3.5 rounded-2xl border transition-all flex items-center justify-between ${
+          isPaid 
+            ? 'bg-slate-50/80 border-slate-200 hover:border-emerald-300' 
+            : 'bg-rose-50/50 border-rose-200'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+              isPaid ? 'bg-pastel-mint text-emerald-950' : 'bg-pastel-coral text-rose-950'
+            }">
+              ${isPaid ? '✓' : '!'}
+            </span>
+            <div>
+              <div class="font-bold text-xs text-slate-900">${student.nama}</div>
+              <div class="text-[10px] text-slate-400">NIS: ${student.nis}</div>
+            </div>
+          </div>
+          <span class="text-[11px] font-bold ${isPaid ? 'text-emerald-700' : 'text-rose-600'}">
+            ${isPaid ? 'Lunas' : 'Belum'}
+          </span>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Switch View function
+    function switchView(viewType) {
+      const viewDesktop = document.getElementById('viewDesktop');
+      const viewMockup = document.getElementById('viewMockup');
+      const viewFluid = document.getElementById('viewFluid');
+
+      const btnD = document.getElementById('viewBtnDesktop');
+      const btnM = document.getElementById('viewBtnMockup');
+      const btnF = document.getElementById('viewBtnFluid');
+
+      // Reset
+      viewDesktop.classList.add('hidden');
+      viewMockup.classList.add('hidden');
+      viewFluid.classList.add('hidden');
+
+      [btnD, btnM, btnF].forEach(btn => {
+        btn.classList.remove('bg-white', 'text-slate-900', 'font-bold', 'shadow-sm');
+        btn.classList.add('text-slate-600');
+      });
+
+      if (viewType === 'desktop') {
+        viewDesktop.classList.remove('hidden');
+        btnD.classList.add('bg-white', 'text-slate-900', 'font-bold', 'shadow-sm');
+      } else if (viewType === 'mockup') {
+        viewMockup.classList.remove('hidden');
+        btnM.classList.add('bg-white', 'text-slate-900', 'font-bold', 'shadow-sm');
+      } else {
+        viewFluid.classList.remove('hidden');
+        btnF.classList.add('bg-white', 'text-slate-900', 'font-bold', 'shadow-sm');
+      }
+    }
+
+    // NIS Verification Lookup
+    function checkStudentNis() {
+      const input = document.getElementById('inputNisSearch').value.trim();
+      const resultBox = document.getElementById('nisResultBox');
+      if (!input) return;
+
+      const found = studentsData.find(s => s.nis === input);
+      resultBox.classList.remove('hidden');
+
+      if (found) {
+        resultBox.className = "mt-3 text-xs p-3 rounded-2xl bg-pastel-mintLight text-emerald-950 border border-emerald-300";
+        resultBox.innerHTML = `
+          <b>✅ Terverifikasi Whitelist XI-F2</b><br>
+          Nama: <b>${found.nama}</b><br>
+          Status Iuran M1: <b>${found.paid ? 'Lunas' : 'Belum Bayar'}</b>
+        `;
+      } else {
+        resultBox.className = "mt-3 text-xs p-3 rounded-2xl bg-pastel-coral text-rose-950 border border-rose-300";
+        resultBox.innerHTML = `
+          <b>⛔ NIS Tidak Ditemukan!</b><br>
+          NIS "${input}" tidak ada dalam daftar absensi resmi XI-F2.
+        `;
+      }
+    }
+
+    // Interactive Quiz voting
+    function voteQuiz(answer) {
+      const result = document.getElementById('quizResult');
+      result.classList.remove('hidden');
+      if (answer === 'yes') {
+        result.innerText = "✅ Anda memilih: Sangat Cukup (Ya). Suara dicatat!";
+      } else {
+        result.innerText = "ℹ️ Anda memilih: Perlu Tambahan. Masukan diteruskan ke Bendahara.";
+      }
+    }
+
+    function scrollToTagihan() {
+      document.getElementById('sectionTagihan').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function filterByMood(type) {
+      alert(`Menyaring metrik kas berdasarkan status: ${type.toUpperCase()}`);
+    }
+
+    function simulateTelegramCommand(cmd) {
+      alert(`Perintah bot disimulasikan: ${cmd}\nBuka @kacekasbot di Telegram untuk eksekusi langsung.`);
+    }
+
+    // Set real-time Indonesian date
+    document.addEventListener('DOMContentLoaded', () => {
+      renderStudentsGrid();
+      const now = new Date();
+      const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' };
+      const dateEl = document.getElementById('currentDateWib');
+      if (dateEl) {
+        dateEl.innerText = now.toLocaleDateString('id-ID', options);
+      }
+    });
+  </script>
+
+</body>
+</html>
