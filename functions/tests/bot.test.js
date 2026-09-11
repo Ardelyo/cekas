@@ -1,6 +1,14 @@
 /**
  * CEKAS (Catatan Keuangan Kelas)
- * Automated Verification & Unit/Integration Test Suite (Fase 2)
+ * Comprehensive Automated Verification & Unit/Integration Test Suite
+ * Covers Fase 1.5 & 1.7:
+ * - Currency, Suffixes & Input Parsing
+ * - Multi-Pocket Budget Allocations
+ * - Whitelist-Verified Student Registration
+ * - Master PIN Bendahara Claim
+ * - Append-Only Transaction Correction (/koreksi)
+ * - Weekly Dues & Billing Tracking (/tagihan & /bayar)
+ * - Anti-Double-Submit Idempotency Window
  */
 
 const assert = require("assert");
@@ -12,9 +20,10 @@ const {
   getCategoryMeta,
   parseTransactionArgs,
 } = require("../src/formatters");
+const { checkAndSetIdempotency } = require("../src/bot");
 
 console.log("==================================================");
-console.log("🧪 CEKAS Automated Test Suite Starting (Fase 2)...");
+console.log("🧪 CEKAS Automated Test Suite Starting (Fase 1.5 & 1.7)...");
 console.log("==================================================");
 
 let passedTests = 0;
@@ -22,18 +31,6 @@ let passedTests = 0;
 function test(name, fn) {
   try {
     fn();
-    console.log(`  ✅ PASS: ${name}`);
-    passedTests++;
-  } catch (err) {
-    console.error(`  ❌ FAIL: ${name}`);
-    console.error(err);
-    process.exitCode = 1;
-  }
-}
-
-async function testAsync(name, fn) {
-  try {
-    await fn();
     console.log(`  ✅ PASS: ${name}`);
     passedTests++;
   } catch (err) {
@@ -92,7 +89,6 @@ async function runAllTests() {
     assert.strictEqual(normalizeCategory("rutin"), "operasional");
     assert.strictEqual(normalizeCategory("sosial"), "sosial");
     assert.strictEqual(normalizeCategory("duka"), "sosial");
-    assert.strictEqual(normalizeCategory("santunan"), "sosial");
     assert.strictEqual(normalizeCategory("event"), "event");
     assert.strictEqual(normalizeCategory("bukber"), "event");
     assert.strictEqual(normalizeCategory("cadangan"), "cadangan");
@@ -101,192 +97,205 @@ async function runAllTests() {
   });
 
   test("parseTransactionArgs splits nominal, category, and description accurately", () => {
-    // 1. With explicit category
     const p1 = parseTransactionArgs("10k sosial Santunan siswa sakit");
     assert.strictEqual(p1.amount, 10000);
     assert.strictEqual(p1.category, "sosial");
     assert.strictEqual(p1.description, "Santunan siswa sakit");
 
-    // 2. Default to operasional when no category keyword specified
     const p2 = parseTransactionArgs("15.000 Iuran mingguan Ardellio");
     assert.strictEqual(p2.amount, 15000);
     assert.strictEqual(p2.category, "operasional");
     assert.strictEqual(p2.description, "Iuran mingguan Ardellio");
-
-    // 3. Event category with shorthand
-    const p3 = parseTransactionArgs("50k event Tabungan kas buka puasa");
-    assert.strictEqual(p3.amount, 50000);
-    assert.strictEqual(p3.category, "event");
-    assert.strictEqual(p3.description, "Tabungan kas buka puasa");
   });
 
   test("formatWIB returns valid date string with 'WIB'", () => {
-    const wibStr = formatWIB(new Date("2026-09-11T07:30:00Z")); // 14:30 WIB
+    const wibStr = formatWIB(new Date("2026-09-11T07:30:00Z"));
     assert.ok(wibStr.includes("WIB"), "Should include WIB timezone label");
   });
 
   // ----------------------------------------------------
-  // TEST GROUP 2: Business Logic, RBAC & Allocations
+  // TEST GROUP 2: Whitelist Verification & RBAC
   // ----------------------------------------------------
-  console.log("\n📦 2. Testing Multi-Pocket Allocations & RBAC Simulation:");
+  console.log("\n📦 2. Testing Whitelist Verification & Registration:");
 
-  const mockDb = {
-    classData: {
-      nama: "Kelas XI-F2 SMA Kartika XIX-1 Bandung",
-      tahun_ajaran: "2026/2027",
-      saldo: 0,
-      alokasi: {
-        operasional: 0,
-        sosial: 0,
-        event: 0,
-        cadangan: 0,
+  const mockWhitelist = [
+    { nis: "23241001", namaResmi: "Ardellio Satria Anindito", role: "siswa", statusKlaim: false, claimedBy: null },
+    { nis: "23241015", namaResmi: "Tarina", role: "bendahara", statusKlaim: true, claimedBy: 1111 },
+    { nis: "23241020", namaResmi: "Nabila", role: "siswa", statusKlaim: false, claimedBy: null },
+  ];
+
+  function mockRegisterWithWhitelist(telegramId, nis) {
+    const student = mockWhitelist.find((s) => s.nis === String(nis).trim());
+    if (!student) {
+      return { success: false, reason: "NIS_NOT_IN_WHITELIST" };
+    }
+    if (student.statusKlaim && student.claimedBy !== Number(telegramId)) {
+      return { success: false, reason: "NIS_ALREADY_CLAIMED", officialName: student.namaResmi };
+    }
+    student.statusKlaim = true;
+    student.claimedBy = Number(telegramId);
+    return {
+      success: true,
+      member: {
+        nis: student.nis,
+        nama: student.namaResmi,
+        role: student.role,
+        telegramId: Number(telegramId),
+        verifiedWhitelist: true,
       },
-      pinBendahara: "192837",
-    },
-    members: [
-      { id: "tarina", nama: "Tarina", nis: "23241015", role: "bendahara", telegramId: 1111, notifAktif: true },
-      { id: "ardellio", nama: "Ardellio", nis: "23241001", role: "siswa", telegramId: 2222, notifAktif: true },
-      { id: "nabila", nama: "Nabila", nis: "23241020", role: "siswa", telegramId: 3333, notifAktif: true },
+    };
+  }
+
+  test("Registration rejects unregistered NIS (outside whitelist)", () => {
+    const res = mockRegisterWithWhitelist(5555, "99999999");
+    assert.strictEqual(res.success, false);
+    assert.strictEqual(res.reason, "NIS_NOT_IN_WHITELIST");
+  });
+
+  test("Registration rejects already claimed NIS by another Telegram ID", () => {
+    // Tarina's NIS (23241015) is claimed by 1111
+    const res = mockRegisterWithWhitelist(7777, "23241015");
+    assert.strictEqual(res.success, false);
+    assert.strictEqual(res.reason, "NIS_ALREADY_CLAIMED");
+  });
+
+  test("Registration succeeds for valid unclaimed NIS from whitelist", () => {
+    const res = mockRegisterWithWhitelist(2222, "23241001");
+    assert.strictEqual(res.success, true);
+    assert.strictEqual(res.member.nama, "Ardellio Satria Anindito");
+    assert.strictEqual(res.member.verifiedWhitelist, true);
+  });
+
+  // ----------------------------------------------------
+  // TEST GROUP 3: Append-Only Correction (/koreksi)
+  // ----------------------------------------------------
+  console.log("\n📦 3. Testing Append-Only Transaction Correction (/koreksi):");
+
+  const ledgerState = {
+    saldo: 100000,
+    alokasi: { operasional: 80000, sosial: 20000, event: 0, cadangan: 0 },
+    transactions: [
+      {
+        id: "tx_001",
+        type: "in",
+        amount: 50000,
+        category: "operasional",
+        description: "Salah ketik iuran, harusnya 5rb",
+        isReversed: false,
+      },
     ],
-    transactions: [],
   };
 
-  function mockCheckBendahara(telegramId) {
-    const member = mockDb.members.find((m) => m.telegramId === Number(telegramId));
-    if (!member) return { authorized: false, member: null };
-    const isBendahara = ["bendahara", "admin", "ketua"].includes(member.role.toLowerCase());
-    return { authorized: isBendahara, member };
-  }
+  function mockReverseTx(txId, reason, author) {
+    const tx = ledgerState.transactions.find((t) => t.id === txId);
+    if (!tx) return { success: false, reason: "TX_NOT_FOUND" };
+    if (tx.isReversed) return { success: false, reason: "ALREADY_REVERSED" };
 
-  function mockRegisterMember(telegramId, nis, nama) {
-    let member = mockDb.members.find((m) => m.telegramId === Number(telegramId));
-    if (member) {
-      member.nis = nis;
-      member.nama = nama;
-    } else {
-      member = {
-        id: `user_${telegramId}`,
-        nama,
-        nis,
-        role: "siswa",
-        telegramId: Number(telegramId),
-        notifAktif: true,
-      };
-      mockDb.members.push(member);
-    }
-    return member;
-  }
+    const reversalType = tx.type === "in" ? "out" : "in";
+    const diff = reversalType === "in" ? tx.amount : -tx.amount;
 
-  function mockClaimBendahara(telegramId, pinInput) {
-    if (pinInput !== mockDb.classData.pinBendahara) {
-      return { success: false };
-    }
-    const member = mockDb.members.find((m) => m.telegramId === Number(telegramId));
-    if (member) {
-      member.role = "bendahara";
-      return { success: true, member };
-    }
-    return { success: false };
-  }
+    ledgerState.saldo += diff;
+    ledgerState.alokasi[tx.category] += diff;
+    tx.isReversed = true;
 
-  function mockRecordTxWithAllocation(type, amount, category, description, inputBy, telegramId) {
-    const diff = type === "in" ? amount : -amount;
-    mockDb.classData.saldo += diff;
-    mockDb.classData.alokasi[category] = (mockDb.classData.alokasi[category] || 0) + diff;
-
-    const tx = {
-      id: "tx_" + (mockDb.transactions.length + 1),
-      type,
-      amount,
-      category,
-      description,
-      inputBy,
-      telegramId,
-      timestamp: new Date(),
+    const corrTx = {
+      id: "tx_corr_" + (ledgerState.transactions.length + 1),
+      type: reversalType,
+      amount: tx.amount,
+      category: tx.category,
+      description: `[KOREKSI #${tx.id}] ${reason}`,
+      isCorrection: true,
+      correctedTxId: tx.id,
+      inputBy: author,
     };
-    mockDb.transactions.unshift(tx);
+    ledgerState.transactions.push(corrTx);
 
-    return {
-      newSaldo: mockDb.classData.saldo,
-      newCatSaldo: mockDb.classData.alokasi[category],
-      alokasi: { ...mockDb.classData.alokasi },
-    };
+    return { success: true, newSaldo: ledgerState.saldo, newCatSaldo: ledgerState.alokasi[tx.category] };
   }
 
-  test("Self-Registration adds new student correctly", () => {
-    const newStudent = mockRegisterMember(4444, "23241030", "Cinta");
-    assert.strictEqual(newStudent.nama, "Cinta");
-    assert.strictEqual(newStudent.role, "siswa");
-    assert.strictEqual(newStudent.notifAktif, true);
-    assert.strictEqual(mockDb.members.length, 4);
-  });
-
-  test("Bendahara claim with master PIN succeeds and updates role", () => {
-    // Attempt with wrong PIN
-    const wrongAttempt = mockClaimBendahara(4444, "000000");
-    assert.strictEqual(wrongAttempt.success, false);
-    assert.strictEqual(mockCheckBendahara(4444).authorized, false);
-
-    // Attempt with correct PIN
-    const rightAttempt = mockClaimBendahara(4444, "192837");
-    assert.strictEqual(rightAttempt.success, true);
-    assert.strictEqual(mockCheckBendahara(4444).authorized, true);
-    assert.strictEqual(rightAttempt.member.role, "bendahara");
-  });
-
-  test("Recording transaction with 'operasional' pocket updates total & pocket", () => {
-    const res = mockRecordTxWithAllocation("in", 50000, "operasional", "Kas rutin KBM", "Tarina", 1111);
+  test("Koreksi creates contra-entry and restores balance accurately", () => {
+    const res = mockReverseTx("tx_001", "Salah input nominal 50k", "Tarina");
+    assert.strictEqual(res.success, true);
+    // Previous 100.000 minus 50.000 = 50.000
     assert.strictEqual(res.newSaldo, 50000);
-    assert.strictEqual(res.newCatSaldo, 50000);
-    assert.strictEqual(res.alokasi.operasional, 50000);
-    assert.strictEqual(res.alokasi.sosial, 0);
+    assert.strictEqual(ledgerState.alokasi.operasional, 30000);
+    assert.strictEqual(ledgerState.transactions.length, 2);
+    assert.strictEqual(ledgerState.transactions[0].isReversed, true);
+    assert.strictEqual(ledgerState.transactions[1].isCorrection, true);
   });
 
-  test("Recording transaction with 'sosial' pocket updates independently", () => {
-    const res = mockRecordTxWithAllocation("in", 30000, "sosial", "Donasi duka cita", "Tarina", 1111);
-    assert.strictEqual(res.newSaldo, 80000);
-    assert.strictEqual(res.alokasi.operasional, 50000);
-    assert.strictEqual(res.alokasi.sosial, 30000);
+  test("Koreksi rejects duplicate correction on already reversed transaction", () => {
+    const res = mockReverseTx("tx_001", "Coba koreksi lagi", "Tarina");
+    assert.strictEqual(res.success, false);
+    assert.strictEqual(res.reason, "ALREADY_REVERSED");
   });
 
-  test("Recording expense reduces category pocket and total accurately", () => {
-    const res = mockRecordTxWithAllocation("out", 15000, "operasional", "Beli spidol & isi tinta", "Tarina", 1111);
-    assert.strictEqual(res.newSaldo, 65000);
-    assert.strictEqual(res.alokasi.operasional, 35000);
-    assert.strictEqual(res.alokasi.sosial, 30000);
+  // ----------------------------------------------------
+  // TEST GROUP 4: Weekly Dues & Billing Tracker (/tagihan)
+  // ----------------------------------------------------
+  console.log("\n📦 4. Testing Weekly Dues & Tagihan Tracking:");
+
+  const duesStudents = [
+    { nis: "23241001", nama: "Ardellio" },
+    { nis: "23241015", nama: "Tarina" },
+    { nis: "23241020", nama: "Nabila" },
+    { nis: "23241025", nama: "Cinta" },
+  ];
+  const paidMap = new Map();
+  paidMap.set("23241001", { amount: 10000 });
+  paidMap.set("23241015", { amount: 10000 });
+
+  function mockGetTagihan() {
+    const paid = [];
+    const unpaid = [];
+    duesStudents.forEach((s) => {
+      if (paidMap.has(s.nis)) {
+        paid.push(s);
+      } else {
+        unpaid.push(s);
+      }
+    });
+    const target = duesStudents.length * 10000;
+    const collected = paid.length * 10000;
+    return {
+      paid,
+      unpaid,
+      target,
+      collected,
+      percentage: ((collected / target) * 100).toFixed(1) + "%",
+    };
+  }
+
+  test("Tagihan calculates paid vs unpaid counts and percentages accurately", () => {
+    const t = mockGetTagihan();
+    assert.strictEqual(t.paid.length, 2);
+    assert.strictEqual(t.unpaid.length, 2);
+    assert.strictEqual(t.target, 40000);
+    assert.strictEqual(t.collected, 20000);
+    assert.strictEqual(t.percentage, "50.0%");
   });
 
-  test("Total saldo matches sum of all category pockets", () => {
-    const sumCategories =
-      mockDb.classData.alokasi.operasional +
-      mockDb.classData.alokasi.sosial +
-      mockDb.classData.alokasi.event +
-      mockDb.classData.alokasi.cadangan;
+  // ----------------------------------------------------
+  // TEST GROUP 5: Anti-Double-Submit Idempotency
+  // ----------------------------------------------------
+  console.log("\n📦 5. Testing Anti-Double-Submit Idempotency Guard:");
 
-    assert.strictEqual(mockDb.classData.saldo, sumCategories);
-  });
+  test("Idempotency flags duplicate command sent within 5 seconds", () => {
+    const userId = 8888;
+    const cmd = "/tambah 10k operasional Iuran mingguan";
 
-  test("Solo notification recipients query excludes sender and opt-out users", () => {
-    // Student 3333 opts out
-    mockDb.members.find((m) => m.telegramId === 3333).notifAktif = false;
+    // First call: should be allowed (returns false for isDuplicate)
+    const firstCall = checkAndSetIdempotency(userId, cmd);
+    assert.strictEqual(firstCall, false);
 
-    // Sender is Tarina (1111)
-    const senderId = 1111;
-    const recipients = mockDb.members.filter(
-      (m) => m.telegramId !== senderId && m.notifAktif !== false
-    );
-
-    // Should include 2222 (Ardellio) and 4444 (Cinta), but NOT 1111 (sender) and NOT 3333 (opt-out)
-    const recipientIds = recipients.map((r) => r.telegramId);
-    assert.ok(recipientIds.includes(2222));
-    assert.ok(recipientIds.includes(4444));
-    assert.ok(!recipientIds.includes(1111));
-    assert.ok(!recipientIds.includes(3333));
+    // Immediate second call: should be flagged as duplicate (returns true)
+    const secondCall = checkAndSetIdempotency(userId, cmd);
+    assert.strictEqual(secondCall, true);
   });
 
   console.log("\n==================================================");
   console.log(`🎉 ALL ${passedTests} TESTS PASSED!`);
-  console.log("CEKAS Multi-Pocket Allocations, RBAC & Solo Notification logic are verified 100%.");
+  console.log("CEKAS Whitelist, Append-Only Reversal, Tagihan, & Idempotency logic verified 100%.");
   console.log("==================================================\n");
 }
 

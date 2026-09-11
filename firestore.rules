@@ -9,21 +9,38 @@ service cloud.firestore {
 
     // Rules for classes collection and subcollections
     match /classes/{classId} {
-      // Siswa and bendahara can read class overview
+      // Siswa and bendahara can read class overview for real-time transparency
       allow read: if true;
-      // Only backend admin SDK or authorized service accounts can write directly
+      // All writes to classes must go through Cloud Functions (Firebase Admin SDK)
       allow write: if false;
 
-      // Transactions subcollection
+      // Transactions subcollection (Append-only Ledger)
       match /transactions/{transactionId} {
         allow read: if true;
-        // Writes strictly handled through Cloud Functions / Telegram Bot Webhook
+        allow write: if false; // strictly locked from client direct writes
+      }
+
+      // Members subcollection (RBAC profiles)
+      match /members/{memberId} {
+        allow read: if true;
         allow write: if false;
       }
 
-      // Members subcollection
-      match /members/{memberId} {
+      // Whitelist students subcollection (Official school roster)
+      match /whitelist_students/{nis} {
         allow read: if true;
+        allow write: if false;
+      }
+
+      // Dues subcollection (Weekly kas tracking)
+      match /dues/{dueId} {
+        allow read: if true;
+        allow write: if false;
+      }
+
+      // Audit logs subcollection (Security tracking)
+      match /audit_logs/{logId} {
+        allow read: if false; // private audit log
         allow write: if false;
       }
 
