@@ -12,6 +12,7 @@ export interface ClassMetadata {
   saldo: number;
   alokasi: CategoryAllocations;
   pinBendahara?: string;
+  nominalIuranMingguan?: number;
   updatedAt?: any;
 }
 
@@ -27,6 +28,7 @@ export interface Transaction {
   isReversed?: boolean;
   isCorrection?: boolean;
   correctedTxId?: string;
+  reversalReason?: string;
   timestamp: any;
 }
 
@@ -39,4 +41,12 @@ export interface WhitelistStudent {
   claimedByTelegramId?: number | null;
 }
 
+export interface UserSession {
+  isLoggedIn: boolean;
+  role: 'tamu' | 'siswa' | 'bendahara' | 'walikelas';
+  nis?: string;
+  nama?: string;
+}
+
 export type FinancialMood = 'aman' | 'tagihan' | 'surplus' | 'audit';
+export type AppTab = 'dashboard' | 'transaksi' | 'tagihan' | 'siswa' | 'laporan';
