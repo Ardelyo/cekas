@@ -4,17 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CEKAS • Catatan Keuangan Kelas XI-F2 SMA Kartika XIX-1 Bandung</title>
-  
-  <!-- Fonts: Plus Jakarta Sans & Fredoka -->
+
+  <!-- Typography: Plus Jakarta Sans & Fredoka -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
@@ -23,283 +22,326 @@
           },
           colors: {
             navy: {
-              950: '#0B1120',
+              950: '#070B14',
               900: '#0F172A',
+              850: '#151F36',
               800: '#1E293B',
               700: '#334155',
             },
             pastel: {
               peach: '#FED7AA',
               peachLight: '#FFEDD5',
-              peachDark: '#EA580C',
+              peachDark: '#C2410C',
               lilac: '#DDD6FE',
               lilacLight: '#EDE9FE',
-              lilacDark: '#7C3AED',
+              lilacDark: '#6D28D9',
               mint: '#BBF7D0',
               mintLight: '#DCFCE7',
-              mintDark: '#16A34A',
+              mintDark: '#15803D',
               lemon: '#FEF08A',
               lemonLight: '#FEF9C3',
-              lemonDark: '#CA8A04',
+              lemonDark: '#A16207',
               coral: '#FECDD3',
-              coralDark: '#E11D48',
+              coralLight: '#FFE4E6',
+              coralDark: '#BE123C',
               sky: '#BAE6FD',
-              skyDark: '#0284C7',
+              skyLight: '#E0F2FE',
+              skyDark: '#0369A1',
             }
           },
           borderRadius: {
             '2xl': '20px',
-            '3xl': '24px',
-            '4xl': '32px',
+            '3xl': '26px',
+            '4xl': '34px',
           }
         }
       }
     }
   </script>
+
   <style>
-    /* Custom scrollbar and tactile animations */
+    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    
-    .phone-mockup {
-      width: 360px;
-      height: 740px;
-      border-radius: 44px;
-      box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.22), 0 0 0 10px #0f172a, 0 0 0 12px #334155;
-    }
-    
+
+    /* Tactile Micro-Interactions */
     .tactile-btn {
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tactile-btn:hover {
+      transform: translateY(-2px);
     }
     .tactile-btn:active {
-      transform: scale(0.96);
+      transform: translateY(1px) scale(0.97);
     }
-    
-    @keyframes gentleBob {
+
+    /* Phone Mockup Frame */
+    .phone-mockup {
+      width: 375px;
+      height: 780px;
+      border-radius: 46px;
+      box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25), 0 0 0 10px #0F172A, 0 0 0 12px #334155;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #FFFFFF;
+    }
+    .phone-notch {
+      width: 125px;
+      height: 24px;
+      background: #0F172A;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+      z-index: 50;
+    }
+
+    /* Mascot Character Keyframe Animations */
+    @keyframes gentleFloat {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-4px) rotate(1deg); }
+      50% { transform: translateY(-6px) rotate(1.5deg); }
     }
-    .mascot-bob {
-      animation: gentleBob 4s ease-in-out infinite;
+    @keyframes blinkEyes {
+      0%, 92%, 100% { transform: scaleY(1); }
+      96% { transform: scaleY(0.1); }
     }
+    @keyframes breathPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+    @keyframes happyWiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-3deg); }
+      75% { transform: rotate(3deg); }
+    }
+
+    .anim-float { animation: gentleFloat 4s ease-in-out infinite; }
+    .anim-blink { animation: blinkEyes 4.5s ease-in-out infinite; transform-origin: center; }
+    .anim-pulse { animation: breathPulse 3s ease-in-out infinite; transform-origin: center; }
+    .anim-wiggle { animation: happyWiggle 2.5s ease-in-out infinite; transform-origin: center; }
   </style>
 </head>
 <body class="bg-[#EEF2F6] text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-pastel-peach selection:text-slate-900">
 
-  <!-- ========================================== -->
-  <!-- TOP CONTROL BAR (VIEW SWITCHER & BRAND)    -->
-  <!-- ========================================== -->
-  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 sm:px-8">
+  <!-- ============================================================== -->
+  <!-- TOP NAVIGATION BAR (NO EMOJIS, CLEAN SVG VECTORS)              -->
+  <!-- ============================================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 sm:px-8">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
       
-      <!-- Brand & Class Tag -->
+      <!-- Brand & School Identity -->
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-pastel-peach flex items-center justify-center text-xl shadow-sm border border-orange-200">
-          🪙
+        <div class="w-10 h-10 rounded-2xl bg-pastel-mintLight border border-emerald-300 flex items-center justify-center text-emerald-800 shadow-xs">
+          <!-- SVG Coins Vector -->
+          <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <ellipse cx="12" cy="7" rx="8" ry="4"></ellipse>
+            <path d="M4 7v6c0 2.2 3.6 4 8 4s8-1.8 8-4V7"></path>
+            <path d="M4 13v6c0 2.2 3.6 4 8 4s8-1.8 8-4v-6"></path>
+          </svg>
         </div>
         <div>
           <div class="flex items-center gap-2">
             <span class="font-display font-bold text-xl text-slate-900 tracking-tight">CEKAS</span>
-            <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-pastel-mintLight text-emerald-800 border border-emerald-200">v2.0 MVP</span>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pastel-mintLight text-emerald-900 border border-emerald-300">v2.5 Live</span>
           </div>
-          <p class="text-xs text-slate-500 font-medium">Catatan Keuangan • XI-F2 SMA Kartika XIX-1 Bandung</p>
+          <p class="text-xs text-slate-500 font-medium">Catatan Keuangan • Kelas XI-F2 SMA Kartika XIX-1 Bandung</p>
         </div>
       </div>
 
-      <!-- Mode Switcher Buttons -->
-      <div class="flex items-center bg-slate-100 p-1 rounded-full border border-slate-200 text-xs font-medium text-slate-600">
-        <button id="viewBtnDesktop" onclick="switchView('desktop')" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 bg-white text-slate-900 font-bold shadow-sm">
-          <span>🖥️</span> Desktop Bento
+      <!-- Device View Switcher (Desktop Bento vs 3-Phone Showcase vs Fluid) -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-full border border-slate-200 text-xs font-semibold text-slate-600">
+        <button id="btnViewDesktop" onclick="switchMainView('desktop')" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 bg-white text-slate-900 font-bold shadow-xs">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          Desktop Bento
         </button>
-        <button id="viewBtnMockup" onclick="switchView('mockup')" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 hover:text-slate-900">
-          <span>📱</span> 3-Phone Showcase
+        <button id="btnViewShowcase" onclick="switchMainView('showcase')" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 hover:text-slate-900">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+          3-Phone Showcase
         </button>
-        <button id="viewBtnFluid" onclick="switchView('fluid')" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 hover:text-slate-900">
-          <span>📲</span> Mobile App View
+        <button id="btnViewMobile" onclick="switchMainView('mobile')" class="px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 hover:text-slate-900">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+          Mobile Interactive
         </button>
       </div>
 
-      <!-- Telegram Link & Real-time Indicator -->
+      <!-- Action: Quick Record Modal & Telegram Bot Status -->
       <div class="flex items-center gap-3">
-        <div class="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Firestore Live Sync</span>
-        </div>
-        <a href="https://t.me/kacekasbot" target="_blank" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-navy-900 text-white hover:bg-slate-800 transition-all flex items-center gap-1.5 tactile-btn shadow-sm">
-          <span>🤖</span> Buka Telegram
+        <button onclick="openModalTransaction()" class="px-3.5 py-2 rounded-full text-xs font-bold bg-pastel-mint text-emerald-950 hover:bg-emerald-300 transition-all border border-emerald-300 shadow-xs flex items-center gap-1.5 tactile-btn">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Catat Transaksi
+        </button>
+        <a href="https://t.me/kacekasbot" target="_blank" class="px-3.5 py-2 rounded-full text-xs font-bold bg-navy-900 text-white hover:bg-slate-800 transition-all border border-slate-800 shadow-xs flex items-center gap-1.5 tactile-btn">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+          @kacekasbot
         </a>
       </div>
 
     </div>
   </header>
 
-
-  <!-- ========================================== -->
-  <!-- VIEW 1: DESKTOP BENTO GRID DASHBOARD       -->
-  <!-- ========================================== -->
-  <main id="viewDesktop" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+  <!-- ============================================================== -->
+  <!-- VIEW 1: DESKTOP BENTO GRID DASHBOARD                           -->
+  <!-- ============================================================== -->
+  <main id="viewDesktop" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
     
-    <!-- Top Stat Banner -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <!-- KPI Statistic Cards Bar -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       
-      <!-- Total Saldo -->
-      <div class="bg-pastel-peach p-5 rounded-3xl border border-orange-200 flex flex-col justify-between shadow-sm relative overflow-hidden">
+      <!-- Total Kas Card (Peach) -->
+      <div class="bg-pastel-peach p-5 rounded-3xl border border-orange-200 shadow-xs flex flex-col justify-between relative overflow-hidden">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-orange-950 uppercase tracking-wider">Total Kas Kelas</span>
-          <span class="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center text-sm shadow-xs">💰</span>
+          <div class="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center text-orange-900 shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
+          </div>
         </div>
-        <div class="my-2">
-          <div class="text-3xl font-display font-bold text-slate-900" id="statTotalSaldo">Rp 160.000</div>
-          <p class="text-xs text-orange-900 mt-0.5">Surplus +15% dibanding minggu lalu</p>
+        <div class="my-3">
+          <div class="text-3xl font-display font-bold text-slate-900" id="valTotalSaldo">Rp 160.000</div>
+          <span class="text-xs font-semibold text-orange-900 flex items-center gap-1 mt-0.5">
+            <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            Surplus 100% Tercatat Firestore
+          </span>
         </div>
-        <!-- Segmented bar -->
-        <div class="flex gap-1 h-2 w-full mt-2">
-          <div class="bg-orange-500 rounded-full w-[65%]" title="Operasional (68.8%)"></div>
-          <div class="bg-violet-500 rounded-full w-[35%]" title="Sosial (31.2%)"></div>
+        <div class="w-full bg-orange-300/60 rounded-full h-2 overflow-hidden flex">
+          <div id="barOps" class="bg-orange-600 h-2 transition-all duration-500" style="width: 68.8%;" title="Operasional"></div>
+          <div id="barSos" class="bg-violet-600 h-2 transition-all duration-500" style="width: 31.2%;" title="Sosial"></div>
         </div>
       </div>
 
-      <!-- Pos Operasional -->
-      <div class="bg-white p-5 rounded-3xl border border-slate-200 flex flex-col justify-between shadow-xs">
+      <!-- Pos Operasional (Mint) -->
+      <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pos Operasional</span>
-          <span class="w-8 h-8 rounded-full bg-pastel-mintLight text-emerald-800 flex items-center justify-center text-sm">🧹</span>
+          <div class="w-8 h-8 rounded-full bg-pastel-mintLight text-emerald-800 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
+          </div>
         </div>
         <div class="my-2">
-          <div class="text-2xl font-display font-bold text-slate-900" id="statOps">Rp 110.000</div>
-          <span class="text-xs text-emerald-600 font-semibold">68.8% dari total kas</span>
+          <div class="text-2xl font-display font-bold text-slate-900" id="valPosOps">Rp 110.000</div>
+          <span class="text-xs font-semibold text-emerald-700" id="valPosOpsPct">68.8% dari total kas</span>
         </div>
-        <p class="text-[11px] text-slate-400">Spidol, penghapus, alat pel, KBM</p>
+        <p class="text-[11px] text-slate-400 font-medium">Spidol, penghapus, alat kebersihan KBM</p>
       </div>
 
-      <!-- Pos Sosial -->
-      <div class="bg-white p-5 rounded-3xl border border-slate-200 flex flex-col justify-between shadow-xs">
+      <!-- Pos Sosial & Peduli (Lilac) -->
+      <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pos Sosial & Peduli</span>
-          <span class="w-8 h-8 rounded-full bg-pastel-lilacLight text-violet-800 flex items-center justify-center text-sm">🤝</span>
+          <div class="w-8 h-8 rounded-full bg-pastel-lilacLight text-violet-800 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path></svg>
+          </div>
         </div>
         <div class="my-2">
-          <div class="text-2xl font-display font-bold text-slate-900" id="statSosial">Rp 50.000</div>
-          <span class="text-xs text-violet-600 font-semibold">31.2% dari total kas</span>
+          <div class="text-2xl font-display font-bold text-slate-900" id="valPosSos">Rp 50.000</div>
+          <span class="text-xs font-semibold text-violet-700" id="valPosSosPct">31.2% dari total kas</span>
         </div>
-        <p class="text-[11px] text-slate-400">Menjenguk siswa sakit, santunan</p>
+        <p class="text-[11px] text-slate-400 font-medium">Menjenguk siswa sakit, santunan duka</p>
       </div>
 
-      <!-- Tagihan Kas Minggu Ini -->
-      <div class="bg-pastel-mint p-5 rounded-3xl border border-emerald-200 flex flex-col justify-between shadow-xs">
+      <!-- Iuran Kas Minggu 1 (Mint) -->
+      <div class="bg-pastel-mint p-5 rounded-3xl border border-emerald-300 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-emerald-950 uppercase tracking-wider">Iuran Minggu ke-1</span>
-          <span class="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-sm">📋</span>
+          <div class="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-emerald-900">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
+          </div>
         </div>
         <div class="my-2">
-          <div class="text-3xl font-display font-bold text-emerald-950" id="statPercent">83.3%</div>
-          <p class="text-xs text-emerald-800 mt-0.5">30 Lunas • 6 Belum Bayar</p>
+          <div class="text-3xl font-display font-bold text-emerald-950" id="valDuesPct">83.3%</div>
+          <p class="text-xs text-emerald-800 font-medium mt-0.5" id="valDuesSummary">10 Lunas • 2 Belum Bayar</p>
         </div>
-        <div class="w-full bg-emerald-200/80 rounded-full h-2 overflow-hidden">
-          <div class="bg-emerald-600 h-2 rounded-full w-[83.3%]"></div>
+        <div class="w-full bg-emerald-300/70 rounded-full h-2 overflow-hidden">
+          <div id="barDues" class="bg-emerald-700 h-2 rounded-full transition-all duration-500" style="width: 83.3%;"></div>
         </div>
       </div>
 
     </div>
 
-    <!-- MAIN 3-COLUMN BENTO GRID -->
+    <!-- MAIN BENTO 3-COLUMN LAYOUT -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
       <!-- ============================================== -->
-      <!-- COLUMN 1 (3 Cols): ONBOARDING & QUICK ACTION   -->
+      <!-- COLUMN 1 (3 Cols): ONBOARDING & ANIMATED MASCOT -->
       <!-- ============================================== -->
       <div class="lg:col-span-3 space-y-6">
         
-        <!-- Onboarding Hero Card -->
+        <!-- Animated Mascot Showcase Card -->
         <div class="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden">
           <div>
-            <div class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-pastel-lemon text-amber-900 mb-3">
-              ✨ Transparansi Kelas
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-pastel-lemonLight text-amber-950 border border-amber-200 mb-3">
+              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              Transparansi Keuangan
             </div>
             <h2 class="text-2xl font-display font-bold text-slate-900 leading-tight">
-              Bingung Status Uang Kas Kamu?
+              Bingung Soal Kas Kelas Kamu?
             </h2>
-            <p class="text-xs text-slate-500 mt-2">
-              Cek riwayat pembayaran, posisi iuran mingguan, atau saldo tanpa perlu tanya ke bendahara.
+            <p class="text-xs text-slate-500 font-medium mt-2">
+              Pantau arus iuran mingguan, alokasi pos KBM, dan verifikasi absensi kelas langsung.
             </p>
           </div>
 
-          <!-- CTA Pill Button (Styled exactly like the left screen) -->
-          <div class="mt-5">
-            <button onclick="scrollToTagihan()" class="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200/90 rounded-full p-2 pl-4 flex items-center justify-between text-xs font-bold text-slate-800 transition-all tactile-btn">
-              <span>Cek Status Tagihan Saya</span>
-              <span class="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs">
-                →
-              </span>
-            </button>
+          <!-- Dynamic SVG Geometric Character Cluster (Animated) -->
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-center">
+            <svg id="mascotSvg" class="anim-float" width="220" height="130" viewBox="0 0 220 130" fill="none">
+              <!-- Mint Green Serene Circle (Happy Kas) -->
+              <circle cx="50" cy="65" r="34" fill="#BBF7D0" stroke="#86EFAC" stroke-width="2.5"/>
+              <g class="anim-blink">
+                <path d="M38 60 C42 54 48 54 52 60" stroke="#166534" stroke-width="3" stroke-linecap="round"/>
+                <path d="M56 60 C60 54 66 54 70 60" stroke="#166534" stroke-width="3" stroke-linecap="round"/>
+              </g>
+              <path id="mascotMouth" d="M46 72 C50 78 56 78 60 72" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="36" cy="68" r="3.5" fill="#FCA5A5" opacity="0.6"/>
+              <circle cx="70" cy="68" r="3.5" fill="#FCA5A5" opacity="0.6"/>
+
+              <!-- Lilac Curious Blob (Blinking Eyes) -->
+              <circle cx="115" cy="50" r="30" fill="#DDD6FE" stroke="#C4B5FD" stroke-width="2.5"/>
+              <g class="anim-blink">
+                <circle cx="106" cy="46" r="3.5" fill="#5B21B6"/>
+                <circle cx="124" cy="44" r="4" fill="#5B21B6"/>
+              </g>
+              <path d="M110 58 Q115 54 120 58" stroke="#5B21B6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+              <!-- Peach Box Character -->
+              <rect x="155" y="35" width="50" height="50" rx="18" fill="#FED7AA" stroke="#FDBA74" stroke-width="2.5"/>
+              <line x1="167" y1="48" x2="175" y2="50" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
+              <line x1="193" y1="48" x2="185" y2="50" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="180" cy="62" r="4.5" fill="#9A3412"/>
+
+              <!-- Yellow Accent Sparkle Star -->
+              <path class="anim-pulse" d="M195 15 L198 25 L208 28 L198 31 L195 41 L192 31 L182 28 L192 25 Z" fill="#FEF08A" stroke="#FDE047" stroke-width="1.5"/>
+            </svg>
           </div>
 
-          <!-- Playful Geometric Mascot Cluster (from reference image) -->
-          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-center mascot-bob">
-            <svg width="220" height="110" viewBox="0 0 220 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Green Serene Circle -->
-              <circle cx="40" cy="55" r="28" fill="#BBF7D0" stroke="#86EFAC" stroke-width="2"/>
-              <path d="M30 52 C33 48 37 48 40 52" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>
-              <path d="M42 52 C45 48 49 48 52 52" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>
-              <path d="M36 62 C38 65 44 65 46 62" stroke="#166534" stroke-width="2" stroke-linecap="round"/>
-
-              <!-- Purple Dizzy Blob -->
-              <circle cx="95" cy="45" r="26" fill="#DDD6FE" stroke="#C4B5FD" stroke-width="2"/>
-              <circle cx="88" cy="42" r="3" fill="#5B21B6"/>
-              <circle cx="102" cy="40" r="3.5" fill="#5B21B6"/>
-              <path d="M90 54 Q95 50 100 54" stroke="#5B21B6" stroke-width="2" fill="none" stroke-linecap="round"/>
-
-              <!-- Peach Surprised Box -->
-              <rect x="135" y="25" width="45" height="45" rx="16" fill="#FED7AA" stroke="#FDBA74" stroke-width="2"/>
-              <line x1="145" y1="40" x2="152" y2="42" stroke="#9A3412" stroke-width="2.5" stroke-linecap="round"/>
-              <line x1="168" y1="40" x2="161" y2="42" stroke="#9A3412" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="156" cy="52" r="4.5" fill="#9A3412"/>
-
-              <!-- Yellow Sparkle -->
-              <path d="M195 20 L198 32 L210 35 L198 38 L195 50 L192 38 L180 35 L192 32 Z" fill="#FEF08A" stroke="#FDE047" stroke-width="1.5"/>
-            </svg>
+          <!-- Tactile CTA Pill Button -->
+          <div class="mt-4">
+            <button onclick="scrollToSection('sectionTagihan')" class="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-full p-2 pl-5 flex items-center justify-between text-xs font-bold text-slate-800 transition-all tactile-btn">
+              <span>Periksa Status Tagihan</span>
+              <span class="w-7 h-7 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </span>
+            </button>
           </div>
         </div>
 
         <!-- Student Whitelist Verification Card -->
-        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="text-sm">🔍</span>
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
             <h3 class="font-display font-bold text-sm text-slate-900">Verifikasi NIS Resmi</h3>
           </div>
           <div class="relative">
-            <input type="text" id="inputNisSearch" placeholder="Masukkan NIS (e.g. 23241001)" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-900 pr-10">
-            <button onclick="checkStudentNis()" class="absolute right-2 top-2 text-xs bg-navy-900 text-white rounded-xl px-2.5 py-1 font-bold">Cek</button>
+            <input type="text" id="inputNis" placeholder="Ketik NIS (contoh: 23241001)" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-900 pr-12 font-medium">
+            <button onclick="handleNisLookup()" class="absolute right-2 top-2 text-xs bg-navy-900 text-white rounded-xl px-2.5 py-1 font-bold tactile-btn">Cek</button>
           </div>
-          <div id="nisResultBox" class="mt-3 text-xs hidden p-3 rounded-2xl bg-pastel-mintLight text-emerald-900 border border-emerald-200">
-            <!-- Dynamic Result -->
-          </div>
-        </div>
-
-        <!-- Telegram Bot Quick Launch -->
-        <div class="bg-navy-900 text-white p-5 rounded-3xl border border-slate-800 shadow-xs relative overflow-hidden">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-xl">
-              💬
-            </div>
-            <div>
-              <h4 class="font-display font-bold text-sm">Telegram Bot Terhubung</h4>
-              <p class="text-[11px] text-slate-400">@kacekasbot • ID 7809496541</p>
-            </div>
-          </div>
-          <div class="mt-4 flex gap-2">
-            <button onclick="simulateTelegramCommand('/saldo')" class="flex-1 bg-white/10 hover:bg-white/20 text-[11px] font-semibold py-1.5 rounded-xl transition-all">
-              /saldo
-            </button>
-            <button onclick="simulateTelegramCommand('/alokasi')" class="flex-1 bg-white/10 hover:bg-white/20 text-[11px] font-semibold py-1.5 rounded-xl transition-all">
-              /alokasi
-            </button>
-            <button onclick="simulateTelegramCommand('/tagihan')" class="flex-1 bg-white/10 hover:bg-white/20 text-[11px] font-semibold py-1.5 rounded-xl transition-all">
-              /tagihan
-            </button>
-          </div>
+          <div id="boxNisResult" class="hidden text-xs p-3 rounded-2xl font-medium"></div>
         </div>
 
       </div>
@@ -309,12 +351,12 @@
       <!-- ============================================== -->
       <div class="lg:col-span-5 space-y-6">
         
-        <!-- White Profile Header Card -->
+        <!-- White Profile & Greeting Card -->
         <div class="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm">
           
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full bg-pastel-lilac flex items-center justify-center font-display font-bold text-lg text-violet-950 border border-violet-200 shadow-xs">
+              <div class="w-12 h-12 rounded-full bg-pastel-lilac flex items-center justify-center font-display font-bold text-violet-950 text-base border border-violet-200 shadow-xs">
                 AS
               </div>
               <div>
@@ -324,53 +366,54 @@
             </div>
             
             <div class="text-right">
-              <span class="text-[11px] text-slate-400 block font-medium" id="currentDateWib">11 September 2026</span>
-              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pastel-mintLight text-emerald-800 border border-emerald-200">
+              <span class="text-[11px] text-slate-400 block font-medium" id="txtCurrentDate">11 September 2026</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-pastel-mintLight text-emerald-800 border border-emerald-300">
                 Siswa XI-F2
               </span>
             </div>
           </div>
 
-          <!-- Greeting Prompt -->
-          <div class="mt-5">
-            <h1 class="text-xl font-display font-bold text-slate-900">
-              Halo Ardellio! Bagaimana kondisi kas kelas hari ini?
-            </h1>
-          </div>
+          <h1 class="text-xl font-display font-bold text-slate-900 mt-5 leading-snug">
+            Halo Ardellio! Bagaimana kondisi kas kelas hari ini?
+          </h1>
 
-          <!-- Status Mood/Kas Bar (Matching the middle screen mood selector) -->
+          <!-- Interactive Financial Mood Selector Bar -->
           <div class="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-slate-100">
-            <button onclick="filterByMood('aman')" class="p-2.5 rounded-2xl bg-pastel-mintLight border border-emerald-200 text-center tactile-btn group hover:border-emerald-400">
-              <span class="text-xl block group-hover:scale-110 transition-transform">😊</span>
-              <span class="text-[11px] font-bold text-emerald-900 mt-1 block">Aman</span>
+            <button onclick="setFinancialMood('aman')" id="moodAman" class="p-2.5 rounded-2xl bg-pastel-mintLight border border-emerald-300 text-center tactile-btn group ring-2 ring-emerald-500">
+              <!-- SVG Check Shield Icon -->
+              <svg class="w-5 h-5 mx-auto text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+              <span class="text-[11px] font-bold text-emerald-950 mt-1 block">Aman</span>
             </button>
-            <button onclick="filterByMood('tagihan')" class="p-2.5 rounded-2xl bg-pastel-peachLight border border-orange-200 text-center tactile-btn group hover:border-orange-400">
-              <span class="text-xl block group-hover:scale-110 transition-transform">😴</span>
-              <span class="text-[11px] font-bold text-orange-950 mt-1 block">Tagihan</span>
+            <button onclick="setFinancialMood('tagihan')" id="moodTagihan" class="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-center tactile-btn group hover:bg-pastel-peachLight">
+              <!-- SVG Clock Icon -->
+              <svg class="w-5 h-5 mx-auto text-orange-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span class="text-[11px] font-bold text-slate-700 mt-1 block">Tagihan</span>
             </button>
-            <button onclick="filterByMood('surplus')" class="p-2.5 rounded-2xl bg-pastel-lilacLight border border-violet-200 text-center tactile-btn group hover:border-violet-400">
-              <span class="text-xl block group-hover:scale-110 transition-transform">🚀</span>
-              <span class="text-[11px] font-bold text-violet-950 mt-1 block">Surplus</span>
+            <button onclick="setFinancialMood('surplus')" id="moodSurplus" class="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-center tactile-btn group hover:bg-pastel-lilacLight">
+              <!-- SVG Trend Up Icon -->
+              <svg class="w-5 h-5 mx-auto text-violet-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+              <span class="text-[11px] font-bold text-slate-700 mt-1 block">Surplus</span>
             </button>
-            <button onclick="filterByMood('audit')" class="p-2.5 rounded-2xl bg-pastel-lemonLight border border-amber-200 text-center tactile-btn group hover:border-amber-400">
-              <span class="text-xl block group-hover:scale-110 transition-transform">🛡️</span>
-              <span class="text-[11px] font-bold text-amber-950 mt-1 block">Audit</span>
+            <button onclick="setFinancialMood('audit')" id="moodAudit" class="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-center tactile-btn group hover:bg-pastel-lemonLight">
+              <!-- SVG File Text Icon -->
+              <svg class="w-5 h-5 mx-auto text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              <span class="text-[11px] font-bold text-slate-700 mt-1 block">Audit</span>
             </button>
           </div>
 
         </div>
 
-        <!-- DARK NAVY BODY CONTAINER (Styled precisely like middle screen) -->
+        <!-- DARK NAVY BENTO CONTAINER -->
         <div class="bg-navy-900 text-white p-6 rounded-4xl border border-slate-800 shadow-xl space-y-5">
           
-          <!-- Data Widgets Row: Peach Card & Lilac Card -->
+          <!-- Mini Data Widgets Row (Peach & Lilac) -->
           <div class="grid grid-cols-2 gap-4">
             
-            <!-- Left Widget: Peach Sleep/Saldo Card -->
+            <!-- Peach Card: Arus Kas -->
             <div class="bg-pastel-peach text-slate-900 p-4 rounded-3xl flex flex-col justify-between shadow-xs">
               <div class="flex items-center gap-1.5 text-xs font-bold text-orange-950">
-                <span>⏱️</span>
-                <span>Arus Kas Mingguan</span>
+                <svg class="w-3.5 h-3.5 text-orange-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                <span>Arus Kas Masuk</span>
               </div>
               
               <!-- Multi-segmented vertical bar graph mockup -->
@@ -384,15 +427,15 @@
               </div>
 
               <div>
-                <span class="text-xl font-display font-bold text-slate-900">+Rp 100k</span>
-                <span class="text-[10px] text-orange-900 block font-medium">Minggu 1</span>
+                <div class="text-xl font-display font-bold text-slate-900">+Rp 100k</div>
+                <span class="text-[10px] text-orange-900 font-semibold block">Periode Minggu 1</span>
               </div>
             </div>
 
-            <!-- Right Widget: Lilac Stress/Kedisiplinan Card -->
+            <!-- Lilac Card: Tingkat Disiplin -->
             <div class="bg-pastel-lilac text-slate-900 p-4 rounded-3xl flex flex-col justify-between shadow-xs">
               <div class="flex items-center gap-1.5 text-xs font-bold text-violet-950">
-                <span>📊</span>
+                <svg class="w-3.5 h-3.5 text-violet-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                 <span>Tingkat Disiplin</span>
               </div>
               
@@ -405,44 +448,44 @@
               </div>
 
               <div>
-                <span class="text-xl font-display font-bold text-violet-950">Tinggi</span>
-                <span class="text-[10px] text-violet-800 block font-medium">83.3% Lunas</span>
+                <div class="text-xl font-display font-bold text-violet-950">Tinggi</div>
+                <span class="text-[10px] text-violet-800 font-semibold block">83.3% Lunas</span>
               </div>
             </div>
 
           </div>
 
-          <!-- Interactive Mint Card: Yes or No Quiz / Action Card -->
+          <!-- Interactive Mint Card: Voting Kas Musyawarah -->
           <div class="bg-pastel-mint text-slate-900 p-5 rounded-3xl shadow-sm border border-emerald-300">
             <div class="flex items-center justify-between text-xs font-bold text-emerald-950 mb-2">
               <div class="flex items-center gap-1.5">
-                <span>📝</span>
-                <span>Diskusi Kas Kelas</span>
+                <svg class="w-4 h-4 text-emerald-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
+                <span>Musyawarah Kas Kelas</span>
               </div>
-              <span class="bg-white/80 px-2 py-0.5 rounded-full text-[10px]">Pertanyaan 1/3</span>
+              <span class="bg-white/80 px-2 py-0.5 rounded-full text-[10px] font-bold">Pertanyaan 1/3</span>
             </div>
 
             <p class="font-display font-bold text-slate-900 text-sm leading-snug">
-              "Apakah dana kas operasional (Rp 110.000) cukup untuk membeli spidol & penghapus papan tulis minggu ini?"
+              "Apakah dana operasional kas (Rp 110.000) cukup untuk pembelian spidol whiteboard & alat pel minggu ini?"
             </p>
 
             <div class="flex gap-2.5 mt-4">
-              <button onclick="voteQuiz('yes')" id="btnQuizYes" class="flex-1 bg-navy-900 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all tactile-btn">
+              <button onclick="voteVotingQuestion('yes')" id="btnVoteYes" class="flex-1 bg-navy-900 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all tactile-btn">
                 Sangat Cukup (Ya)
               </button>
-              <button onclick="voteQuiz('no')" id="btnQuizNo" class="flex-1 bg-white hover:bg-slate-100 text-slate-900 font-bold py-2 px-4 rounded-xl text-xs transition-all tactile-btn border border-emerald-300">
+              <button onclick="voteVotingQuestion('no')" id="btnVoteNo" class="flex-1 bg-white hover:bg-slate-100 text-slate-900 font-bold py-2 px-4 rounded-xl text-xs transition-all tactile-btn border border-emerald-300">
                 Perlu Tambahan
               </button>
             </div>
-            <div id="quizResult" class="text-[11px] font-bold text-emerald-900 mt-2 hidden text-center">
-              ✅ Terima kasih! Suara Anda telah dicatat untuk musyawarah kelas.
+            <div id="lblVoteResult" class="text-[11px] font-bold text-emerald-900 mt-2.5 hidden text-center">
+              Pilihan Anda telah tersimpan untuk rapat pleno kelas XI-F2.
             </div>
           </div>
 
-          <!-- Quick Actions Bar inside Navy Pod -->
-          <div class="pt-2 flex items-center justify-between text-xs text-slate-400 border-t border-slate-800">
-            <span>Bendahara: <b>Tarina</b></span>
-            <span>Wali Kelas: <b>Pembimbing XI-F2</b></span>
+          <!-- Footer Metadata inside Navy Pod -->
+          <div class="pt-2 flex items-center justify-between text-xs text-slate-400 border-t border-slate-800 font-medium">
+            <span>Bendahara: <b class="text-slate-200">Tarina</b></span>
+            <span>Wali Kelas: <b class="text-slate-200">Pembimbing XI-F2</b></span>
           </div>
 
         </div>
@@ -450,21 +493,21 @@
       </div>
 
       <!-- ============================================== -->
-      <!-- COLUMN 3 (4 Cols): KAS CALENDAR & METRICS      -->
+      <!-- COLUMN 3 (4 Cols): KAS CALENDAR & FEED         -->
       <!-- ============================================== -->
       <div class="lg:col-span-4 space-y-6">
         
-        <!-- Kas Calendar Card (Matching Right Screen) -->
+        <!-- Kas Calendar Card -->
         <div class="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm">
           
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="font-display font-bold text-base text-slate-900">Kalender Kas</h3>
-              <p class="text-xs text-slate-400">September 2026</p>
+              <p class="text-xs text-slate-400 font-medium">September 2026</p>
             </div>
-            <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">
-              📅
-            </span>
+            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
           </div>
 
           <!-- Day Headers -->
@@ -472,51 +515,50 @@
             <div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div>
           </div>
 
-          <!-- Calendar Grid of Days -->
-          <div class="grid grid-cols-7 gap-1.5 text-center text-xs" id="calendarGrid">
-            <!-- Dynamically populated or rendered -->
+          <!-- Calendar Grid -->
+          <div class="grid grid-cols-7 gap-1.5 text-center text-xs font-semibold">
             <div class="p-2 rounded-xl bg-slate-50 text-slate-300">31</div>
-            <div class="p-2 rounded-xl bg-pastel-mint text-emerald-950 font-bold" title="Kas Masuk Rp 50.000">1 💰</div>
+            <div class="p-2 rounded-xl bg-pastel-mint text-emerald-950" title="Kas Masuk">1</div>
             <div class="p-2 rounded-xl bg-slate-50 text-slate-600">2</div>
-            <div class="p-2 rounded-xl bg-pastel-peach text-orange-950 font-bold" title="Beli Spidol Rp 15.000">3 📤</div>
-            <div class="p-2 rounded-xl bg-pastel-mint text-emerald-950 font-bold" title="Iuran Masuk">4 💰</div>
+            <div class="p-2 rounded-xl bg-pastel-peach text-orange-950" title="Beli Spidol">3</div>
+            <div class="p-2 rounded-xl bg-pastel-mint text-emerald-950">4</div>
             <div class="p-2 rounded-xl bg-slate-50 text-slate-600">5</div>
             <div class="p-2 rounded-xl bg-slate-50 text-slate-600">6</div>
 
-            <div class="p-2 rounded-xl bg-pastel-lilac text-violet-950 font-bold" title="Donasi Sosial">7 🤝</div>
-            <div class="p-2 rounded-xl bg-pastel-mint text-emerald-950 font-bold">8 💰</div>
+            <div class="p-2 rounded-xl bg-pastel-lilac text-violet-950">7</div>
+            <div class="p-2 rounded-xl bg-pastel-mint text-emerald-950">8</div>
             <div class="p-2 rounded-xl bg-slate-50 text-slate-600">9</div>
             <div class="p-2 rounded-xl bg-slate-50 text-slate-600">10</div>
-            <div class="p-2 rounded-xl bg-pastel-lemon text-amber-950 font-bold ring-2 ring-amber-400" title="Hari Ini: Update Kas">11 ⭐</div>
+            <div class="p-2 rounded-xl bg-pastel-lemon text-amber-950 font-bold ring-2 ring-amber-400" title="Hari Ini">11</div>
             <div class="p-2 rounded-xl bg-slate-50 text-slate-600">12</div>
             <div class="p-2 rounded-xl bg-slate-50 text-slate-600">13</div>
           </div>
 
-          <!-- Monthly Kas Summary Card (Light Mint Card like Right Screen) -->
-          <div class="mt-5 bg-pastel-mintLight border border-emerald-200 p-4 rounded-3xl flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-pastel-mint flex items-center justify-center text-2xl shrink-0">
-              😌
+          <!-- Monthly Status Summary Card -->
+          <div class="mt-5 bg-pastel-mintLight border border-emerald-300 p-4 rounded-3xl flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-pastel-mint flex items-center justify-center text-emerald-900 shrink-0">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
             </div>
             <div>
               <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Ringkasan Bulan Ini</span>
-              <h4 class="font-display font-bold text-emerald-950 text-sm">Kas Sehat & Surplus</h4>
-              <p class="text-[11px] text-emerald-800 leading-tight mt-0.5">Semua pemasukan tercatat rapi di Firestore tanpa selisih.</p>
+              <h4 class="font-display font-bold text-emerald-950 text-sm">Kas Sehat & Transparan</h4>
+              <p class="text-[11px] text-emerald-800 leading-tight mt-0.5">Seluruh mutasi tercatat sinkron tanpa selisih.</p>
             </div>
           </div>
 
-          <!-- Activity Metrics (3 White Pill Cards like Right Screen) -->
+          <!-- 3 Pill Activity Metrics -->
           <div class="grid grid-cols-3 gap-2 mt-4">
             <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 text-center">
-              <span class="text-[10px] text-slate-400 block font-medium">Terkumpul</span>
-              <span class="font-display font-bold text-xs text-slate-900 block mt-0.5">Rp 300k</span>
+              <span class="text-[9px] text-slate-400 block font-medium">Terkumpul</span>
+              <span class="font-display font-bold text-xs text-slate-900 block mt-0.5" id="valMetricTerkumpul">Rp 300k</span>
             </div>
             <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 text-center">
-              <span class="text-[10px] text-slate-400 block font-medium">Pengeluaran</span>
-              <span class="font-display font-bold text-xs text-slate-900 block mt-0.5">Rp 140k</span>
+              <span class="text-[9px] text-slate-400 block font-medium">Pengeluaran</span>
+              <span class="font-display font-bold text-xs text-slate-900 block mt-0.5" id="valMetricPengeluaran">Rp 140k</span>
             </div>
             <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 text-center">
-              <span class="text-[10px] text-slate-400 block font-medium">Lunas</span>
-              <span class="font-display font-bold text-xs text-emerald-600 block mt-0.5">30 Siswa</span>
+              <span class="text-[9px] text-slate-400 block font-medium">Kelunasan</span>
+              <span class="font-display font-bold text-xs text-emerald-700 block mt-0.5" id="valMetricLunas">83.3%</span>
             </div>
           </div>
 
@@ -525,46 +567,12 @@
         <!-- Recent Transactions Feed Card -->
         <div class="bg-white p-5 rounded-4xl border border-slate-200 shadow-sm" id="sectionRiwayat">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="font-display font-bold text-sm text-slate-900">Riwayat Mutasi Terkini</h3>
-            <span class="text-xs text-slate-400">10 Terakhir</span>
+            <h3 class="font-display font-bold text-sm text-slate-900">Mutasi Kas Terakhir</h3>
+            <span class="text-xs text-slate-400 font-medium">Audit Trail</span>
           </div>
           
-          <div class="space-y-2.5" id="txFeedList">
-            <!-- Item 1 -->
-            <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
-              <div class="flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl bg-pastel-mint flex items-center justify-center text-xs">📥</span>
-                <div>
-                  <div class="font-bold text-xs text-slate-900">Iuran kas Ardellio (M1)</div>
-                  <div class="text-[10px] text-slate-400">Oleh Tarina • Pos Ops</div>
-                </div>
-              </div>
-              <span class="font-display font-bold text-xs text-emerald-600">+Rp 10.000</span>
-            </div>
-
-            <!-- Item 2 -->
-            <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
-              <div class="flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl bg-pastel-peach flex items-center justify-center text-xs">📤</span>
-                <div>
-                  <div class="font-bold text-xs text-slate-900">Beli spidol & isi tinta</div>
-                  <div class="text-[10px] text-slate-400">Oleh Tarina • Pos Ops</div>
-                </div>
-              </div>
-              <span class="font-display font-bold text-xs text-orange-600">-Rp 15.000</span>
-            </div>
-
-            <!-- Item 3 -->
-            <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
-              <div class="flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl bg-pastel-lilac flex items-center justify-center text-xs">🤝</span>
-                <div>
-                  <div class="font-bold text-xs text-slate-900">Donasi santunan duka cita</div>
-                  <div class="text-[10px] text-slate-400">Oleh Tarina • Pos Sosial</div>
-                </div>
-              </div>
-              <span class="font-display font-bold text-xs text-violet-600">+Rp 25.000</span>
-            </div>
+          <div class="space-y-2.5" id="txHistoryFeed">
+            <!-- Dynamically populated by JS -->
           </div>
         </div>
 
@@ -572,130 +580,126 @@
 
     </div>
 
-    <!-- STUDENT BILLING / TAGIHAN TABLE (COLLAPSIBLE / EXPANDED) -->
+    <!-- STUDENT BILLING / CHECKLIST MATRIX -->
     <div class="mt-8 bg-white p-6 rounded-4xl border border-slate-200 shadow-sm" id="sectionTagihan">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h3 class="font-display font-bold text-lg text-slate-900">Daftar Tagihan Iuran Kas Minggu ke-1</h3>
-          <p class="text-xs text-slate-500">Status kelunasan siswa kelas XI-F2 SMA Kartika XIX-1 Bandung</p>
+          <h3 class="font-display font-bold text-lg text-slate-900">Daftar Status Iuran Kas Minggu ke-1</h3>
+          <p class="text-xs text-slate-500 font-medium">Target nominal: Rp 10.000 / siswa • Absensi Whitelist XI-F2</p>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="px-3 py-1 rounded-full text-xs font-bold bg-pastel-mint text-emerald-900">30 Siswa Lunas</span>
-          <span class="px-3 py-1 rounded-full text-xs font-bold bg-pastel-coral text-rose-900">6 Siswa Belum</span>
+        
+        <!-- Search & Filter Controls -->
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <input type="text" id="searchStudent" onkeyup="filterStudentList()" placeholder="Cari nama atau NIS..." class="text-xs bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-slate-900 w-full sm:w-48 font-medium">
+          <button onclick="exportToCsv()" class="px-3 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 border border-slate-200 flex items-center gap-1.5 tactile-btn">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export
+          </button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" id="studentsGrid">
-        <!-- Rendered by JS with whitelist data -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" id="studentsListGrid">
+        <!-- Rendered by JS -->
       </div>
     </div>
 
   </main>
 
 
-  <!-- ========================================== -->
-  <!-- VIEW 2: 3-PHONE MOBILE SHOWCASE (MOCKUP)   -->
-  <!-- Exactly mimics the user attached screenshot -->
-  <!-- ========================================== -->
-  <main id="viewMockup" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 flex items-center justify-center">
+  <!-- ============================================================== -->
+  <!-- VIEW 2: 3-PHONE SHOWCASE MOCKUP (MATCHING USER REFERENCE)      -->
+  <!-- ============================================================== -->
+  <main id="viewShowcase" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 flex items-center justify-center">
     
     <div class="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-10 py-6">
       
-      <!-- SCREEN 1: ONBOARDING / INTRO -->
-      <div class="phone-mockup bg-white p-6 flex flex-col justify-between overflow-hidden relative">
-        <div class="mt-8 text-center">
+      <!-- SCREEN 1: ONBOARDING / SPLASH -->
+      <div class="phone-mockup justify-between p-6 pt-9">
+        <div class="phone-notch"></div>
+        <div class="mt-6 text-center">
           <h2 class="text-3xl font-display font-bold text-slate-900 leading-tight">
             Bingung Soal Kas Kelas Kamu?
           </h2>
-          <div class="mt-6 flex justify-center">
-            <div class="bg-slate-100 border border-slate-200 rounded-full p-2 pl-6 flex items-center justify-between gap-4 text-xs font-bold text-slate-800 shadow-xs">
+          <div class="mt-5 flex justify-center">
+            <div class="bg-slate-100 border border-slate-200 rounded-full p-2 pl-6 flex items-center justify-between gap-5 text-xs font-bold text-slate-800 shadow-xs">
               <span>Biar CEKAS Bantu!</span>
-              <span class="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs">→</span>
+              <span class="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- Mascot Cluster -->
-        <div class="flex items-center justify-center my-auto mascot-bob">
-          <svg width="280" height="200" viewBox="0 0 280 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Green Circle -->
-            <circle cx="70" cy="110" r="42" fill="#BBF7D0" stroke="#86EFAC" stroke-width="3"/>
-            <path d="M55 105 C60 98 68 98 73 105" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
-            <path d="M77 105 C82 98 90 98 95 105" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
-            <path d="M68 122 C72 126 80 126 84 122" stroke="#166534" stroke-width="3" stroke-linecap="round"/>
+        <!-- Animated Mascot Cluster -->
+        <div class="my-auto flex justify-center">
+          <svg class="anim-float" width="280" height="220" viewBox="0 0 280 220" fill="none">
+            <circle cx="75" cy="120" r="42" fill="#BBF7D0" stroke="#86EFAC" stroke-width="3"/>
+            <g class="anim-blink">
+              <path d="M58 114 C64 106 72 106 78 114" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M84 114 C90 106 98 106 104 114" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
+            </g>
+            <path d="M74 134 C78 138 86 138 90 134" stroke="#166534" stroke-width="3" stroke-linecap="round"/>
+            
+            <circle cx="155" cy="90" r="40" fill="#DDD6FE" stroke="#C4B5FD" stroke-width="3"/>
+            <g class="anim-blink">
+              <circle cx="142" cy="85" r="4.5" fill="#5B21B6"/>
+              <circle cx="165" cy="83" r="5" fill="#5B21B6"/>
+            </g>
+            <path d="M146 104 Q155 98 164 104" stroke="#5B21B6" stroke-width="3" fill="none" stroke-linecap="round"/>
 
-            <!-- Purple Spiral -->
-            <circle cx="150" cy="85" r="40" fill="#DDD6FE" stroke="#C4B5FD" stroke-width="3"/>
-            <circle cx="138" cy="80" r="4.5" fill="#5B21B6"/>
-            <circle cx="160" cy="78" r="5" fill="#5B21B6"/>
-            <path d="M142 98 Q150 92 158 98" stroke="#5B21B6" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <rect x="195" y="70" width="62" height="62" rx="22" fill="#FED7AA" stroke="#FDBA74" stroke-width="3"/>
+            <line x1="208" y1="90" x2="218" y2="93" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
+            <line x1="242" y1="90" x2="232" y2="93" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="225" cy="108" r="6" fill="#9A3412"/>
 
-            <!-- Orange Box -->
-            <rect x="195" y="65" width="60" height="60" rx="20" fill="#FED7AA" stroke="#FDBA74" stroke-width="3"/>
-            <line x1="208" y1="85" x2="218" y2="88" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
-            <line x1="242" y1="85" x2="232" y2="88" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="225" cy="102" r="6" fill="#9A3412"/>
-
-            <!-- Yellow Spark -->
-            <path d="M245 25 L249 42 L266 46 L249 50 L245 67 L241 50 L224 46 L241 42 Z" fill="#FEF08A" stroke="#FDE047" stroke-width="2"/>
+            <path class="anim-pulse" d="M245 25 L249 42 L266 46 L249 50 L245 67 L241 50 L224 46 L241 42 Z" fill="#FEF08A" stroke="#FDE047" stroke-width="2"/>
           </svg>
         </div>
 
-        <div class="text-center text-xs text-slate-400 mb-4">
-          Geser untuk masuk ke dashboard kas →
+        <div class="text-center text-xs text-slate-400 font-medium mb-3">
+          XI-F2 SMA Kartika XIX-1 Bandung
         </div>
       </div>
 
       <!-- SCREEN 2: MAIN DASHBOARD -->
-      <div class="phone-mockup bg-navy-900 text-white flex flex-col justify-between overflow-hidden relative">
-        
-        <!-- Top Header Card (White) -->
-        <div class="bg-white text-slate-900 p-5 rounded-b-4xl shadow-md">
+      <div class="phone-mockup justify-between bg-navy-900 text-white">
+        <div class="phone-notch"></div>
+        <div class="bg-white text-slate-900 p-5 pt-8 rounded-b-4xl shadow-md">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-              <div class="w-10 h-10 rounded-full bg-pastel-lilac flex items-center justify-center font-display font-bold text-sm text-violet-950">
-                AS
-              </div>
+              <div class="w-10 h-10 rounded-full bg-pastel-lilac flex items-center justify-center font-display font-bold text-xs text-violet-950">AS</div>
               <div>
-                <span class="text-[10px] text-slate-400 font-medium">Selamat datang</span>
+                <span class="text-[10px] text-slate-400 font-medium">Selamat datang,</span>
                 <h4 class="font-display font-bold text-xs text-slate-900">Ardellio Satria</h4>
               </div>
             </div>
             <span class="text-[10px] text-slate-400 font-medium">11 Sep 2026</span>
           </div>
-
-          <h3 class="text-sm font-display font-bold text-slate-900 mt-3 leading-snug">
-            Halo Jack! Bagaimana kondisi kas kelas hari ini?
-          </h3>
-
+          <h3 class="text-sm font-display font-bold text-slate-900 mt-3">Halo Ardellio! Bagaimana kondisi kas kelas hari ini?</h3>
           <div class="grid grid-cols-4 gap-1.5 mt-3 pt-2 border-t border-slate-100">
             <div class="p-1.5 rounded-xl bg-pastel-mintLight text-center">
-              <span class="text-base block">😊</span>
-              <span class="text-[9px] font-bold text-emerald-900">Aman</span>
+              <svg class="w-4 h-4 mx-auto text-emerald-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span class="text-[9px] font-bold text-emerald-950 block mt-0.5">Aman</span>
             </div>
             <div class="p-1.5 rounded-xl bg-pastel-peachLight text-center">
-              <span class="text-base block">😴</span>
-              <span class="text-[9px] font-bold text-orange-950">Tagihan</span>
+              <svg class="w-4 h-4 mx-auto text-orange-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span class="text-[9px] font-bold text-orange-950 block mt-0.5">Tagihan</span>
             </div>
             <div class="p-1.5 rounded-xl bg-pastel-lilacLight text-center">
-              <span class="text-base block">😡</span>
-              <span class="text-[9px] font-bold text-violet-950">Nunggak</span>
+              <svg class="w-4 h-4 mx-auto text-violet-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span class="text-[9px] font-bold text-violet-950 block mt-0.5">Surplus</span>
             </div>
             <div class="p-1.5 rounded-xl bg-pastel-lemonLight text-center">
-              <span class="text-base block">🚀</span>
-              <span class="text-[9px] font-bold text-amber-950">Surplus</span>
+              <svg class="w-4 h-4 mx-auto text-amber-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path></svg>
+              <span class="text-[9px] font-bold text-amber-950 block mt-0.5">Audit</span>
             </div>
           </div>
         </div>
-
-        <!-- Dark Navy Body Content -->
-        <div class="p-5 flex-1 flex flex-col justify-around">
-          
-          <!-- Data Widgets -->
+        <div class="p-4 flex-1 flex flex-col justify-around">
           <div class="grid grid-cols-2 gap-3">
             <div class="bg-pastel-peach text-slate-900 p-3.5 rounded-3xl">
-              <span class="text-[10px] font-bold text-orange-950 flex items-center gap-1">⏱️ Kas Masuk</span>
-              <div class="my-2 flex items-end gap-1 h-8">
+              <span class="text-[10px] font-bold text-orange-950">Arus Masuk</span>
+              <div class="my-2 flex items-end gap-1 h-7">
                 <div class="w-1.5 bg-orange-400 rounded-full h-4"></div>
                 <div class="w-1.5 bg-orange-500 rounded-full h-7"></div>
                 <div class="w-1.5 bg-orange-400 rounded-full h-3"></div>
@@ -703,10 +707,9 @@
               </div>
               <div class="text-sm font-display font-bold">+Rp 100k</div>
             </div>
-
             <div class="bg-pastel-lilac text-slate-900 p-3.5 rounded-3xl">
-              <span class="text-[10px] font-bold text-violet-950 flex items-center gap-1">📊 Disiplin</span>
-              <div class="my-2 flex items-end gap-1 h-8">
+              <span class="text-[10px] font-bold text-violet-950">Kedisiplinan</span>
+              <div class="my-2 flex items-end gap-1 h-7">
                 <div class="w-2 bg-violet-300 rounded-md h-2"></div>
                 <div class="w-2 bg-violet-400 rounded-md h-4"></div>
                 <div class="w-2 bg-violet-500 rounded-md h-6"></div>
@@ -715,53 +718,43 @@
               <div class="text-sm font-display font-bold">83.3%</div>
             </div>
           </div>
-
-          <!-- Interactive Mint Card -->
-          <div class="bg-pastel-mint text-slate-900 p-4 rounded-3xl">
+          <div class="bg-pastel-mint text-slate-900 p-3.5 rounded-3xl">
             <div class="flex items-center justify-between text-[10px] font-bold text-emerald-950 mb-1">
-              <span>📝 Diskusi Kas</span>
-              <span>1/3</span>
+              <span>Diskusi Kas</span><span>1/3</span>
             </div>
-            <p class="font-display font-bold text-xs text-slate-900">
-              Apakah kas operasional cukup untuk beli spidol & pel?
-            </p>
-            <div class="flex gap-2 mt-3">
-              <button class="flex-1 bg-navy-900 text-white font-bold py-1.5 rounded-xl text-[10px]">Ya</button>
-              <button class="flex-1 bg-white text-slate-900 font-bold py-1.5 rounded-xl text-[10px] border border-emerald-300">Tidak</button>
+            <p class="font-display font-bold text-xs text-slate-900">Apakah saldo kas operasional cukup untuk beli spidol & pel?</p>
+            <div class="flex gap-2 mt-2.5">
+              <button class="flex-1 bg-navy-900 text-white font-bold py-1.5 rounded-xl text-[10px]">Cukup</button>
+              <button class="flex-1 bg-white text-slate-900 font-bold py-1.5 rounded-xl text-[10px] border border-emerald-300">Kurang</button>
             </div>
           </div>
-
         </div>
-
-        <!-- Bottom Navigation Bar -->
-        <div class="bg-navy-950 px-6 py-3 border-t border-slate-800 flex items-center justify-around text-slate-400">
-          <span class="text-white text-sm">🏠</span>
-          <span class="text-sm">📊</span>
-          <span class="text-sm">📅</span>
-          <span class="text-sm">👤</span>
+        <div class="bg-navy-950 px-6 py-3 border-t border-slate-800 flex items-center justify-around text-slate-400 text-sm">
+          <span class="text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg></span>
+          <span><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg></span>
+          <span><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg></span>
+          <span><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
         </div>
-
       </div>
 
-      <!-- SCREEN 3: MOOD/KAS CALENDAR -->
-      <div class="phone-mockup bg-white p-5 flex flex-col justify-between overflow-hidden relative">
-        
-        <!-- Top Bar -->
+      <!-- SCREEN 3: MOOD CALENDAR -->
+      <div class="phone-mockup justify-between bg-white p-5 pt-8">
+        <div class="phone-notch"></div>
         <div>
           <div class="flex items-center justify-between">
-            <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs">‹</span>
+            <span class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-xs text-slate-700">‹</span>
             <div class="text-center">
               <h4 class="font-display font-bold text-sm text-slate-900">Kalender Kas</h4>
-              <span class="text-[10px] text-slate-400">September 2026</span>
+              <span class="text-[10px] text-slate-400 font-medium">September 2026</span>
             </div>
-            <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs">🔍</span>
+            <span class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-xs text-slate-700">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
           </div>
-
-          <!-- Calendar -->
           <div class="grid grid-cols-7 gap-1 text-center text-[9px] font-bold text-slate-400 mt-4 mb-1">
             <div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div><div>M</div>
           </div>
-          <div class="grid grid-cols-7 gap-1 text-center text-[10px]">
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold">
             <div class="p-1.5 rounded-lg bg-slate-50 text-slate-300">31</div>
             <div class="p-1.5 rounded-lg bg-pastel-mint text-emerald-950 font-bold">1</div>
             <div class="p-1.5 rounded-lg bg-slate-50">2</div>
@@ -777,42 +770,28 @@
             <div class="p-1.5 rounded-lg bg-slate-50">12</div>
             <div class="p-1.5 rounded-lg bg-slate-50">13</div>
           </div>
-
-          <!-- Monthly Summary -->
-          <div class="mt-4 bg-pastel-mintLight border border-emerald-200 p-3.5 rounded-3xl flex items-center gap-2.5">
-            <span class="text-2xl">😌</span>
+          <div class="mt-4 bg-pastel-mintLight border border-emerald-300 p-3.5 rounded-3xl flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-pastel-mint flex items-center justify-center text-emerald-900 shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path></svg>
+            </div>
             <div>
-              <span class="text-[9px] font-bold text-emerald-800 uppercase">Status Kas</span>
+              <span class="text-[9px] font-bold text-emerald-800 uppercase tracking-wider">Status Kas</span>
               <h5 class="font-display font-bold text-emerald-950 text-xs">Kas Sehat & Surplus</h5>
               <p class="text-[10px] text-emerald-800">Transparansi 100% terjaga.</p>
             </div>
           </div>
-
-          <!-- Activity Metrics -->
           <div class="grid grid-cols-3 gap-1.5 mt-3">
-            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
-              <span class="text-[8px] text-slate-400 block">Terkumpul</span>
-              <span class="font-display font-bold text-[11px] text-slate-900">Rp 300k</span>
-            </div>
-            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
-              <span class="text-[8px] text-slate-400 block">Pengeluaran</span>
-              <span class="font-display font-bold text-[11px] text-slate-900">Rp 140k</span>
-            </div>
-            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
-              <span class="text-[8px] text-slate-400 block">Lunas</span>
-              <span class="font-display font-bold text-[11px] text-emerald-600">83.3%</span>
-            </div>
+            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center"><span class="text-[8px] text-slate-400 block font-medium">Terkumpul</span><span class="font-display font-bold text-[11px] text-slate-900">Rp 300k</span></div>
+            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center"><span class="text-[8px] text-slate-400 block font-medium">Pengeluaran</span><span class="font-display font-bold text-[11px] text-slate-900">Rp 140k</span></div>
+            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center"><span class="text-[8px] text-slate-400 block font-medium">Lunas</span><span class="font-display font-bold text-[11px] text-emerald-700">83.3%</span></div>
           </div>
         </div>
-
-        <!-- Bottom Nav -->
         <div class="bg-navy-950 -mx-5 -mb-5 px-6 py-3 flex items-center justify-around text-slate-400 text-sm">
-          <span>🏠</span>
-          <span>📊</span>
-          <span class="text-white">📅</span>
-          <span>👤</span>
+          <span><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg></span>
+          <span><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg></span>
+          <span class="text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg></span>
+          <span><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
         </div>
-
       </div>
 
     </div>
@@ -820,12 +799,12 @@
   </main>
 
 
-  <!-- ========================================== -->
-  <!-- VIEW 3: FLUID MOBILE APP VIEW              -->
-  <!-- ========================================== -->
-  <main id="viewFluid" class="hidden flex-1 max-w-md w-full mx-auto p-4 space-y-5 pb-20">
+  <!-- ============================================================== -->
+  <!-- VIEW 3: FLUID MOBILE INTERACTIVE VIEW                          -->
+  <!-- ============================================================== -->
+  <main id="viewMobile" class="hidden flex-1 max-w-md w-full mx-auto p-4 space-y-5 pb-24">
     
-    <!-- Mobile App Header -->
+    <!-- Mobile Profile Header -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
@@ -843,209 +822,470 @@
       <h3 class="font-display font-bold text-sm text-slate-900 mt-3">
         Halo Ardellio! Bagaimana kondisi kas kelas hari ini?
       </h3>
-
-      <div class="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-100">
-        <div class="p-2 rounded-2xl bg-pastel-mintLight text-center">
-          <span class="text-lg block">😊</span>
-          <span class="text-[10px] font-bold text-emerald-900">Aman</span>
-        </div>
-        <div class="p-2 rounded-2xl bg-pastel-peachLight text-center">
-          <span class="text-lg block">😴</span>
-          <span class="text-[10px] font-bold text-orange-950">Tagihan</span>
-        </div>
-        <div class="p-2 rounded-2xl bg-pastel-lilacLight text-center">
-          <span class="text-lg block">🚀</span>
-          <span class="text-[10px] font-bold text-violet-950">Surplus</span>
-        </div>
-        <div class="p-2 rounded-2xl bg-pastel-lemonLight text-center">
-          <span class="text-lg block">🛡️</span>
-          <span class="text-[10px] font-bold text-amber-950">Audit</span>
-        </div>
-      </div>
     </div>
 
-    <!-- Mobile Saldo Card (Navy) -->
+    <!-- Mobile Saldo Pod -->
     <div class="bg-navy-900 text-white p-5 rounded-3xl shadow-lg space-y-4">
-      <div class="flex items-center justify-between">
-        <span class="text-xs text-slate-400">Total Saldo Kas Terkini</span>
+      <div class="flex items-center justify-between text-xs text-slate-400">
+        <span>Total Saldo Kas Terkini</span>
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
       </div>
-      <div class="text-3xl font-display font-bold text-white">Rp 160.000</div>
+      <div class="text-3xl font-display font-bold text-white" id="valMobSaldo">Rp 160.000</div>
       
       <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-xs">
         <div>
-          <span class="text-[10px] text-slate-400 block">Pos Operasional</span>
-          <span class="font-bold text-pastel-mint">Rp 110.000</span>
+          <span class="text-[10px] text-slate-400 block font-medium">Pos Operasional</span>
+          <span class="font-bold text-pastel-mint" id="valMobOps">Rp 110.000</span>
         </div>
         <div>
-          <span class="text-[10px] text-slate-400 block">Pos Sosial</span>
-          <span class="font-bold text-pastel-lilac">Rp 50.000</span>
+          <span class="text-[10px] text-slate-400 block font-medium">Pos Sosial</span>
+          <span class="font-bold text-pastel-lilac" id="valMobSos">Rp 50.000</span>
         </div>
       </div>
     </div>
 
-    <!-- Mobile Mini Tagihan -->
-    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs">
-      <div class="flex items-center justify-between mb-3">
+    <!-- Quick Action Button in Mobile -->
+    <button onclick="openModalTransaction()" class="w-full bg-pastel-mint text-emerald-950 font-bold py-3.5 rounded-2xl shadow-sm text-xs border border-emerald-300 tactile-btn flex items-center justify-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Catat Pemasukan / Pengeluaran
+    </button>
+
+    <!-- Mobile Dues Summary -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-3">
+      <div class="flex items-center justify-between">
         <h4 class="font-display font-bold text-sm text-slate-900">Iuran Kas Minggu ke-1</h4>
-        <span class="text-xs font-bold text-emerald-600">83.3%</span>
+        <span class="text-xs font-bold text-emerald-700">83.3% Lunas</span>
       </div>
-      <div class="w-full bg-slate-100 rounded-full h-2 mb-3">
-        <div class="bg-emerald-500 h-2 rounded-full w-[83.3%]"></div>
+      <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+        <div class="bg-emerald-500 h-2 rounded-full" style="width: 83.3%;"></div>
       </div>
-      <div class="flex items-center justify-between text-xs text-slate-500">
-        <span>30 Siswa Lunas</span>
-        <span class="text-rose-600 font-bold">6 Belum Bayar</span>
+      <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+        <span>10 Siswa Lunas</span>
+        <span class="text-rose-600 font-bold">2 Belum Bayar</span>
       </div>
     </div>
 
   </main>
 
 
-  <!-- ========================================== -->
-  <!-- JAVASCRIPT: DATA & INTERACTIONS            -->
-  <!-- ========================================== -->
-  <script>
-    // Official Class Whitelist Data (Seeded from SMA Kartika XIX-1 Bandung XI-F2)
-    const studentsData = [
-      { nis: "23241001", nama: "Ardellio Satria Anindito", role: "siswa", paid: true },
-      { nis: "23241015", nama: "Tarina", role: "bendahara", paid: true },
-      { nis: "23241020", nama: "Nabila", role: "siswa", paid: true },
-      { nis: "23241025", nama: "Cinta", role: "siswa", paid: true },
-      { nis: "23241005", nama: "Budi Santoso", role: "siswa", paid: true },
-      { nis: "23241008", nama: "Dwi Cahyo", role: "siswa", paid: false },
-      { nis: "23241012", nama: "Farhan Maulana", role: "siswa", paid: true },
-      { nis: "23241018", nama: "Gita Pratiwi", role: "siswa", paid: false },
-      { nis: "23241022", nama: "Rian Hidayat", role: "siswa", paid: true },
-      { nis: "23241028", nama: "Zahra Amelia", role: "siswa", paid: true },
-      { nis: "23241031", nama: "Ahmad Fauzi", role: "siswa", paid: true },
-      { nis: "23241035", nama: "Bayu Pratama", role: "siswa", paid: false },
-    ];
+  <!-- ============================================================== -->
+  <!-- MODAL: CATAT TRANSAKSI FINANSIAL (INTERAKTIF & REAL WORKING)   -->
+  <!-- ============================================================== -->
+  <div id="modalTx" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-4xl p-6 shadow-2xl border border-slate-100 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-display font-bold text-base text-slate-900 flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+          Catat Transaksi Kas Baru
+        </h3>
+        <button onclick="closeModalTransaction()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
 
-    // Initialize Students Grid
-    function renderStudentsGrid() {
-      const container = document.getElementById('studentsGrid');
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Jenis Transaksi</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="setTxType('in')" id="btnTypeIn" class="py-2.5 rounded-2xl font-bold bg-pastel-mintLight text-emerald-950 border border-emerald-300">
+              Pemasukan (+)
+            </button>
+            <button type="button" onclick="setTxType('out')" id="btnTypeOut" class="py-2.5 rounded-2xl font-bold bg-slate-100 text-slate-600 border border-slate-200">
+              Pengeluaran (-)
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Nominal (Rupiah)</label>
+          <input type="number" id="inputTxAmount" placeholder="contoh: 10000" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900">
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Pos Alokasi</label>
+          <select id="selectTxCategory" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900">
+            <option value="operasional">Operasional & KBM</option>
+            <option value="sosial">Sosial & Peduli</option>
+            <option value="event">Acara & Kegiatan</option>
+            <option value="cadangan">Dana Cadangan</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Keterangan Transaksi</label>
+          <input type="text" id="inputTxDesc" placeholder="contoh: Iuran mingguan siswa..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900">
+        </div>
+      </div>
+
+      <div class="pt-2 flex gap-2">
+        <button onclick="closeModalTransaction()" class="flex-1 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-600">Batal</button>
+        <button onclick="submitNewTransaction()" class="flex-1 py-3 rounded-2xl bg-navy-900 hover:bg-slate-800 text-xs font-bold text-white shadow-xs tactile-btn">Simpan Transaksi</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================== -->
+  <!-- JAVASCRIPT: LIVE STATE ENGINE & INTERACTION LOGIC              -->
+  <!-- ============================================================== -->
+  <script>
+    // Live Financial State
+    let appState = {
+      saldo: 160000,
+      alokasi: {
+        operasional: 110000,
+        sosial: 50000,
+        event: 0,
+        cadangan: 0
+      },
+      currentTxType: 'in',
+      students: [
+        { nis: "23241001", nama: "Ardellio Satria Anindito", role: "siswa", paid: true },
+        { nis: "23241015", nama: "Tarina", role: "bendahara", paid: true },
+        { nis: "23241020", nama: "Nabila", role: "siswa", paid: true },
+        { nis: "23241025", nama: "Cinta", role: "siswa", paid: true },
+        { nis: "23241005", nama: "Budi Santoso", role: "siswa", paid: true },
+        { nis: "23241008", nama: "Dwi Cahyo", role: "siswa", paid: false },
+        { nis: "23241012", nama: "Farhan Maulana", role: "siswa", paid: true },
+        { nis: "23241018", nama: "Gita Pratiwi", role: "siswa", paid: false },
+        { nis: "23241022", nama: "Rian Hidayat", role: "siswa", paid: true },
+        { nis: "23241028", nama: "Zahra Amelia", role: "siswa", paid: true },
+        { nis: "23241031", nama: "Ahmad Fauzi", role: "siswa", paid: true },
+        { nis: "23241035", nama: "Bayu Pratama", role: "siswa", paid: true }
+      ],
+      transactions: [
+        { id: "tx_101", type: "in", amount: 10000, category: "operasional", desc: "Iuran kas Ardellio (M1)", author: "Tarina", time: "11 Sep 2026, 17:30 WIB" },
+        { id: "tx_102", type: "out", amount: 15000, category: "operasional", desc: "Beli spidol whiteboard & isi tinta", author: "Tarina", time: "11 Sep 2026, 16:15 WIB" },
+        { id: "tx_103", type: "in", amount: 25000, category: "sosial", desc: "Donasi santunan duka cita", author: "Tarina", time: "10 Sep 2026, 11:20 WIB" }
+      ]
+    };
+
+    // Format Rupiah helper
+    function fmtRupiah(num) {
+      return "Rp " + Math.abs(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    // Render KPI & UI Elements
+    function updateUI() {
+      // Balance numbers
+      document.getElementById('valTotalSaldo').innerText = fmtRupiah(appState.saldo);
+      document.getElementById('valPosOps').innerText = fmtRupiah(appState.alokasi.operasional);
+      document.getElementById('valPosSos').innerText = fmtRupiah(appState.alokasi.sosial);
+      
+      const mobSaldo = document.getElementById('valMobSaldo');
+      if (mobSaldo) mobSaldo.innerText = fmtRupiah(appState.saldo);
+      const mobOps = document.getElementById('valMobOps');
+      if (mobOps) mobOps.innerText = fmtRupiah(appState.alokasi.operasional);
+      const mobSos = document.getElementById('valMobSos');
+      if (mobSos) mobSos.innerText = fmtRupiah(appState.alokasi.sosial);
+
+      // Percentages
+      const total = appState.saldo > 0 ? appState.saldo : 1;
+      const opsPct = ((appState.alokasi.operasional / total) * 100).toFixed(1);
+      const sosPct = ((appState.alokasi.sosial / total) * 100).toFixed(1);
+      
+      document.getElementById('valPosOpsPct').innerText = `${opsPct}% dari total kas`;
+      document.getElementById('valPosSosPct').innerText = `${sosPct}% dari total kas`;
+      document.getElementById('barOps').style.width = `${opsPct}%`;
+      document.getElementById('barSos').style.width = `${sosPct}%`;
+
+      // Dues summary
+      const totalStudents = appState.students.length;
+      const paidStudents = appState.students.filter(s => s.paid).length;
+      const unpaidStudents = totalStudents - paidStudents;
+      const duesPct = ((paidStudents / totalStudents) * 100).toFixed(1);
+
+      document.getElementById('valDuesPct').innerText = `${duesPct}%`;
+      document.getElementById('valDuesSummary').innerText = `${paidStudents} Lunas • ${unpaidStudents} Belum Bayar`;
+      document.getElementById('barDues').style.width = `${duesPct}%`;
+      document.getElementById('valMetricLunas').innerText = `${duesPct}%`;
+
+      // Render Transaction Feed
+      renderTransactionFeed();
+      // Render Student Grid
+      renderStudentGrid();
+    }
+
+    // Render Transaction History Feed
+    function renderTransactionFeed() {
+      const feed = document.getElementById('txHistoryFeed');
+      if (!feed) return;
+      feed.innerHTML = '';
+
+      appState.transactions.slice(0, 5).forEach(tx => {
+        const isIn = tx.type === 'in';
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors";
+        item.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl ${isIn ? 'bg-pastel-mint text-emerald-800' : 'bg-pastel-peach text-orange-800'} flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                ${isIn ? '<line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline>' : '<line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline>'}
+              </svg>
+            </div>
+            <div>
+              <div class="font-bold text-xs text-slate-900">${tx.desc}</div>
+              <div class="text-[10px] text-slate-400 font-medium">Oleh ${tx.author} • Pos ${tx.category}</div>
+            </div>
+          </div>
+          <span class="font-display font-bold text-xs ${isIn ? 'text-emerald-700' : 'text-orange-700'}">
+            ${isIn ? '+' : '-'}${fmtRupiah(tx.amount)}
+          </span>
+        `;
+        feed.appendChild(item);
+      });
+    }
+
+    // Render Student Dues Grid
+    function renderStudentGrid() {
+      const container = document.getElementById('studentsListGrid');
       if (!container) return;
       container.innerHTML = '';
 
-      studentsData.forEach(student => {
+      appState.students.forEach(student => {
         const card = document.createElement('div');
         const isPaid = student.paid;
         card.className = `p-3.5 rounded-2xl border transition-all flex items-center justify-between ${
-          isPaid 
-            ? 'bg-slate-50/80 border-slate-200 hover:border-emerald-300' 
-            : 'bg-rose-50/50 border-rose-200'
+          isPaid ? 'bg-slate-50/80 border-slate-200' : 'bg-rose-50/60 border-rose-200'
         }`;
 
         card.innerHTML = `
           <div class="flex items-center gap-2.5">
-            <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
               isPaid ? 'bg-pastel-mint text-emerald-950' : 'bg-pastel-coral text-rose-950'
             }">
-              ${isPaid ? '✓' : '!'}
-            </span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                ${isPaid ? '<polyline points="20 6 9 17 4 12"></polyline>' : '<line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>'}
+              </svg>
+            </div>
             <div>
               <div class="font-bold text-xs text-slate-900">${student.nama}</div>
-              <div class="text-[10px] text-slate-400">NIS: ${student.nis}</div>
+              <div class="text-[10px] text-slate-400 font-medium">NIS: ${student.nis}</div>
             </div>
           </div>
-          <span class="text-[11px] font-bold ${isPaid ? 'text-emerald-700' : 'text-rose-600'}">
-            ${isPaid ? 'Lunas' : 'Belum'}
-          </span>
+          <button onclick="toggleStudentPaid('${student.nis}')" class="text-[11px] font-bold px-2.5 py-1 rounded-xl transition-all ${
+            isPaid ? 'text-emerald-800 bg-pastel-mintLight border border-emerald-300' : 'text-rose-800 bg-pastel-coralLight border border-rose-300'
+          }">
+            ${isPaid ? 'Lunas' : 'Bayar'}
+          </button>
         `;
         container.appendChild(card);
       });
     }
 
-    // Switch View function
-    function switchView(viewType) {
-      const viewDesktop = document.getElementById('viewDesktop');
-      const viewMockup = document.getElementById('viewMockup');
-      const viewFluid = document.getElementById('viewFluid');
+    // Toggle Student Paid status
+    function toggleStudentPaid(nis) {
+      const student = appState.students.find(s => s.nis === nis);
+      if (student) {
+        student.paid = !student.paid;
+        if (student.paid) {
+          appState.saldo += 10000;
+          appState.alokasi.operasional += 10000;
+          appState.transactions.unshift({
+            id: "tx_" + Date.now().toString().slice(-4),
+            type: "in",
+            amount: 10000,
+            category: "operasional",
+            desc: `Iuran kas M1 - ${student.nama}`,
+            author: "Bendahara",
+            time: "Baru saja"
+          });
+        }
+        updateUI();
+      }
+    }
 
-      const btnD = document.getElementById('viewBtnDesktop');
-      const btnM = document.getElementById('viewBtnMockup');
-      const btnF = document.getElementById('viewBtnFluid');
+    // Filter Student List in table
+    function filterStudentList() {
+      const query = document.getElementById('searchStudent').value.toLowerCase().trim();
+      const container = document.getElementById('studentsListGrid');
+      const cards = container.children;
 
-      // Reset
-      viewDesktop.classList.add('hidden');
-      viewMockup.classList.add('hidden');
-      viewFluid.classList.add('hidden');
+      for (let i = 0; i < appState.students.length; i++) {
+        const s = appState.students[i];
+        const match = s.nama.toLowerCase().includes(query) || s.nis.includes(query);
+        if (cards[i]) {
+          cards[i].style.display = match ? 'flex' : 'none';
+        }
+      }
+    }
 
-      [btnD, btnM, btnF].forEach(btn => {
-        btn.classList.remove('bg-white', 'text-slate-900', 'font-bold', 'shadow-sm');
-        btn.classList.add('text-slate-600');
+    // Modal Transaction Controls
+    function openModalTransaction() {
+      document.getElementById('modalTx').classList.remove('hidden');
+    }
+    function closeModalTransaction() {
+      document.getElementById('modalTx').classList.add('hidden');
+    }
+    function setTxType(type) {
+      appState.currentTxType = type;
+      const btnIn = document.getElementById('btnTypeIn');
+      const btnOut = document.getElementById('btnTypeOut');
+      if (type === 'in') {
+        btnIn.className = "py-2.5 rounded-2xl font-bold bg-pastel-mintLight text-emerald-950 border border-emerald-300";
+        btnOut.className = "py-2.5 rounded-2xl font-bold bg-slate-100 text-slate-600 border border-slate-200";
+      } else {
+        btnIn.className = "py-2.5 rounded-2xl font-bold bg-slate-100 text-slate-600 border border-slate-200";
+        btnOut.className = "py-2.5 rounded-2xl font-bold bg-pastel-coralLight text-rose-950 border border-rose-300";
+      }
+    }
+
+    function submitNewTransaction() {
+      const amount = parseInt(document.getElementById('inputTxAmount').value, 10);
+      const category = document.getElementById('selectTxCategory').value;
+      const desc = document.getElementById('inputTxDesc').value.trim();
+
+      if (!amount || amount <= 0) {
+        alert("Nominal transaksi harus lebih besar dari 0!");
+        return;
+      }
+      if (!desc) {
+        alert("Keterangan transaksi wajib diisi!");
+        return;
+      }
+
+      const diff = appState.currentTxType === 'in' ? amount : -amount;
+      appState.saldo += diff;
+      appState.alokasi[category] = (appState.alokasi[category] || 0) + diff;
+
+      appState.transactions.unshift({
+        id: "tx_" + Date.now().toString().slice(-4),
+        type: appState.currentTxType,
+        amount: amount,
+        category: category,
+        desc: desc,
+        author: "Tarina (Bendahara)",
+        time: "Baru saja"
       });
 
-      if (viewType === 'desktop') {
-        viewDesktop.classList.remove('hidden');
-        btnD.classList.add('bg-white', 'text-slate-900', 'font-bold', 'shadow-sm');
-      } else if (viewType === 'mockup') {
-        viewMockup.classList.remove('hidden');
-        btnM.classList.add('bg-white', 'text-slate-900', 'font-bold', 'shadow-sm');
-      } else {
-        viewFluid.classList.remove('hidden');
-        btnF.classList.add('bg-white', 'text-slate-900', 'font-bold', 'shadow-sm');
-      }
+      closeModalTransaction();
+      document.getElementById('inputTxAmount').value = '';
+      document.getElementById('inputTxDesc').value = '';
+      updateUI();
     }
 
     // NIS Verification Lookup
-    function checkStudentNis() {
-      const input = document.getElementById('inputNisSearch').value.trim();
-      const resultBox = document.getElementById('nisResultBox');
-      if (!input) return;
+    function handleNisLookup() {
+      const nisInput = document.getElementById('inputNis').value.trim();
+      const resBox = document.getElementById('boxNisResult');
+      if (!nisInput) return;
 
-      const found = studentsData.find(s => s.nis === input);
-      resultBox.classList.remove('hidden');
+      const student = appState.students.find(s => s.nis === nisInput);
+      resBox.classList.remove('hidden');
 
-      if (found) {
-        resultBox.className = "mt-3 text-xs p-3 rounded-2xl bg-pastel-mintLight text-emerald-950 border border-emerald-300";
-        resultBox.innerHTML = `
-          <b>✅ Terverifikasi Whitelist XI-F2</b><br>
-          Nama: <b>${found.nama}</b><br>
-          Status Iuran M1: <b>${found.paid ? 'Lunas' : 'Belum Bayar'}</b>
+      if (student) {
+        resBox.className = "text-xs p-3 rounded-2xl bg-pastel-mintLight text-emerald-950 border border-emerald-300";
+        resBox.innerHTML = `
+          <div class="font-bold flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            Terverifikasi Whitelist XI-F2
+          </div>
+          <div class="mt-1">Nama: <b>${student.nama}</b></div>
+          <div>Status Iuran M1: <b>${student.paid ? 'Lunas' : 'Belum Bayar'}</b></div>
         `;
       } else {
-        resultBox.className = "mt-3 text-xs p-3 rounded-2xl bg-pastel-coral text-rose-950 border border-rose-300";
-        resultBox.innerHTML = `
-          <b>⛔ NIS Tidak Ditemukan!</b><br>
-          NIS "${input}" tidak ada dalam daftar absensi resmi XI-F2.
+        resBox.className = "text-xs p-3 rounded-2xl bg-pastel-coralLight text-rose-950 border border-rose-300";
+        resBox.innerHTML = `
+          <div class="font-bold flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-rose-700" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            NIS Tidak Ditemukan
+          </div>
+          <div class="mt-1">NIS "${nisInput}" tidak ada dalam daftar absensi resmi.</div>
         `;
       }
     }
 
-    // Interactive Quiz voting
-    function voteQuiz(answer) {
-      const result = document.getElementById('quizResult');
-      result.classList.remove('hidden');
-      if (answer === 'yes') {
-        result.innerText = "✅ Anda memilih: Sangat Cukup (Ya). Suara dicatat!";
-      } else {
-        result.innerText = "ℹ️ Anda memilih: Perlu Tambahan. Masukan diteruskan ke Bendahara.";
+    // Mood Selector that animates the character
+    function setFinancialMood(mood) {
+      const btns = ['moodAman', 'moodTagihan', 'moodSurplus', 'moodAudit'];
+      btns.forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.className = "p-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-center tactile-btn";
+      });
+
+      const activeBtn = document.getElementById('mood' + mood.charAt(0).toUpperCase() + mood.slice(1));
+      if (activeBtn) {
+        activeBtn.className = "p-2.5 rounded-2xl bg-pastel-mintLight border border-emerald-300 text-center tactile-btn ring-2 ring-emerald-500";
+      }
+
+      // Animate character mouth / face
+      const mouth = document.getElementById('mascotMouth');
+      if (mouth) {
+        if (mood === 'aman') {
+          mouth.setAttribute('d', 'M46 72 C50 78 56 78 60 72'); // smile
+        } else if (mood === 'tagihan') {
+          mouth.setAttribute('d', 'M48 74 Q53 71 58 74'); // sleepy flat
+        } else if (mood === 'surplus') {
+          mouth.setAttribute('d', 'M45 70 Q53 82 61 70'); // wide smile
+        } else {
+          mouth.setAttribute('d', 'M48 73 L58 73'); // neutral audit line
+        }
       }
     }
 
-    function scrollToTagihan() {
-      document.getElementById('sectionTagihan').scrollIntoView({ behavior: 'smooth' });
+    // Quiz voting
+    function voteVotingQuestion(choice) {
+      const res = document.getElementById('lblVoteResult');
+      res.classList.remove('hidden');
+      if (choice === 'yes') {
+        res.innerText = "Pilihan Anda: Sangat Cukup (Ya). Suara dicatat!";
+      } else {
+        res.innerText = "Pilihan Anda: Perlu Tambahan. Masukan diteruskan ke Bendahara.";
+      }
     }
 
-    function filterByMood(type) {
-      alert(`Menyaring metrik kas berdasarkan status: ${type.toUpperCase()}`);
+    // Export Table to CSV
+    function exportToCsv() {
+      let csv = "NIS,Nama Siswa,Role,Status Iuran M1\n";
+      appState.students.forEach(s => {
+        csv += `${s.nis},"${s.nama}",${s.role},${s.paid ? 'Lunas' : 'Belum Bayar'}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "cekas_iuran_xif2.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
-    function simulateTelegramCommand(cmd) {
-      alert(`Perintah bot disimulasikan: ${cmd}\nBuka @kacekasbot di Telegram untuk eksekusi langsung.`);
+    // View Switching Logic
+    function switchMainView(mode) {
+      const vD = document.getElementById('viewDesktop');
+      const vS = document.getElementById('viewShowcase');
+      const vM = document.getElementById('viewMobile');
+
+      const bD = document.getElementById('btnViewDesktop');
+      const bS = document.getElementById('btnViewShowcase');
+      const bM = document.getElementById('btnViewMobile');
+
+      [vD, vS, vM].forEach(el => el.classList.add('hidden'));
+      [bD, bS, bM].forEach(b => {
+        b.classList.remove('bg-white', 'text-slate-900', 'font-bold', 'shadow-xs');
+        b.classList.add('text-slate-600');
+      });
+
+      if (mode === 'desktop') {
+        vD.classList.remove('hidden');
+        bD.classList.add('bg-white', 'text-slate-900', 'font-bold', 'shadow-xs');
+      } else if (mode === 'showcase') {
+        vS.classList.remove('hidden');
+        bS.classList.add('bg-white', 'text-slate-900', 'font-bold', 'shadow-xs');
+      } else {
+        vM.classList.remove('hidden');
+        bM.classList.add('bg-white', 'text-slate-900', 'font-bold', 'shadow-xs');
+      }
     }
 
-    // Set real-time Indonesian date
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Initialize on load
     document.addEventListener('DOMContentLoaded', () => {
-      renderStudentsGrid();
-      const now = new Date();
-      const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' };
-      const dateEl = document.getElementById('currentDateWib');
-      if (dateEl) {
-        dateEl.innerText = now.toLocaleDateString('id-ID', options);
-      }
+      updateUI();
     });
   </script>
 
