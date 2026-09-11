@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-fredoka {
+  font-family: 'Fredoka', cursive;
+}
+
+/* Custom animations for character emotions */
+@keyframes floatMascot {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(1.5deg); }
+}
+
+@keyframes blinkEyes {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.85; }
+}
+
+.anim-float {
+  animation: floatMascot 4s ease-in-out infinite;
+}
+
+.anim-blink {
+  animation: blinkEyes 4.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.anim-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+  transform-origin: center;
+}
