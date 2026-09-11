@@ -4,14 +4,28 @@
  */
 
 const admin = require("firebase-admin");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 
-// Initialize Firebase Admin if not already initialized
-if (admin.apps.length === 0) {
-  admin.initializeApp();
+// Set default Google Application Credentials if not already set and file exists
+if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  const defaultGcloudCreds = "C:/Users/X1 CARBON/AppData/Roaming/gcloud/application_default_credentials.json";
+  try {
+    if (require("fs").existsSync(defaultGcloudCreds)) {
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = defaultGcloudCreds;
+    }
+  } catch (e) {
+    // Ignore if not accessible
+  }
 }
 
-const db = admin.firestore();
-const FieldValue = admin.firestore.FieldValue;
+// Initialize Firebase Admin if not already initialized
+if (!admin.apps || admin.apps.length === 0) {
+  admin.initializeApp({
+    projectId: process.env.GCP_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || "gemma4good-494311",
+  });
+}
+
+const db = getFirestore();
 
 /**
  * Get class document reference.

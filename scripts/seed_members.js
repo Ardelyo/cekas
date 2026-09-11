@@ -11,11 +11,21 @@
 
 require("dotenv").config({ path: require("path").resolve(__dirname, "../functions/.env") });
 const admin = require("firebase-admin");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+
+if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  const defaultGcloudCreds = "C:/Users/X1 CARBON/AppData/Roaming/gcloud/application_default_credentials.json";
+  try {
+    if (require("fs").existsSync(defaultGcloudCreds)) {
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = defaultGcloudCreds;
+    }
+  } catch (e) {}
+}
 
 // Initialize Firebase Admin with Application Default Credentials or Service Account
-if (admin.apps.length === 0) {
+if (admin.getApps().length === 0) {
   const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  if (serviceAccountPath) {
+  if (serviceAccountPath && !serviceAccountPath.includes("application_default_credentials")) {
     const serviceAccount = require(require("path").resolve(serviceAccountPath));
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
@@ -27,7 +37,7 @@ if (admin.apps.length === 0) {
   }
 }
 
-const db = admin.firestore();
+const db = getFirestore();
 
 async function seedData() {
   const cliArgs = process.argv.slice(2);
@@ -52,8 +62,8 @@ async function seedData() {
       nama: `Kelas ${classId} SMA Kartika XIX-1 Bandung`,
       tahun_ajaran: "2026/2027",
       saldo: 0,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
     console.log(`✅ Class ${classId} document created with initial saldo: Rp 0`);
   } else {
@@ -109,7 +119,7 @@ async function seedData() {
         role: member.role,
         telegramId: member.telegramId,
         keterangan: member.keterangan,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
       },
       { merge: true }
     );
