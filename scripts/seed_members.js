@@ -56,18 +56,36 @@ async function seedData() {
 
   // 1. Initialize or check class document
   const classDoc = await classRef.get();
+  const initialAlokasi = {
+    operasional: 0,
+    sosial: 0,
+    event: 0,
+    cadangan: 0,
+  };
+
   if (!classDoc.exists) {
     console.log(`Creating document for class ${classId}...`);
     await classRef.set({
       nama: `Kelas ${classId} SMA Kartika XIX-1 Bandung`,
       tahun_ajaran: "2026/2027",
       saldo: 0,
+      alokasi: initialAlokasi,
+      pinBendahara: "192837",
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
     console.log(`✅ Class ${classId} document created with initial saldo: Rp 0`);
   } else {
-    console.log(`ℹ️ Class ${classId} document already exists (Current Saldo: Rp ${classDoc.data().saldo || 0})`);
+    const existingData = classDoc.data() || {};
+    await classRef.set(
+      {
+        alokasi: existingData.alokasi || initialAlokasi,
+        pinBendahara: existingData.pinBendahara || "192837",
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+    console.log(`ℹ️ Class ${classId} document updated (Current Saldo: Rp ${existingData.saldo || 0})`);
   }
 
   // 2. Members subcollection

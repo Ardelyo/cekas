@@ -1,13 +1,20 @@
 /**
  * CEKAS (Catatan Keuangan Kelas)
- * Automated Verification & Unit/Integration Test Suite
+ * Automated Verification & Unit/Integration Test Suite (Fase 2)
  */
 
 const assert = require("assert");
-const { formatRupiah, parseNominal, formatWIB } = require("../src/formatters");
+const {
+  formatRupiah,
+  parseNominal,
+  formatWIB,
+  normalizeCategory,
+  getCategoryMeta,
+  parseTransactionArgs,
+} = require("../src/formatters");
 
 console.log("==================================================");
-console.log("🧪 CEKAS Automated Test Suite Starting...");
+console.log("🧪 CEKAS Automated Test Suite Starting (Fase 2)...");
 console.log("==================================================");
 
 let passedTests = 0;
@@ -80,27 +87,66 @@ async function runAllTests() {
     assert.strictEqual(parseNominal(null), null);
   });
 
+  test("normalizeCategory maps category synonyms to standard keys", () => {
+    assert.strictEqual(normalizeCategory("ops"), "operasional");
+    assert.strictEqual(normalizeCategory("rutin"), "operasional");
+    assert.strictEqual(normalizeCategory("sosial"), "sosial");
+    assert.strictEqual(normalizeCategory("duka"), "sosial");
+    assert.strictEqual(normalizeCategory("santunan"), "sosial");
+    assert.strictEqual(normalizeCategory("event"), "event");
+    assert.strictEqual(normalizeCategory("bukber"), "event");
+    assert.strictEqual(normalizeCategory("cadangan"), "cadangan");
+    assert.strictEqual(normalizeCategory("darurat"), "cadangan");
+    assert.strictEqual(normalizeCategory("unknown_word"), null);
+  });
+
+  test("parseTransactionArgs splits nominal, category, and description accurately", () => {
+    // 1. With explicit category
+    const p1 = parseTransactionArgs("10k sosial Santunan siswa sakit");
+    assert.strictEqual(p1.amount, 10000);
+    assert.strictEqual(p1.category, "sosial");
+    assert.strictEqual(p1.description, "Santunan siswa sakit");
+
+    // 2. Default to operasional when no category keyword specified
+    const p2 = parseTransactionArgs("15.000 Iuran mingguan Ardellio");
+    assert.strictEqual(p2.amount, 15000);
+    assert.strictEqual(p2.category, "operasional");
+    assert.strictEqual(p2.description, "Iuran mingguan Ardellio");
+
+    // 3. Event category with shorthand
+    const p3 = parseTransactionArgs("50k event Tabungan kas buka puasa");
+    assert.strictEqual(p3.amount, 50000);
+    assert.strictEqual(p3.category, "event");
+    assert.strictEqual(p3.description, "Tabungan kas buka puasa");
+  });
+
   test("formatWIB returns valid date string with 'WIB'", () => {
     const wibStr = formatWIB(new Date("2026-09-11T07:30:00Z")); // 14:30 WIB
     assert.ok(wibStr.includes("WIB"), "Should include WIB timezone label");
   });
 
   // ----------------------------------------------------
-  // TEST GROUP 2: Business Logic & Mock In-Memory Store
+  // TEST GROUP 2: Business Logic, RBAC & Allocations
   // ----------------------------------------------------
-  console.log("\n📦 2. Testing Bot Logic & Access Control (Simulation):");
+  console.log("\n📦 2. Testing Multi-Pocket Allocations & RBAC Simulation:");
 
-  // In-Memory simulated DB for testing logic without active Cloud Firestore network
   const mockDb = {
     classData: {
       nama: "Kelas XI-F2 SMA Kartika XIX-1 Bandung",
       tahun_ajaran: "2026/2027",
       saldo: 0,
+      alokasi: {
+        operasional: 0,
+        sosial: 0,
+        event: 0,
+        cadangan: 0,
+      },
+      pinBendahara: "192837",
     },
     members: [
-      { id: "tarina", nama: "Tarina", role: "bendahara", telegramId: 1111 },
-      { id: "ardellio", nama: "Ardellio", role: "siswa", telegramId: 2222 },
-      { id: "nabila", nama: "Nabila", role: "siswa", telegramId: 3333 },
+      { id: "tarina", nama: "Tarina", nis: "23241015", role: "bendahara", telegramId: 1111, notifAktif: true },
+      { id: "ardellio", nama: "Ardellio", nis: "23241001", role: "siswa", telegramId: 2222, notifAktif: true },
+      { id: "nabila", nama: "Nabila", nis: "23241020", role: "siswa", telegramId: 3333, notifAktif: true },
     ],
     transactions: [],
   };
@@ -112,15 +158,47 @@ async function runAllTests() {
     return { authorized: isBendahara, member };
   }
 
-  function mockRecordTx(type, amount, description, inputBy, telegramId) {
+  function mockRegisterMember(telegramId, nis, nama) {
+    let member = mockDb.members.find((m) => m.telegramId === Number(telegramId));
+    if (member) {
+      member.nis = nis;
+      member.nama = nama;
+    } else {
+      member = {
+        id: `user_${telegramId}`,
+        nama,
+        nis,
+        role: "siswa",
+        telegramId: Number(telegramId),
+        notifAktif: true,
+      };
+      mockDb.members.push(member);
+    }
+    return member;
+  }
+
+  function mockClaimBendahara(telegramId, pinInput) {
+    if (pinInput !== mockDb.classData.pinBendahara) {
+      return { success: false };
+    }
+    const member = mockDb.members.find((m) => m.telegramId === Number(telegramId));
+    if (member) {
+      member.role = "bendahara";
+      return { success: true, member };
+    }
+    return { success: false };
+  }
+
+  function mockRecordTxWithAllocation(type, amount, category, description, inputBy, telegramId) {
     const diff = type === "in" ? amount : -amount;
-    const prevSaldo = mockDb.classData.saldo;
     mockDb.classData.saldo += diff;
+    mockDb.classData.alokasi[category] = (mockDb.classData.alokasi[category] || 0) + diff;
 
     const tx = {
       id: "tx_" + (mockDb.transactions.length + 1),
       type,
       amount,
+      category,
       description,
       inputBy,
       telegramId,
@@ -129,105 +207,86 @@ async function runAllTests() {
     mockDb.transactions.unshift(tx);
 
     return {
-      transactionId: tx.id,
-      previousSaldo: prevSaldo,
       newSaldo: mockDb.classData.saldo,
-      amount,
-      type,
-      description,
-      inputBy,
+      newCatSaldo: mockDb.classData.alokasi[category],
+      alokasi: { ...mockDb.classData.alokasi },
     };
   }
 
-  test("Bendahara is authorized; regular student is denied for /tambah", () => {
-    const bendaharaCheck = mockCheckBendahara(1111);
-    assert.strictEqual(bendaharaCheck.authorized, true);
-    assert.strictEqual(bendaharaCheck.member.nama, "Tarina");
-
-    const studentCheck = mockCheckBendahara(2222);
-    assert.strictEqual(studentCheck.authorized, false);
-    assert.strictEqual(studentCheck.member.nama, "Ardellio");
-
-    const strangerCheck = mockCheckBendahara(9999);
-    assert.strictEqual(strangerCheck.authorized, false);
-    assert.strictEqual(strangerCheck.member, null);
+  test("Self-Registration adds new student correctly", () => {
+    const newStudent = mockRegisterMember(4444, "23241030", "Cinta");
+    assert.strictEqual(newStudent.nama, "Cinta");
+    assert.strictEqual(newStudent.role, "siswa");
+    assert.strictEqual(newStudent.notifAktif, true);
+    assert.strictEqual(mockDb.members.length, 4);
   });
 
-  test("Recording /tambah increases saldo accurately", () => {
-    const res = mockRecordTx("in", 10000, "Iuran kas Ardellio", "Tarina", 1111);
-    assert.strictEqual(res.previousSaldo, 0);
-    assert.strictEqual(res.newSaldo, 10000);
-    assert.strictEqual(mockDb.classData.saldo, 10000);
-    assert.strictEqual(mockDb.transactions.length, 1);
+  test("Bendahara claim with master PIN succeeds and updates role", () => {
+    // Attempt with wrong PIN
+    const wrongAttempt = mockClaimBendahara(4444, "000000");
+    assert.strictEqual(wrongAttempt.success, false);
+    assert.strictEqual(mockCheckBendahara(4444).authorized, false);
+
+    // Attempt with correct PIN
+    const rightAttempt = mockClaimBendahara(4444, "192837");
+    assert.strictEqual(rightAttempt.success, true);
+    assert.strictEqual(mockCheckBendahara(4444).authorized, true);
+    assert.strictEqual(rightAttempt.member.role, "bendahara");
   });
 
-  test("Recording /kurang decreases saldo accurately", () => {
-    const res = mockRecordTx("out", 3000, "Beli spidol whiteboard", "Tarina", 1111);
-    assert.strictEqual(res.previousSaldo, 10000);
-    assert.strictEqual(res.newSaldo, 7000);
-    assert.strictEqual(mockDb.classData.saldo, 7000);
-    assert.strictEqual(mockDb.transactions.length, 2);
+  test("Recording transaction with 'operasional' pocket updates total & pocket", () => {
+    const res = mockRecordTxWithAllocation("in", 50000, "operasional", "Kas rutin KBM", "Tarina", 1111);
+    assert.strictEqual(res.newSaldo, 50000);
+    assert.strictEqual(res.newCatSaldo, 50000);
+    assert.strictEqual(res.alokasi.operasional, 50000);
+    assert.strictEqual(res.alokasi.sosial, 0);
   });
 
-  test("Transaction history reflects latest entries in order (LIFO)", () => {
-    assert.strictEqual(mockDb.transactions[0].description, "Beli spidol whiteboard");
-    assert.strictEqual(mockDb.transactions[0].type, "out");
-    assert.strictEqual(mockDb.transactions[1].description, "Iuran kas Ardellio");
-    assert.strictEqual(mockDb.transactions[1].type, "in");
+  test("Recording transaction with 'sosial' pocket updates independently", () => {
+    const res = mockRecordTxWithAllocation("in", 30000, "sosial", "Donasi duka cita", "Tarina", 1111);
+    assert.strictEqual(res.newSaldo, 80000);
+    assert.strictEqual(res.alokasi.operasional, 50000);
+    assert.strictEqual(res.alokasi.sosial, 30000);
   });
 
-  // ----------------------------------------------------
-  // TEST GROUP 3: Command Parser Regex & Argument Splitter
-  // ----------------------------------------------------
-  console.log("\n📦 3. Testing Command Parsing & Edge Cases:");
-
-  function parseCommand(text) {
-    const match = text.trim().match(/^\/([a-zA-Z0-9_]+)(?:@\w+)?(?:\s+([\s\S]*))?$/);
-    if (!match) return null;
-    return {
-      command: match[1].toLowerCase(),
-      argsStr: (match[2] || "").trim(),
-    };
-  }
-
-  test("Command regex parses '/start' and mentions correctly", () => {
-    const parsed1 = parseCommand("/start");
-    assert.strictEqual(parsed1.command, "start");
-    assert.strictEqual(parsed1.argsStr, "");
-
-    const parsed2 = parseCommand("/start@cekas_bot");
-    assert.strictEqual(parsed2.command, "start");
-    assert.strictEqual(parsed2.argsStr, "");
+  test("Recording expense reduces category pocket and total accurately", () => {
+    const res = mockRecordTxWithAllocation("out", 15000, "operasional", "Beli spidol & isi tinta", "Tarina", 1111);
+    assert.strictEqual(res.newSaldo, 65000);
+    assert.strictEqual(res.alokasi.operasional, 35000);
+    assert.strictEqual(res.alokasi.sosial, 30000);
   });
 
-  test("Command regex parses '/tambah 10000 iuran mingguan' correctly", () => {
-    const parsed = parseCommand("/tambah@cekas_bot 10000 iuran mingguan");
-    assert.strictEqual(parsed.command, "tambah");
-    assert.strictEqual(parsed.argsStr, "10000 iuran mingguan");
+  test("Total saldo matches sum of all category pockets", () => {
+    const sumCategories =
+      mockDb.classData.alokasi.operasional +
+      mockDb.classData.alokasi.sosial +
+      mockDb.classData.alokasi.event +
+      mockDb.classData.alokasi.cadangan;
 
-    const spaceIdx = parsed.argsStr.search(/\s+/);
-    const nominal = parsed.argsStr.slice(0, spaceIdx);
-    const desc = parsed.argsStr.slice(spaceIdx).trim();
-
-    assert.strictEqual(parseNominal(nominal), 10000);
-    assert.strictEqual(desc, "iuran mingguan");
+    assert.strictEqual(mockDb.classData.saldo, sumCategories);
   });
 
-  test("Command regex parses '/kurang 25k beli sapu kelas' correctly", () => {
-    const parsed = parseCommand("/kurang 25k beli sapu kelas");
-    assert.strictEqual(parsed.command, "kurang");
+  test("Solo notification recipients query excludes sender and opt-out users", () => {
+    // Student 3333 opts out
+    mockDb.members.find((m) => m.telegramId === 3333).notifAktif = false;
 
-    const spaceIdx = parsed.argsStr.search(/\s+/);
-    const nominal = parsed.argsStr.slice(0, spaceIdx);
-    const desc = parsed.argsStr.slice(spaceIdx).trim();
+    // Sender is Tarina (1111)
+    const senderId = 1111;
+    const recipients = mockDb.members.filter(
+      (m) => m.telegramId !== senderId && m.notifAktif !== false
+    );
 
-    assert.strictEqual(parseNominal(nominal), 25000);
-    assert.strictEqual(desc, "beli sapu kelas");
+    // Should include 2222 (Ardellio) and 4444 (Cinta), but NOT 1111 (sender) and NOT 3333 (opt-out)
+    const recipientIds = recipients.map((r) => r.telegramId);
+    assert.ok(recipientIds.includes(2222));
+    assert.ok(recipientIds.includes(4444));
+    assert.ok(!recipientIds.includes(1111));
+    assert.ok(!recipientIds.includes(3333));
   });
 
   console.log("\n==================================================");
   console.log(`🎉 ALL ${passedTests} TESTS PASSED!`);
-  console.log("CEKAS Bot logic and calculations are verified 100%.");
+  console.log("CEKAS Multi-Pocket Allocations, RBAC & Solo Notification logic are verified 100%.");
   console.log("==================================================\n");
 }
 

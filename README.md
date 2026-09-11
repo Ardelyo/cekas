@@ -87,13 +87,18 @@ Cloud Functions    Local Runner (scripts/polling_dev.js)
 | Perintah | Hak Akses | Contoh Perintah | Deskripsi Output |
 |---|---|---|---|
 | `/start` | Semua Siswa | `/start` | Menampilkan sapaan, identitas pengguna, status role, dan panduan lengkap perintah. |
-| `/saldo` | Semua Siswa | `/saldo` | Menampilkan nominal saldo kas saat ini secara real-time dan waktu terakhir pembaruan. |
-| `/riwayat` | Semua Siswa | `/riwayat` | Menampilkan rekapitulasi 10 transaksi terakhir (pemasukan 📥 / pengeluaran 📤) beserta nama pencatat & saldo akhir. |
-| `/tambah` | **Khusus Bendahara** | `/tambah 10000 Iuran kas Ardellio`<br>`/tambah 25k Uang jualan bazar` | Menambahkan saldo kas dan menyimpan dokumen transaksi baru ke Firestore. |
-| `/kurang` | **Khusus Bendahara** | `/kurang 35000 Beli sapu dan pel`<br>`/kurang 15k Beli spidol whiteboard` | Mengurangi saldo kas dan menyimpan dokumen pengeluaran baru ke Firestore. |
+| `/saldo` | Semua Siswa | `/saldo` | Menampilkan total saldo kas kelas real-time dan ringkasan pos alokasi. |
+| `/alokasi` | Semua Siswa | `/alokasi` | Visualisasi rincian saldo per pos anggaran (Operasional, Sosial, Event, Cadangan) lengkap dengan persentase. |
+| `/riwayat` | Semua Siswa | `/riwayat`<br>`/riwayat sosial` | Menampilkan rekapitulasi 10 transaksi terakhir (pemasukan 📥 / pengeluaran 📤) beserta nama pencatat & saldo akhir. |
+| `/profil` | Semua Siswa | `/profil` | Melihat data akun, status NIS, role, dan preferensi notifikasi personal. |
+| `/notif` | Semua Siswa | `/notif on` atau `/notif off` | Mengaktifkan atau menonaktifkan notifikasi personal (DM) saat kas berubah. |
+| `/daftar` | Siswa Baru | `/daftar 23241001 Ardellio Satria` | Menghubungkan ID Telegram siswa secara mandiri ke sistem kelas. |
+| `/klaimbendahara` | Calon Bendahara | `/klaimbendahara 192837` | Mengaktifkan hak akses bendahara secara instan menggunakan PIN rahasia kelas. |
+| `/tambah` | **Khusus Bendahara** | `/tambah 10k operasional Iuran Ardellio`<br>`/tambah 25k sosial Donasi santunan` | Menambah saldo pos tertentu dan otomatis membroadcast notifikasi DM ke seluruh siswa. |
+| `/kurang` | **Khusus Bendahara** | `/kurang 35k operasional Beli sapu dan pel`<br>`/kurang 15k Beli spidol` | Mengurangi saldo pos tertentu dan otomatis membroadcast notifikasi DM ke seluruh siswa. |
 
-> ⚠️ **Catatan Proteksi Akses:**  
-> Jika pengguna yang *bukan* bendahara mencoba menjalankan `/tambah` atau `/kurang`, sistem akan menolak perintah secara santun dan menampilkan ID Telegram pengguna tersebut untuk verifikasi.
+> 🔔 **Fitur Solo/Personal Notification:**  
+> Sistem tidak mengharuskan bot berada di grup kelas. Setiap kali bendahara mencatat `/tambah` atau `/kurang`, bot secara otomatis mengirimkan notifikasi langsung (*private message*) ke akun Telegram masing-masing siswa yang telah terdaftar (`/daftar`). Siswa dapat mengatur preferensi ini lewat `/notif on/off`.
 
 ---
 

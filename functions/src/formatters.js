@@ -66,6 +66,99 @@ function parseNominal(inputStr) {
 }
 
 /**
+ * Map raw category word to standardized category key.
+ * Standard categories: 'operasional', 'sosial', 'event', 'cadangan'
+ * @param {string} rawCat
+ * @returns {string|null} returns category key if matched, or null
+ */
+function normalizeCategory(rawCat) {
+  if (!rawCat) return null;
+  const c = rawCat.toLowerCase().trim();
+
+  if (["operasional", "ops", "rutin", "kelas", "kebersihan"].includes(c)) {
+    return "operasional";
+  }
+  if (["sosial", "duka", "santunan", "sakit", "peduli"].includes(c)) {
+    return "sosial";
+  }
+  if (["event", "acara", "bukber", "kegiatan", "perpisahan", "wisuda"].includes(c)) {
+    return "event";
+  }
+  if (["cadangan", "darurat", "lainnya", "sisa", "tabungan"].includes(c)) {
+    return "cadangan";
+  }
+
+  return null;
+}
+
+/**
+ * Get category metadata for UI display.
+ * @param {string} categoryKey
+ * @returns {{ key: string, label: string, icon: string }}
+ */
+function getCategoryMeta(categoryKey) {
+  const cat = (categoryKey || "operasional").toLowerCase();
+  switch (cat) {
+    case "sosial":
+      return { key: "sosial", label: "Sosial & Peduli", icon: "🤝" };
+    case "event":
+      return { key: "event", label: "Acara & Kegiatan", icon: "🎪" };
+    case "cadangan":
+      return { key: "cadangan", label: "Dana Cadangan", icon: "🛡️" };
+    case "operasional":
+    default:
+      return { key: "operasional", label: "Operasional & KBM", icon: "🧹" };
+  }
+}
+
+/**
+ * Split transaction arguments into nominal, category, and description.
+ * Formats supported:
+ * 1. "10000 sosial Sumbangan duka cita" -> { amount: 10000, category: "sosial", description: "Sumbangan duka cita" }
+ * 2. "10000 Iuran kas mingguan" -> { amount: 10000, category: "operasional", description: "Iuran kas mingguan" }
+ * @param {string} argsStr
+ * @returns {{ amount: number|null, rawNominal: string, category: string, description: string }}
+ */
+function parseTransactionArgs(argsStr) {
+  if (!argsStr) {
+    return { amount: null, rawNominal: "", category: "operasional", description: "" };
+  }
+
+  const parts = argsStr.trim().split(/\s+/);
+  const rawNominal = parts[0] || "";
+  const amount = parseNominal(rawNominal);
+
+  if (!amount) {
+    return { amount: null, rawNominal, category: "operasional", description: "" };
+  }
+
+  const remainingWords = parts.slice(1);
+  if (remainingWords.length === 0) {
+    return { amount, rawNominal, category: "operasional", description: "" };
+  }
+
+  // Check if first word of remaining text matches a known category
+  const detectedCategory = normalizeCategory(remainingWords[0]);
+  let category = "operasional";
+  let description = "";
+
+  if (detectedCategory && remainingWords.length > 1) {
+    category = detectedCategory;
+    description = remainingWords.slice(1).join(" ");
+  } else {
+    // If not a recognized category keyword, entire remaining text is description
+    description = remainingWords.join(" ");
+  }
+
+  return {
+    amount,
+    rawNominal,
+    category,
+    description,
+  };
+}
+
+/**
  * Format timestamp (Date, Firestore Timestamp, or ISO string) to Indonesian date/time WIB.
  * Example: "11/09/2026, 14:35 WIB"
  * @param {Date|object|string|number} timestamp
@@ -87,7 +180,6 @@ function formatWIB(timestamp) {
     date = new Date();
   }
 
-  // Format to WIB (UTC+7)
   return new Intl.DateTimeFormat("id-ID", {
     timeZone: "Asia/Jakarta",
     year: "numeric",
@@ -103,5 +195,8 @@ function formatWIB(timestamp) {
 module.exports = {
   formatRupiah,
   parseNominal,
+  normalizeCategory,
+  getCategoryMeta,
+  parseTransactionArgs,
   formatWIB,
 };
