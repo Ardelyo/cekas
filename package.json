@@ -1,0 +1,16 @@
+{
+  "name": "cekas-app",
+  "version": "1.0.0",
+  "description": "CEKAS (Catatan Keuangan Kelas) - MVP Telegram Bot with Google Cloud Firestore",
+  "author": "Kelompok 5 (XI-F2 SMA Kartika XIX-1 Bandung)",
+  "license": "MIT",
+  "scripts": {
+    "test": "npm test --prefix functions",
+    "seed": "node scripts/seed_members.js",
+    "bot:dev": "node scripts/polling_dev.js",
+    "bot:polling": "node scripts/polling_dev.js",
+    "webhook:status": "node scripts/set_webhook.js",
+    "webhook:set": "node scripts/set_webhook.js",
+    "webhook:delete": "node scripts/set_webhook.js --delete"
+  }
+}

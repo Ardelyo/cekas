@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+functions/node_modules/
+
+# Environment files with secrets
+.env
+functions/.env
+*.local
+*.key
+*.pem
+service-account*.json
+
+# Firebase logs and cache
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+
+# Operating System files
+Thumbs.db
+.DS_Store

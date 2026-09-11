@@ -1,0 +1,127 @@
+/**
+ * CEKAS (Catatan Keuangan Kelas)
+ * Seed initial Firestore collections and member roles
+ *
+ * Usage:
+ *   node scripts/seed_members.js [YOUR_TELEGRAM_ID] [OPTIONAL_CLASS_ID]
+ *
+ * Example:
+ *   node scripts/seed_members.js 123456789 XI-F2
+ */
+
+require("dotenv").config({ path: require("path").resolve(__dirname, "../functions/.env") });
+const admin = require("firebase-admin");
+
+// Initialize Firebase Admin with Application Default Credentials or Service Account
+if (admin.apps.length === 0) {
+  const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  if (serviceAccountPath) {
+    const serviceAccount = require(require("path").resolve(serviceAccountPath));
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+  } else {
+    admin.initializeApp({
+      projectId: process.env.GCP_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || "gemma4good-494311",
+    });
+  }
+}
+
+const db = admin.firestore();
+
+async function seedData() {
+  const cliArgs = process.argv.slice(2);
+  const userTelegramId = cliArgs[0] ? Number(cliArgs[0]) : (process.env.BENDAHARA_TELEGRAM_ID ? Number(process.env.BENDAHARA_TELEGRAM_ID) : null);
+  const classId = cliArgs[1] || process.env.CLASS_ID || "XI-F2";
+
+  console.log(`\n==============================================`);
+  console.log(`🚀 CEKAS Firestore Database Seeder`);
+  console.log(`Target Class: ${classId}`);
+  if (userTelegramId) {
+    console.log(`Registered Bendahara Telegram ID: ${userTelegramId}`);
+  }
+  console.log(`==============================================\n`);
+
+  const classRef = db.collection("classes").doc(classId);
+
+  // 1. Initialize or check class document
+  const classDoc = await classRef.get();
+  if (!classDoc.exists) {
+    console.log(`Creating document for class ${classId}...`);
+    await classRef.set({
+      nama: `Kelas ${classId} SMA Kartika XIX-1 Bandung`,
+      tahun_ajaran: "2026/2027",
+      saldo: 0,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    console.log(`✅ Class ${classId} document created with initial saldo: Rp 0`);
+  } else {
+    console.log(`ℹ️ Class ${classId} document already exists (Current Saldo: Rp ${classDoc.data().saldo || 0})`);
+  }
+
+  // 2. Members subcollection
+  const membersCol = classRef.collection("members");
+
+  const initialMembers = [
+    {
+      id: "tarina",
+      nama: "Tarina",
+      role: "bendahara",
+      telegramId: userTelegramId || 99990001,
+      keterangan: "Ketua Kelompok & Bendahara Utama",
+    },
+    {
+      id: "ardellio",
+      nama: "Ardellio Satria Anindito",
+      role: "siswa",
+      telegramId: 99990002,
+      keterangan: "Anggota Kelompok 5 / Siswa XI-F2",
+    },
+    {
+      id: "nabila",
+      nama: "Nabila",
+      role: "siswa",
+      telegramId: 99990003,
+      keterangan: "Anggota Kelompok 5 / Siswa XI-F2",
+    },
+    {
+      id: "cinta",
+      nama: "Cinta",
+      role: "siswa",
+      telegramId: 99990004,
+      keterangan: "Anggota Kelompok 5 / Siswa XI-F2",
+    },
+    {
+      id: "walikelas",
+      nama: "Wali Kelas XI-F2",
+      role: "walikelas",
+      telegramId: 99990005,
+      keterangan: "Wali Kelas Pembimbing",
+    },
+  ];
+
+  console.log(`\nSeeding members into ${classId}/members...`);
+  for (const member of initialMembers) {
+    await membersCol.doc(member.id).set(
+      {
+        nama: member.nama,
+        role: member.role,
+        telegramId: member.telegramId,
+        keterangan: member.keterangan,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+    console.log(`  👤 [${member.role.toUpperCase()}] ${member.nama} (Telegram ID: ${member.telegramId})`);
+  }
+
+  console.log(`\n✅ Seeding completed successfully!`);
+  console.log(`Tip: Untuk menjadikan Telegram ID pribadi Anda sebagai Bendahara, jalankan:`);
+  console.log(`  node scripts/seed_members.js <ID_TELEGRAM_ANDA> ${classId}\n`);
+}
+
+seedData().catch((err) => {
+  console.error("❌ Seeding failed:", err);
+  process.exit(1);
+});

@@ -1,0 +1,25 @@
+{
+  "name": "cekas-functions",
+  "version": "1.0.0",
+  "description": "CEKAS (Catatan Keuangan Kelas) Telegram Bot Webhook on Cloud Functions & Firestore",
+  "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "lint": "echo 'No linter configured'",
+    "serve": "firebase emulators:start --only functions,firestore",
+    "shell": "firebase functions:shell",
+    "start": "node index.js",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "test": "node tests/bot.test.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0"
+  },
+  "devDependencies": {},
+  "private": true
+}
