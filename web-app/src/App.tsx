@@ -1,26 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Coins,
   Search,
   Plus,
   CheckCircle,
   AlertCircle,
-  LogOut,
-  LayoutDashboard,
-  Receipt,
-  CheckSquare,
-  FileSpreadsheet,
   RotateCcw
 } from 'lucide-react';
 import { doc, collection, onSnapshot, runTransaction, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
+import * as XLSX from 'xlsx';
 import { db } from './lib/firebase';
 import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserSession, AppTab } from './types';
 import { TransactionModal } from './components/TransactionModal';
 import { ReversalModal } from './components/ReversalModal';
-import { OnboardingHero } from './components/landing/OnboardingHero';
+import { FirstPageOnboarding } from './components/FirstPageOnboarding';
 import { AuthCard } from './components/landing/AuthCard';
-import { DashboardView } from './components/dashboard/DashboardView';
-import { LaporanView } from './components/LaporanView';
+import { MobileDashboard } from './components/mobile/MobileDashboard';
+import { MobileCalendarScreen } from './components/mobile/MobileCalendarScreen';
+import { MobileBottomNav } from './components/mobile/MobileBottomNav';
+import { MobileDrawerMenu } from './components/mobile/MobileDrawerMenu';
 
 const INITIAL_CLASS_STATE: ClassMetadata = {
   id: 'XI-F2',
@@ -52,7 +49,7 @@ const INITIAL_STUDENTS: WhitelistStudent[] = [
 ];
 
 export const App: React.FC = () => {
-  // WORKFLOW STAGE: 'onboarding' (FIRST PAGE) -> 'auth' (LOGIN/SIGNUP) -> 'app' (MAIN DASHBOARD)
+  // WORKFLOW STAGE: 'onboarding' -> 'auth' -> 'app'
   const [workflowStage, setWorkflowStage] = useState<'onboarding' | 'auth' | 'app'>('onboarding');
   const [authInitialMode, setAuthInitialMode] = useState<'login-siswa' | 'login-bendahara' | 'signup'>('login-siswa');
 
@@ -64,8 +61,11 @@ export const App: React.FC = () => {
     nama: 'Ardellio Satria Anindito',
   });
 
-  // ACTIVE TAB IN MAIN APP
+  // ACTIVE TAB (MOBILE BOTTOM NAV)
   const [currentTab, setCurrentTab] = useState<AppTab>('dashboard');
+
+  // DRAWER MENU STATE
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
   // LIVE DATA STATE
   const [classData, setClassData] = useState<ClassMetadata>(INITIAL_CLASS_STATE);
@@ -107,8 +107,6 @@ export const App: React.FC = () => {
 
   // FILTERS
   const [txSearchQuery, setTxSearchQuery] = useState<string>('');
-  const [txTypeFilter, setTxTypeFilter] = useState<'all' | 'in' | 'out'>('all');
-  const [txCategoryFilter, setTxCategoryFilter] = useState<string>('all');
   const [studentSearchFilter, setStudentSearchFilter] = useState<string>('');
 
   // CONNECT TO FIRESTORE (onSnapshot Real-time Listener)
@@ -293,12 +291,64 @@ export const App: React.FC = () => {
     );
   };
 
+  // EXPORT TO EXCEL
+  const handleExportExcel = () => {
+    const wb = XLSX.utils.book_new();
+
+    const summaryData = [
+      ['LAPORAN KAS KELAS XI-F2 SMA KARTIKA XIX-1 BANDUNG'],
+      ['Tahun Ajaran: 2026/2027'],
+      ['Tanggal Cetak: ' + new Date().toLocaleDateString('id-ID')],
+      [],
+      ['Kategori Pos Anggaran', 'Saldo Terkini (Rp)', 'Keterangan'],
+      ['Pos Operasional & KBM', classData.alokasi.operasional, 'Spidol, penghapus, alat kebersihan'],
+      ['Pos Sosial & Peduli', classData.alokasi.sosial, 'Santunan duka cita, menjenguk siswa sakit'],
+      ['Pos Acara & Kegiatan', classData.alokasi.event, 'Tabungan bukber & perpisahan'],
+      ['Pos Dana Cadangan', classData.alokasi.cadangan, 'Dana darurat kelas'],
+      [],
+      ['TOTAL SALDO KAS KELAS', classData.saldo, 'Surplus Tercatat Firestore'],
+    ];
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan Kas');
+
+    const txRows = [
+      ['ID Transaksi', 'Waktu', 'Jenis', 'Nominal (Rp)', 'Pos Alokasi', 'Keterangan', 'Pencatat', 'Status Koreksi'],
+      ...transactions.map((tx) => [
+        tx.id,
+        tx.timestamp instanceof Date ? tx.timestamp.toLocaleString('id-ID') : String(tx.timestamp),
+        tx.type === 'in' ? 'Pemasukan' : 'Pengeluaran',
+        tx.amount,
+        tx.category,
+        tx.description,
+        tx.inputBy,
+        tx.isReversed ? 'DIKOREKSI' : 'NORMAL',
+      ]),
+    ];
+    const wsTx = XLSX.utils.aoa_to_sheet(txRows);
+    XLSX.utils.book_append_sheet(wb, wsTx, 'Buku Kas Umum');
+
+    const duesRows = [
+      ['No', 'NIS', 'Nama Siswa', 'Role', 'Status Iuran Minggu 1'],
+      ...students.map((s, idx) => [
+        idx + 1,
+        s.nis,
+        s.namaResmi,
+        s.role,
+        s.paid ? 'LUNAS' : 'BELUM BAYAR',
+      ]),
+    ];
+    const wsDues = XLSX.utils.aoa_to_sheet(duesRows);
+    XLSX.utils.book_append_sheet(wb, wsDues, 'Rekap Iuran Siswa');
+
+    XLSX.writeFile(wb, `Laporan_Kas_XIF2_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   // ==============================================================
-  // WORKFLOW STAGE 1: THE VERY FIRST PAGE (ONBOARDING)
+  // STAGE 1: ONBOARDING SCREEN
   // ==============================================================
   if (workflowStage === 'onboarding') {
     return (
-      <OnboardingHero
+      <FirstPageOnboarding
         students={students}
         onOpenLogin={() => {
           setAuthInitialMode('login-siswa');
@@ -317,21 +367,12 @@ export const App: React.FC = () => {
           });
           setWorkflowStage('app');
         }}
-        onDirectLoginStudent={(student) => {
-          setUserSession({
-            isLoggedIn: true,
-            role: student.role === 'bendahara' ? 'bendahara' : 'siswa',
-            nama: student.namaResmi,
-            nis: student.nis,
-          });
-          setWorkflowStage('app');
-        }}
       />
     );
   }
 
   // ==============================================================
-  // WORKFLOW STAGE 2: AUTHENTICATION (LOGIN SISWA / BENDAHARA / SIGNUP)
+  // STAGE 2: AUTH SCREEN
   // ==============================================================
   if (workflowStage === 'auth') {
     return (
@@ -352,7 +393,7 @@ export const App: React.FC = () => {
   }
 
   // ==============================================================
-  // WORKFLOW STAGE 3: REAL MAIN PRODUCTION APPLICATION
+  // STAGE 3: MOBILE-FIRST APPLICATION ROOT VIEW
   // ==============================================================
   const totalStudents = students.length;
   const paidCount = students.filter((s) => s.paid).length;
@@ -360,375 +401,234 @@ export const App: React.FC = () => {
   const duesPercentage = ((paidCount / (totalStudents > 0 ? totalStudents : 1)) * 100).toFixed(1);
 
   return (
-    <div className="min-h-screen bg-[#F5F3FF] text-slate-900 antialiased flex flex-col font-space">
+    <div className="min-h-screen bg-[#F5F3FF] flex flex-col justify-center items-center font-space">
       
-      {/* ============================================================== */}
-      {/* REAL PRODUCTION APP TOP BAR (CONSISTENT SPACE GROTESK DESIGN)   */}
-      {/* ============================================================== */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-2 border-black px-4 py-3 sm:px-8 shadow-xs">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          
-          {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#B8FFA9] border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <Coins className="w-5 h-5 stroke-[2.2]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-space font-extrabold text-xl text-black tracking-tight">CEKAS</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EACEFF] text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                  XI-F2
-                </span>
+      {/* MOBILE-FIRST CONTAINER (390-430px optimal phone viewport) */}
+      <div className="w-full max-w-[430px] min-h-screen bg-[#F8FAFC] flex flex-col shadow-2xl relative md:my-6 md:rounded-[44px] md:border-3 md:border-black md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+        
+        {/* Dynamic Island / Top Phone Notch (on Desktop frame) */}
+        <div className="hidden md:block w-28 h-6 bg-black rounded-b-2xl mx-auto absolute top-0 left-1/2 -translate-x-1/2 z-50"></div>
+
+        {/* ============================================================== */}
+        {/* TAB ROUTER                                                     */}
+        {/* ============================================================== */}
+
+        {/* 1. HOME DASHBOARD TAB */}
+        {currentTab === 'dashboard' && (
+          <MobileDashboard
+            classData={classData}
+            transactions={transactions}
+            userSession={userSession}
+            activeMood={activeMood}
+            duesPercentage={duesPercentage}
+            onSelectMood={setActiveMood}
+            onOpenMenu={() => setIsDrawerOpen(true)}
+            onOpenCatatModal={() => setIsModalOpen(true)}
+          />
+        )}
+
+        {/* 2. CALENDAR TAB (MATCHING RIGHT SCREEN FROM REFERENCE) */}
+        {currentTab === 'laporan' && (
+          <MobileCalendarScreen
+            duesPercentage={duesPercentage}
+            onBackToHome={() => setCurrentTab('dashboard')}
+          />
+        )}
+
+        {/* 3. DUES CHECKLIST TAB */}
+        {currentTab === 'tagihan' && (
+          <div className="flex-1 flex flex-col p-4 space-y-4 pb-24 font-space">
+            
+            {/* Header */}
+            <div className="bg-white p-4 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-space font-extrabold text-sm text-black">Status Iuran Siswa</h3>
+                  <span className="text-[10px] text-slate-500 font-bold">Target: Rp 10.000 / siswa</span>
+                </div>
+                <div className="flex gap-1.5">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#B8FFA9] border border-black">
+                    {paidCount} Lunas
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FECDD3] border border-black">
+                    {unpaidCount} Nunggak
+                  </span>
+                </div>
               </div>
-              <p className="text-xs text-slate-600 font-medium">SMA Kartika XIX-1 Bandung</p>
+
+              {/* Progress bar */}
+              <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden border border-black/40">
+                <div
+                  className="bg-[#B8FFA9] h-2.5 rounded-full transition-all duration-500 border-r border-black"
+                  style={{ width: `${duesPercentage}%` }}
+                ></div>
+              </div>
             </div>
+
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <input
+                type="text"
+                value={studentSearchFilter}
+                onChange={(e) => setStudentSearchFilter(e.target.value)}
+                placeholder="Cari siswa atau NIS..."
+                className="w-full text-xs bg-white border-2 border-black rounded-2xl pl-10 pr-4 py-2.5 font-bold text-black focus:outline-none"
+              />
+            </div>
+
+            {/* Checklist List */}
+            <div className="space-y-2 flex-1 overflow-y-auto">
+              {students
+                .filter(
+                  (s) =>
+                    s.namaResmi.toLowerCase().includes(studentSearchFilter.toLowerCase()) ||
+                    s.nis.includes(studentSearchFilter)
+                )
+                .map((student) => (
+                  <div
+                    key={student.nis}
+                    className={`p-3 rounded-2xl border-2 border-black transition-all flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
+                      student.paid ? 'bg-white' : 'bg-[#FFF1F2]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-7 h-7 rounded-full border border-black flex items-center justify-center text-xs font-bold ${
+                          student.paid ? 'bg-[#B8FFA9] text-black' : 'bg-[#FECDD3] text-black'
+                        }`}
+                      >
+                        {student.paid ? <CheckCircle className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-xs text-black">{student.namaResmi}</div>
+                        <div className="text-[9px] text-slate-500 font-bold">NIS: {student.nis}</div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleStudentPaid(student.nis)}
+                      className={`text-[10px] font-extrabold px-3 py-1 rounded-xl transition-all border-2 border-black ${
+                        student.paid
+                          ? 'text-black bg-[#B8FFA9] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                          : 'text-black bg-[#FECDD3] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                      }`}
+                    >
+                      {student.paid ? 'Lunas' : 'Bayar'}
+                    </button>
+                  </div>
+                ))}
+            </div>
+
           </div>
+        )}
 
-          {/* Real Functional Navigation Tabs */}
-          <nav className="flex items-center bg-[#F1F5F9] p-1 rounded-full border-2 border-black text-xs font-bold text-slate-700">
-            <button
-              onClick={() => setCurrentTab('dashboard')}
-              className={`px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${
-                currentTab === 'dashboard'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'hover:text-black'
-              }`}
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Dashboard</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentTab('transaksi')}
-              className={`px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${
-                currentTab === 'transaksi'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'hover:text-black'
-              }`}
-            >
-              <Receipt className="w-3.5 h-3.5" />
-              <span>Buku Kas</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentTab('tagihan')}
-              className={`px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${
-                currentTab === 'tagihan'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'hover:text-black'
-              }`}
-            >
-              <CheckSquare className="w-3.5 h-3.5" />
-              <span>Iuran Siswa</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentTab('laporan')}
-              className={`px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${
-                currentTab === 'laporan'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'hover:text-black'
-              }`}
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Laporan & Cetak</span>
-            </button>
-          </nav>
-
-          {/* User Session Pill & Quick Catat */}
-          <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#FAF5FF] border-2 border-black text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <div className="w-6 h-6 rounded-full bg-[#EACEFF] border border-black flex items-center justify-center font-extrabold text-black text-[10px]">
-                {userSession.role === 'bendahara' ? 'TR' : 'AS'}
+        {/* 4. MUTASI / BUKU KAS TAB */}
+        {currentTab === 'transaksi' && (
+          <div className="flex-1 flex flex-col p-4 space-y-4 pb-24 font-space">
+            
+            {/* Header */}
+            <div className="bg-white p-4 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
+              <div>
+                <h3 className="font-space font-extrabold text-sm text-black">Buku Kas Umum</h3>
+                <span className="text-[10px] text-slate-500 font-bold">{transactions.length} Mutasi Tercatat</span>
               </div>
-              <div className="text-left">
-                <span className="font-extrabold text-black block leading-tight text-[11px]">
-                  {userSession.nama || 'Ardellio Satria'}
-                </span>
-                <span className="text-[10px] text-slate-500 block font-bold capitalize">
-                  {userSession.role === 'bendahara' ? 'Bendahara (Admin)' : 'Siswa XI-F2'}
-                </span>
-              </div>
+
               <button
-                onClick={() => setWorkflowStage('onboarding')}
-                title="Keluar / Ganti Akun"
-                className="w-6 h-6 rounded-lg text-slate-500 hover:text-rose-700 hover:bg-rose-100 flex items-center justify-center ml-1 transition-colors"
+                onClick={() => setIsModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-[#B8FFA9] text-black font-extrabold text-xs border-2 border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1 tactile-bounce"
               >
-                <LogOut className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Tambah</span>
               </button>
             </div>
 
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 rounded-full text-xs font-extrabold bg-[#B8FFA9] hover:bg-[#a3f792] text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 tactile-bounce"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Catat Kas</span>
-            </button>
-          </div>
-
-        </div>
-      </header>
-
-      {/* ============================================================== */}
-      {/* MAIN CONTENT ROUTER                                             */}
-      {/* ============================================================== */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        
-        {/* TAB 1: DASHBOARD OVERVIEW */}
-        {currentTab === 'dashboard' && (
-          <DashboardView
-            classData={classData}
-            transactions={transactions}
-            students={students}
-            userSession={userSession}
-            activeMood={activeMood}
-            onSelectMood={setActiveMood}
-            onNavigateTab={(tab) => setCurrentTab(tab)}
-          />
-        )}
-
-        {/* TAB 2: BUKU KAS UMUM & KOREKSI REVERSAL */}
-        {currentTab === 'transaksi' && (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-              
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-space font-extrabold text-black">Buku Kas Umum XI-F2</h2>
-                  <p className="text-xs text-slate-600 font-medium mt-0.5">
-                    Seluruh riwayat transaksi masuk dan keluar (Append-only audit trail)
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="px-4 py-2.5 rounded-2xl bg-[#B8FFA9] text-black font-extrabold text-xs border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 tactile-bounce"
-                >
-                  <Plus className="w-4 h-4 stroke-[2.5]" />
-                  <span>Catat Transaksi Baru</span>
-                </button>
-              </div>
-
-              {/* Filters Bar */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-                <div className="relative flex-1 w-full">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                  <input
-                    type="text"
-                    value={txSearchQuery}
-                    onChange={(e) => setTxSearchQuery(e.target.value)}
-                    placeholder="Cari transaksi berdasarkan keterangan atau pencatat..."
-                    className="w-full text-xs bg-slate-50 border-2 border-black rounded-2xl pl-10 pr-4 py-2.5 font-bold text-black focus:outline-none focus:bg-white"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <select
-                    value={txTypeFilter}
-                    onChange={(e) => setTxTypeFilter(e.target.value as any)}
-                    className="text-xs bg-slate-50 border-2 border-black rounded-2xl px-3 py-2.5 font-bold text-black focus:outline-none"
-                  >
-                    <option value="all">Semua Jenis</option>
-                    <option value="in">Hanya Pemasukan (+)</option>
-                    <option value="out">Hanya Pengeluaran (-)</option>
-                  </select>
-
-                  <select
-                    value={txCategoryFilter}
-                    onChange={(e) => setTxCategoryFilter(e.target.value)}
-                    className="text-xs bg-slate-50 border-2 border-black rounded-2xl px-3 py-2.5 font-bold text-black focus:outline-none"
-                  >
-                    <option value="all">Semua Pos</option>
-                    <option value="operasional">Pos Operasional</option>
-                    <option value="sosial">Pos Sosial</option>
-                    <option value="event">Pos Acara</option>
-                    <option value="cadangan">Pos Cadangan</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Ledger Table */}
-              <div className="border-2 border-black rounded-3xl overflow-hidden text-xs">
-                <table className="w-full text-left">
-                  <thead className="bg-[#F1F5F9] font-extrabold text-black border-b-2 border-black">
-                    <tr>
-                      <th className="p-3.5">ID</th>
-                      <th className="p-3.5">Jenis</th>
-                      <th className="p-3.5">Pos Alokasi</th>
-                      <th className="p-3.5">Keterangan</th>
-                      <th className="p-3.5 text-right">Nominal</th>
-                      <th className="p-3.5">Pencatat</th>
-                      <th className="p-3.5 text-center">Status</th>
-                      <th className="p-3.5 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y border-slate-200 font-medium">
-                    {transactions
-                      .filter((tx) => {
-                        const matchQ =
-                          tx.description.toLowerCase().includes(txSearchQuery.toLowerCase()) ||
-                          tx.inputBy.toLowerCase().includes(txSearchQuery.toLowerCase());
-                        const matchType = txTypeFilter === 'all' || tx.type === txTypeFilter;
-                        const matchCat = txCategoryFilter === 'all' || tx.category === txCategoryFilter;
-                        return matchQ && matchType && matchCat;
-                      })
-                      .map((tx) => (
-                        <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="p-3.5 font-mono text-[11px] text-slate-500 font-bold">#{tx.id}</td>
-                          <td className="p-3.5">
-                            <span
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold border border-black ${
-                                tx.type === 'in' ? 'bg-[#B8FFA9] text-black' : 'bg-[#FECDD3] text-black'
-                              }`}
-                            >
-                              {tx.type === 'in' ? 'Masuk' : 'Keluar'}
-                            </span>
-                          </td>
-                          <td className="p-3.5 text-black font-extrabold uppercase text-[10px]">{tx.category}</td>
-                          <td className="p-3.5 text-black font-bold">{tx.description}</td>
-                          <td className={`p-3.5 text-right font-space font-extrabold text-sm ${tx.type === 'in' ? 'text-emerald-800' : 'text-orange-800'}`}>
-                            {tx.type === 'in' ? '+' : '-'}{formatRupiah(tx.amount)}
-                          </td>
-                          <td className="p-3.5 text-slate-700 font-medium">{tx.inputBy}</td>
-                          <td className="p-3.5 text-center">
-                            {tx.isReversed ? (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF08A] text-black border border-black line-through">
-                                Dikoreksi
-                              </span>
-                            ) : (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                                Sah
-                              </span>
-                            )}
-                          </td>
-                          <td className="p-3.5 text-right">
-                            {!tx.isReversed && !tx.isCorrection && (
-                              <button
-                                onClick={() => setReversalTargetTx(tx)}
-                                title="Koreksi transaksi ini"
-                                className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-[#FEF08A] text-black font-bold text-[11px] border border-black transition-colors inline-flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                              >
-                                <RotateCcw className="w-3 h-3" />
-                                <span>Koreksi</span>
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-
+            {/* Search */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <input
+                type="text"
+                value={txSearchQuery}
+                onChange={(e) => setTxSearchQuery(e.target.value)}
+                placeholder="Cari transaksi..."
+                className="w-full text-xs bg-white border-2 border-black rounded-2xl pl-10 pr-4 py-2.5 font-bold text-black focus:outline-none"
+              />
             </div>
-          </div>
-        )}
 
-        {/* TAB 3: TAGIHAN & IURAN SISWA */}
-        {currentTab === 'tagihan' && (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-space font-extrabold text-black">
-                    Status Kelunasan Iuran Kas Siswa
-                  </h2>
-                  <p className="text-xs text-slate-600 font-medium mt-0.5">
-                    Target: Rp 10.000 / siswa • Terkoneksi otomatis dengan absensi resmi XI-F2
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#B8FFA9] text-black border border-black">
-                    {paidCount} Siswa Lunas
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#FECDD3] text-black border border-black">
-                    {unpaidCount} Belum Bayar
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="p-4 rounded-3xl bg-[#F0FDF4] border-2 border-black space-y-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                <div className="flex justify-between text-xs font-extrabold text-black">
-                  <span>Progres Kelunasan Minggu ke-1</span>
-                  <span>{duesPercentage}% Tercapai</span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden border border-black">
-                  <div
-                    className="bg-[#B8FFA9] h-3 rounded-full transition-all duration-500 border-r border-black"
-                    style={{ width: `${duesPercentage}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              {/* Search Filter */}
-              <div className="pt-2">
-                <input
-                  type="text"
-                  value={studentSearchFilter}
-                  onChange={(e) => setStudentSearchFilter(e.target.value)}
-                  placeholder="Cari siswa berdasarkan nama atau NIS..."
-                  className="w-full sm:w-80 text-xs bg-slate-50 border-2 border-black rounded-2xl px-4 py-2.5 font-bold text-black focus:outline-none focus:bg-white"
-                />
-              </div>
-
-              {/* Student Checklist Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
-                {students
-                  .filter(
-                    (s) =>
-                      s.namaResmi.toLowerCase().includes(studentSearchFilter.toLowerCase()) ||
-                      s.nis.includes(studentSearchFilter)
-                  )
-                  .map((student) => (
+            {/* List */}
+            <div className="space-y-2 flex-1 overflow-y-auto">
+              {transactions
+                .filter((tx) =>
+                  tx.description.toLowerCase().includes(txSearchQuery.toLowerCase()) ||
+                  tx.inputBy.toLowerCase().includes(txSearchQuery.toLowerCase())
+                )
+                .map((tx) => {
+                  const isIn = tx.type === 'in';
+                  return (
                     <div
-                      key={student.nis}
-                      className={`p-3.5 rounded-2xl border-2 border-black transition-all flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
-                        student.paid ? 'bg-white' : 'bg-[#FFF1F2]'
-                      }`}
+                      key={tx.id}
+                      className="p-3 rounded-2xl bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between"
                     >
                       <div className="flex items-center gap-2.5">
                         <div
-                          className={`w-7 h-7 rounded-full border border-black flex items-center justify-center text-xs font-bold ${
-                            student.paid ? 'bg-[#B8FFA9] text-black' : 'bg-[#FECDD3] text-black'
+                          className={`w-7 h-7 rounded-xl border border-black flex items-center justify-center font-bold text-xs ${
+                            isIn ? 'bg-[#B8FFA9] text-black' : 'bg-[#FFC6A8] text-black'
                           }`}
                         >
-                          {student.paid ? <CheckCircle className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                          {isIn ? '+' : '-'}
                         </div>
                         <div>
-                          <div className="font-extrabold text-xs text-black">{student.namaResmi}</div>
-                          <div className="text-[10px] text-slate-500 font-bold">NIS: {student.nis}</div>
+                          <div className="font-extrabold text-xs text-black leading-tight">{tx.description}</div>
+                          <div className="text-[9px] text-slate-500 font-bold">
+                            {tx.inputBy} • Pos {tx.category}
+                            {tx.isReversed && <span className="ml-1 text-rose-600 line-through">[Koreksi]</span>}
+                          </div>
                         </div>
                       </div>
-                      <button
-                        onClick={() => toggleStudentPaid(student.nis)}
-                        className={`text-[11px] font-extrabold px-3 py-1 rounded-xl transition-all border-2 border-black ${
-                          student.paid
-                            ? 'text-black bg-[#B8FFA9] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
-                            : 'text-black bg-[#FECDD3] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
-                        }`}
-                      >
-                        {student.paid ? 'Lunas' : 'Bayar'}
-                      </button>
-                    </div>
-                  ))}
-              </div>
 
+                      <div className="text-right flex items-center gap-2">
+                        <span className={`font-space font-extrabold text-xs ${isIn ? 'text-emerald-800' : 'text-orange-900'}`}>
+                          {isIn ? '+' : '-'}{formatRupiah(tx.amount)}
+                        </span>
+
+                        {!tx.isReversed && !tx.isCorrection && (
+                          <button
+                            type="button"
+                            onClick={() => setReversalTargetTx(tx)}
+                            title="Koreksi Transaksi"
+                            className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-[#FEF08A] border border-black flex items-center justify-center text-black"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
+
           </div>
         )}
 
-        {/* TAB 4: LAPORAN & EKSPOR EXCEL/PDF */}
-        {currentTab === 'laporan' && (
-          <LaporanView
-            classData={classData}
-            transactions={transactions}
-            students={students}
-          />
-        )}
+        {/* ============================================================== */}
+        {/* FLOATING MOBILE BOTTOM NAVIGATION BAR                          */}
+        {/* ============================================================== */}
+        <MobileBottomNav
+          currentTab={currentTab}
+          onSelectTab={setCurrentTab}
+        />
 
-      </main>
+      </div>
+
+      {/* Slide-in Mobile Drawer Menu */}
+      <MobileDrawerMenu
+        isOpen={isDrawerOpen}
+        userSession={userSession}
+        onClose={() => setIsDrawerOpen(false)}
+        onSwitchAccount={() => setWorkflowStage('onboarding')}
+        onExportExcel={handleExportExcel}
+      />
 
       {/* Transaction Modal */}
       <TransactionModal
