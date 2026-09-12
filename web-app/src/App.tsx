@@ -26,8 +26,8 @@ import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserS
 import { AnimatedMascot } from './components/AnimatedMascot';
 import { TransactionModal } from './components/TransactionModal';
 import { ReversalModal } from './components/ReversalModal';
-import { FirstPageOnboarding } from './components/FirstPageOnboarding';
-import { AuthView } from './components/AuthView';
+import { OnboardingHero } from './components/landing/OnboardingHero';
+import { AuthCard } from './components/landing/AuthCard';
 import { LaporanView } from './components/LaporanView';
 
 const INITIAL_CLASS_STATE: ClassMetadata = {
@@ -307,7 +307,7 @@ export const App: React.FC = () => {
   // ==============================================================
   if (workflowStage === 'onboarding') {
     return (
-      <FirstPageOnboarding
+      <OnboardingHero
         students={students}
         onOpenLogin={() => {
           setAuthInitialMode('login-siswa');
@@ -326,6 +326,15 @@ export const App: React.FC = () => {
           });
           setWorkflowStage('app');
         }}
+        onDirectLoginStudent={(student) => {
+          setUserSession({
+            isLoggedIn: true,
+            role: student.role === 'bendahara' ? 'bendahara' : 'siswa',
+            nama: student.namaResmi,
+            nis: student.nis,
+          });
+          setWorkflowStage('app');
+        }}
       />
     );
   }
@@ -335,7 +344,7 @@ export const App: React.FC = () => {
   // ==============================================================
   if (workflowStage === 'auth') {
     return (
-      <AuthView
+      <AuthCard
         initialMode={authInitialMode}
         students={students}
         masterPin={classData.pinBendahara || '192837'}
