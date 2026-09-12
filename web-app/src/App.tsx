@@ -26,7 +26,7 @@ import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserS
 import { AnimatedMascot } from './components/AnimatedMascot';
 import { TransactionModal } from './components/TransactionModal';
 import { ReversalModal } from './components/ReversalModal';
-import { OnboardingView } from './components/OnboardingView';
+import { FirstPageOnboarding } from './components/FirstPageOnboarding';
 import { AuthView } from './components/AuthView';
 import { LaporanView } from './components/LaporanView';
 
@@ -60,7 +60,7 @@ const INITIAL_STUDENTS: WhitelistStudent[] = [
 ];
 
 export const App: React.FC = () => {
-  // WORKFLOW STAGE: 'onboarding' -> 'auth' -> 'app'
+  // WORKFLOW STAGE: 'onboarding' (FIRST PAGE) -> 'auth' (LOGIN/SIGNUP) -> 'app' (MAIN DASHBOARD)
   const [workflowStage, setWorkflowStage] = useState<'onboarding' | 'auth' | 'app'>('onboarding');
   const [authInitialMode, setAuthInitialMode] = useState<'login-siswa' | 'login-bendahara' | 'signup'>('login-siswa');
 
@@ -72,7 +72,7 @@ export const App: React.FC = () => {
     nama: 'Ardellio Satria Anindito',
   });
 
-  // ACTIVE TAB
+  // ACTIVE TAB IN MAIN APP
   const [currentTab, setCurrentTab] = useState<AppTab>('dashboard');
 
   // LIVE DATA STATE
@@ -108,7 +108,7 @@ export const App: React.FC = () => {
   ]);
   const [students, setStudents] = useState<WhitelistStudent[]>(INITIAL_STUDENTS);
 
-  // INTERACTIVE WIDGET STATE
+  // WIDGET INTERACTION STATE
   const [activeMood, setActiveMood] = useState<FinancialMood>('aman');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [reversalTargetTx, setReversalTargetTx] = useState<Transaction | null>(null);
@@ -241,7 +241,7 @@ export const App: React.FC = () => {
     }
   };
 
-  // REVERSAL / KOREKSI APPEND-ONLY
+  // REVERSAL KOREKSI APPEND-ONLY
   const handleConfirmReversal = async (txId: string, reason: string) => {
     const target = transactions.find((t) => t.id === txId);
     if (!target || target.isReversed) return;
@@ -281,7 +281,7 @@ export const App: React.FC = () => {
     ]);
   };
 
-  // TOGGLE STUDENT PAID
+  // TOGGLE STUDENT PAID (1-CLICK DUES)
   const toggleStudentPaid = (nis: string) => {
     setStudents((prev) =>
       prev.map((s) => {
@@ -302,19 +302,22 @@ export const App: React.FC = () => {
     );
   };
 
-  // STAGE 1: ONBOARDING
+  // ==============================================================
+  // WORKFLOW STAGE 1: THE VERY FIRST PAGE (ONBOARDING)
+  // ==============================================================
   if (workflowStage === 'onboarding') {
     return (
-      <OnboardingView
-        onStartLogin={() => {
+      <FirstPageOnboarding
+        students={students}
+        onOpenLogin={() => {
           setAuthInitialMode('login-siswa');
           setWorkflowStage('auth');
         }}
-        onStartSignup={() => {
+        onOpenSignup={() => {
           setAuthInitialMode('signup');
           setWorkflowStage('auth');
         }}
-        onContinueAsGuest={() => {
+        onEnterDashboard={() => {
           setUserSession({
             isLoggedIn: false,
             role: 'siswa',
@@ -327,7 +330,9 @@ export const App: React.FC = () => {
     );
   }
 
-  // STAGE 2: AUTHENTICATION
+  // ==============================================================
+  // WORKFLOW STAGE 2: AUTHENTICATION (LOGIN SISWA / BENDAHARA / SIGNUP)
+  // ==============================================================
   if (workflowStage === 'auth') {
     return (
       <AuthView
@@ -346,7 +351,9 @@ export const App: React.FC = () => {
     );
   }
 
-  // STAGE 3: MAIN APPLICATION (NO SHOWCASE, FULL WORKING DASHBOARD)
+  // ==============================================================
+  // WORKFLOW STAGE 3: REAL MAIN PRODUCTION APPLICATION
+  // ==============================================================
   const totalSaldoSafe = classData.saldo > 0 ? classData.saldo : 1;
   const opsPct = ((classData.alokasi.operasional / totalSaldoSafe) * 100).toFixed(1);
   const sosPct = ((classData.alokasi.sosial / totalSaldoSafe) * 100).toFixed(1);
@@ -357,91 +364,99 @@ export const App: React.FC = () => {
   const duesPercentage = ((paidCount / totalStudents) * 100).toFixed(1);
 
   return (
-    <div className="min-h-screen bg-[#EEF2F6] text-slate-800 antialiased flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F5F3FF] text-slate-900 antialiased flex flex-col font-space">
       
       {/* ============================================================== */}
-      {/* REAL APP TOP HEADER (NO PHONE BEZELS / NO SHOWCASE VIEWS)       */}
+      {/* REAL PRODUCTION APP TOP BAR (CONSISTENT SPACE GROTESK DESIGN)   */}
       {/* ============================================================== */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 sm:px-8">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-2 border-black px-4 py-3 sm:px-8 shadow-xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800 shadow-xs">
-              <Coins className="w-5 h-5 text-emerald-700" />
+            <div className="w-10 h-10 rounded-2xl bg-[#B8FFA9] border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <Coins className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-fredoka font-bold text-xl text-slate-900 tracking-tight">CEKAS</span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                <span className="font-space font-extrabold text-xl text-black tracking-tight">CEKAS</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EACEFF] text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                   XI-F2
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium">SMA Kartika XIX-1 Bandung</p>
+              <p className="text-xs text-slate-600 font-medium">SMA Kartika XIX-1 Bandung</p>
             </div>
           </div>
 
           {/* Real Functional Navigation Tabs */}
-          <nav className="flex items-center bg-slate-100 p-1 rounded-full border border-slate-200 text-xs font-semibold text-slate-600">
+          <nav className="flex items-center bg-[#F1F5F9] p-1 rounded-full border-2 border-black text-xs font-bold text-slate-700">
             <button
               onClick={() => setCurrentTab('dashboard')}
               className={`px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${
-                currentTab === 'dashboard' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'hover:text-slate-900'
+                currentTab === 'dashboard'
+                  ? 'bg-black text-white shadow-xs'
+                  : 'hover:text-black'
               }`}
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
-              Dashboard
+              <span>Dashboard</span>
             </button>
 
             <button
               onClick={() => setCurrentTab('transaksi')}
               className={`px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${
-                currentTab === 'transaksi' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'hover:text-slate-900'
+                currentTab === 'transaksi'
+                  ? 'bg-black text-white shadow-xs'
+                  : 'hover:text-black'
               }`}
             >
               <Receipt className="w-3.5 h-3.5" />
-              Buku Kas
+              <span>Buku Kas</span>
             </button>
 
             <button
               onClick={() => setCurrentTab('tagihan')}
               className={`px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${
-                currentTab === 'tagihan' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'hover:text-slate-900'
+                currentTab === 'tagihan'
+                  ? 'bg-black text-white shadow-xs'
+                  : 'hover:text-black'
               }`}
             >
               <CheckSquare className="w-3.5 h-3.5" />
-              Tagihan Siswa
+              <span>Iuran Siswa</span>
             </button>
 
             <button
               onClick={() => setCurrentTab('laporan')}
               className={`px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${
-                currentTab === 'laporan' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'hover:text-slate-900'
+                currentTab === 'laporan'
+                  ? 'bg-black text-white shadow-xs'
+                  : 'hover:text-black'
               }`}
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
-              Laporan & Cetak
+              <span>Laporan & Cetak</span>
             </button>
           </nav>
 
-          {/* User Session Pill & Actions */}
+          {/* User Session Pill & Quick Catat */}
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
-              <div className="w-6 h-6 rounded-full bg-violet-200 flex items-center justify-center font-bold text-violet-950 text-[10px]">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#FAF5FF] border-2 border-black text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <div className="w-6 h-6 rounded-full bg-[#EACEFF] border border-black flex items-center justify-center font-extrabold text-black text-[10px]">
                 {userSession.role === 'bendahara' ? 'TR' : 'AS'}
               </div>
               <div className="text-left">
-                <span className="font-bold text-slate-900 block leading-tight text-[11px]">
+                <span className="font-extrabold text-black block leading-tight text-[11px]">
                   {userSession.nama || 'Ardellio Satria'}
                 </span>
-                <span className="text-[10px] text-slate-400 block font-medium capitalize">
-                  Role: <b>{userSession.role}</b>
+                <span className="text-[10px] text-slate-500 block font-bold capitalize">
+                  {userSession.role === 'bendahara' ? 'Bendahara (Admin)' : 'Siswa XI-F2'}
                 </span>
               </div>
               <button
                 onClick={() => setWorkflowStage('onboarding')}
-                title="Ganti Akun / Keluar"
-                className="w-6 h-6 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center ml-1 transition-colors"
+                title="Keluar / Ganti Akun"
+                className="w-6 h-6 rounded-lg text-slate-500 hover:text-rose-700 hover:bg-rose-100 flex items-center justify-center ml-1 transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
@@ -449,9 +464,9 @@ export const App: React.FC = () => {
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-3.5 py-2 rounded-full text-xs font-bold bg-[#BBF7D0] text-emerald-950 hover:bg-emerald-300 transition-all border border-emerald-300 shadow-xs flex items-center gap-1.5"
+              className="px-4 py-2 rounded-full text-xs font-extrabold bg-[#B8FFA9] hover:bg-[#a3f792] text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 tactile-bounce"
             >
-              <Plus className="w-4 h-4 text-emerald-800" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Catat Kas</span>
             </button>
           </div>
@@ -460,7 +475,7 @@ export const App: React.FC = () => {
       </header>
 
       {/* ============================================================== */}
-      {/* MAIN CONTENT ROUTER PER ACTIVE TAB                              */}
+      {/* MAIN CONTENT ROUTER                                             */}
       {/* ============================================================== */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         
@@ -472,72 +487,72 @@ export const App: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               
               {/* Total Kas Card (Peach) */}
-              <div className="bg-[#FED7AA] p-5 rounded-3xl border border-orange-200 shadow-xs flex flex-col justify-between">
+              <div className="bg-[#FFC6A8] p-5 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-orange-950 uppercase tracking-wider">Total Kas Kelas</span>
-                  <div className="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center text-orange-900 shadow-xs">
-                    <Coins className="w-4 h-4" />
+                  <span className="text-xs font-extrabold text-black uppercase tracking-wider">Total Kas Kelas</span>
+                  <div className="w-8 h-8 rounded-full bg-white border border-black flex items-center justify-center text-black">
+                    <Coins className="w-4 h-4 stroke-[2.2]" />
                   </div>
                 </div>
                 <div className="my-3">
-                  <div className="text-3xl font-fredoka font-bold text-slate-900">{formatRupiah(classData.saldo)}</div>
-                  <span className="text-xs font-semibold text-orange-900 flex items-center gap-1 mt-0.5">
-                    <TrendingUp className="w-3.5 h-3.5 text-emerald-700" />
+                  <div className="text-3xl font-space font-extrabold text-black">{formatRupiah(classData.saldo)}</div>
+                  <span className="text-xs font-bold text-black flex items-center gap-1 mt-0.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-800 stroke-[2.5]" />
                     Surplus Real-Time Firestore
                   </span>
                 </div>
-                <div className="w-full bg-orange-300/60 rounded-full h-2 overflow-hidden flex">
+                <div className="w-full bg-black/10 rounded-full h-2 overflow-hidden flex border border-black/30">
                   <div className="bg-orange-600 h-2 transition-all duration-500" style={{ width: `${opsPct}%` }}></div>
                   <div className="bg-violet-600 h-2 transition-all duration-500" style={{ width: `${sosPct}%` }}></div>
                 </div>
               </div>
 
-              {/* Pos Operasional */}
-              <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between">
+              {/* Pos Operasional (Mint) */}
+              <div className="bg-[#B8FFA9] p-5 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pos Operasional</span>
-                  <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center">
+                  <span className="text-xs font-extrabold text-black uppercase tracking-wider">Pos Operasional</span>
+                  <div className="w-8 h-8 rounded-full bg-white border border-black flex items-center justify-center text-black">
                     <FileText className="w-4 h-4" />
                   </div>
                 </div>
                 <div className="my-2">
-                  <div className="text-2xl font-fredoka font-bold text-slate-900">{formatRupiah(classData.alokasi.operasional)}</div>
-                  <span className="text-xs font-semibold text-emerald-700">{opsPct}% dari total kas</span>
+                  <div className="text-2xl font-space font-extrabold text-black">{formatRupiah(classData.alokasi.operasional)}</div>
+                  <span className="text-xs font-bold text-emerald-900">{opsPct}% dari total kas</span>
                 </div>
-                <p className="text-[11px] text-slate-400 font-medium">Spidol, penghapus, alat kebersihan KBM</p>
+                <p className="text-[11px] text-slate-800 font-medium">Spidol, penghapus, alat kebersihan KBM</p>
               </div>
 
-              {/* Pos Sosial */}
-              <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between">
+              {/* Pos Sosial (Lilac) */}
+              <div className="bg-[#EACEFF] p-5 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pos Sosial & Peduli</span>
-                  <div className="w-8 h-8 rounded-full bg-violet-50 text-violet-800 flex items-center justify-center">
+                  <span className="text-xs font-extrabold text-black uppercase tracking-wider">Pos Sosial & Peduli</span>
+                  <div className="w-8 h-8 rounded-full bg-white border border-black flex items-center justify-center text-black">
                     <Heart className="w-4 h-4" />
                   </div>
                 </div>
                 <div className="my-2">
-                  <div className="text-2xl font-fredoka font-bold text-slate-900">{formatRupiah(classData.alokasi.sosial)}</div>
-                  <span className="text-xs font-semibold text-violet-700">{sosPct}% dari total kas</span>
+                  <div className="text-2xl font-space font-extrabold text-black">{formatRupiah(classData.alokasi.sosial)}</div>
+                  <span className="text-xs font-bold text-purple-900">{sosPct}% dari total kas</span>
                 </div>
-                <p className="text-[11px] text-slate-400 font-medium">Menjenguk siswa sakit, santunan duka</p>
+                <p className="text-[11px] text-slate-800 font-medium">Menjenguk siswa sakit, santunan duka</p>
               </div>
 
               {/* Tagihan Minggu 1 */}
-              <div className="bg-[#BBF7D0] p-5 rounded-3xl border border-emerald-300 shadow-xs flex flex-col justify-between">
+              <div className="bg-white p-5 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-950 uppercase tracking-wider">Iuran Minggu ke-1</span>
-                  <div className="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-emerald-900">
+                  <span className="text-xs font-extrabold text-black uppercase tracking-wider">Iuran Minggu ke-1</span>
+                  <div className="w-8 h-8 rounded-full bg-[#B8FFA9] border border-black flex items-center justify-center text-black">
                     <CheckCircle className="w-4 h-4" />
                   </div>
                 </div>
                 <div className="my-2">
-                  <div className="text-3xl font-fredoka font-bold text-emerald-950">{duesPercentage}%</div>
-                  <p className="text-xs text-emerald-800 font-medium mt-0.5">
+                  <div className="text-3xl font-space font-extrabold text-black">{duesPercentage}%</div>
+                  <p className="text-xs text-slate-600 font-bold mt-0.5">
                     {paidCount} Lunas • {unpaidCount} Belum Bayar
                   </p>
                 </div>
-                <div className="w-full bg-emerald-200 rounded-full h-2 overflow-hidden">
-                  <div className="bg-emerald-700 h-2 rounded-full transition-all duration-500" style={{ width: `${duesPercentage}%` }}></div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-black/20">
+                  <div className="bg-black h-2 rounded-full transition-all duration-500" style={{ width: `${duesPercentage}%` }}></div>
                 </div>
               </div>
 
@@ -546,210 +561,210 @@ export const App: React.FC = () => {
             {/* Main Bento 3-Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               
-              {/* Left Column (3 Cols): Mascot & Whitelist Checker */}
+              {/* Left Column (3 Cols): Mascot Assistant */}
               <div className="lg:col-span-3 space-y-6">
                 
-                <div className="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
                   <div>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-950 border border-amber-200 mb-3">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#FEF08A] text-black border border-black mb-3">
                       <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                       Asisten Finansial
                     </div>
-                    <h2 className="text-2xl font-fredoka font-bold text-slate-900 leading-tight">
+                    <h2 className="text-2xl font-space font-extrabold text-black leading-tight">
                       Kondisi Kas Kelas
                     </h2>
-                    <p className="text-xs text-slate-500 font-medium mt-2">
-                      Maskot bereaksi otomatis mengikuti saldo, tingkat kelunasan, dan audit kas kelas.
+                    <p className="text-xs text-slate-600 font-medium mt-2">
+                      Maskot bereaksi otomatis mengikuti saldo, kelunasan, dan audit kas kelas.
                     </p>
                   </div>
 
-                  <div className="mt-4 pt-2 border-t border-slate-100">
+                  <div className="mt-4 pt-2 border-t-2 border-slate-100">
                     <AnimatedMascot mood={activeMood} />
                   </div>
 
                   <div className="mt-4">
                     <button
                       onClick={() => setCurrentTab('tagihan')}
-                      className="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-full p-2.5 px-4 text-xs font-bold text-slate-800 transition-all text-center block"
+                      className="w-full bg-[#F1F5F9] hover:bg-[#E2E8F0] border-2 border-black rounded-full p-2.5 px-4 text-xs font-extrabold text-black transition-all text-center block shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                     >
-                      Buka Matriks Tagihan Siswa →
+                      Buka Matriks Iuran Siswa →
                     </button>
                   </div>
                 </div>
 
                 {/* Telegram Bot Card */}
-                <div className="bg-[#0F172A] text-white p-5 rounded-3xl border border-slate-800 shadow-xs space-y-3">
+                <div className="bg-black text-white p-5 rounded-3xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
-                      <MessageSquare className="w-5 h-5 text-sky-400" />
+                      <MessageSquare className="w-5 h-5 text-[#B8FFA9]" />
                     </div>
                     <div>
-                      <h4 className="font-fredoka font-bold text-sm">Bot Telegram Aktif</h4>
-                      <p className="text-[11px] text-slate-400">@kacekasbot • Gateway Siap</p>
+                      <h4 className="font-space font-extrabold text-sm text-white">Bot Telegram Gateway</h4>
+                      <p className="text-[11px] text-slate-400 font-medium">@kacekasbot • Live Sync</p>
                     </div>
                   </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    Setiap transaksi yang dicatat di web atau bot otomatis memicu solo direct notification ke HP siswa.
+                  <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                    Setiap mutasi kas di web otomatis mengirim push notification solo ke HP masing-masing siswa terdaftar.
                   </p>
                 </div>
 
               </div>
 
-              {/* Center Column (5 Cols): Greeting & Navy Bento Pod */}
+              {/* Center Column (5 Cols): Greeting & Navy Pod */}
               <div className="lg:col-span-5 space-y-6">
                 
-                <div className="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm">
+                <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-violet-200 flex items-center justify-center font-fredoka font-bold text-violet-950 text-base border border-violet-300">
+                      <div className="w-12 h-12 rounded-full bg-[#EACEFF] border-2 border-black flex items-center justify-center font-space font-extrabold text-black text-base shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                         {userSession.role === 'bendahara' ? 'TR' : 'AS'}
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400 font-medium">Selamat datang,</span>
-                        <h3 className="font-fredoka font-bold text-slate-900 text-base leading-tight">
+                        <span className="text-xs text-slate-500 font-medium">Selamat datang,</span>
+                        <h3 className="font-space font-extrabold text-black text-base leading-tight">
                           {userSession.nama || 'Ardellio Satria Anindito'}
                         </h3>
                       </div>
                     </div>
                     <div className="text-right">
                       <span className="text-[11px] text-slate-400 block font-medium">11 September 2026</span>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 capitalize">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#B8FFA9] text-black border border-black capitalize">
                         {userSession.role} XI-F2
                       </span>
                     </div>
                   </div>
 
-                  <h1 className="text-xl font-fredoka font-bold text-slate-900 mt-5 leading-snug">
+                  <h1 className="text-xl font-space font-extrabold text-black mt-5 leading-snug">
                     Bagaimana kondisi kas kelas hari ini?
                   </h1>
 
                   {/* Financial Mood Selector Bar */}
-                  <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-slate-100">
+                  <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t-2 border-slate-100">
                     <button
                       onClick={() => setActiveMood('aman')}
                       className={`p-2.5 rounded-2xl text-center transition-all ${
                         activeMood === 'aman'
-                          ? 'bg-emerald-100 border border-emerald-300 ring-2 ring-emerald-500'
-                          : 'bg-slate-50 border border-slate-200'
+                          ? 'bg-[#B8FFA9] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-extrabold'
+                          : 'bg-slate-50 border border-slate-200 hover:bg-slate-100 font-bold'
                       }`}
                     >
-                      <ShieldCheck className="w-5 h-5 mx-auto text-emerald-700" />
-                      <span className="text-[11px] font-bold text-emerald-950 mt-1 block">Aman</span>
+                      <ShieldCheck className="w-5 h-5 mx-auto text-black" />
+                      <span className="text-[11px] text-black mt-1 block">Aman</span>
                     </button>
 
                     <button
                       onClick={() => setActiveMood('tagihan')}
                       className={`p-2.5 rounded-2xl text-center transition-all ${
                         activeMood === 'tagihan'
-                          ? 'bg-orange-100 border border-orange-300 ring-2 ring-orange-500'
-                          : 'bg-slate-50 border border-slate-200'
+                          ? 'bg-[#FFC6A8] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-extrabold'
+                          : 'bg-slate-50 border border-slate-200 hover:bg-slate-100 font-bold'
                       }`}
                     >
-                      <Clock className="w-5 h-5 mx-auto text-orange-700" />
-                      <span className="text-[11px] font-bold text-orange-950 mt-1 block">Tagihan</span>
+                      <Clock className="w-5 h-5 mx-auto text-black" />
+                      <span className="text-[11px] text-black mt-1 block">Tagihan</span>
                     </button>
 
                     <button
                       onClick={() => setActiveMood('surplus')}
                       className={`p-2.5 rounded-2xl text-center transition-all ${
                         activeMood === 'surplus'
-                          ? 'bg-violet-100 border border-violet-300 ring-2 ring-violet-500'
-                          : 'bg-slate-50 border border-slate-200'
+                          ? 'bg-[#EACEFF] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-extrabold'
+                          : 'bg-slate-50 border border-slate-200 hover:bg-slate-100 font-bold'
                       }`}
                     >
-                      <TrendingUp className="w-5 h-5 mx-auto text-violet-700" />
-                      <span className="text-[11px] font-bold text-violet-950 mt-1 block">Surplus</span>
+                      <TrendingUp className="w-5 h-5 mx-auto text-black" />
+                      <span className="text-[11px] text-black mt-1 block">Surplus</span>
                     </button>
 
                     <button
                       onClick={() => setActiveMood('audit')}
                       className={`p-2.5 rounded-2xl text-center transition-all ${
                         activeMood === 'audit'
-                          ? 'bg-amber-100 border border-amber-300 ring-2 ring-amber-500'
-                          : 'bg-slate-50 border border-slate-200'
+                          ? 'bg-[#FEF08A] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-extrabold'
+                          : 'bg-slate-50 border border-slate-200 hover:bg-slate-100 font-bold'
                       }`}
                     >
-                      <FileText className="w-5 h-5 mx-auto text-amber-700" />
-                      <span className="text-[11px] font-bold text-amber-950 mt-1 block">Audit</span>
+                      <FileText className="w-5 h-5 mx-auto text-black" />
+                      <span className="text-[11px] text-black mt-1 block">Audit</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Dark Navy Bento Pod */}
-                <div className="bg-[#0F172A] text-white p-6 rounded-4xl border border-slate-800 shadow-xl space-y-5">
+                {/* Dark Navy Pod */}
+                <div className="bg-[#0F172A] text-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-5">
                   <div className="grid grid-cols-2 gap-4">
                     {/* Peach Card */}
-                    <div className="bg-[#FED7AA] text-slate-900 p-4 rounded-3xl flex flex-col justify-between shadow-xs">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-orange-950">
-                        <TrendingUp className="w-3.5 h-3.5 text-orange-800" />
+                    <div className="bg-[#FFC6A8] text-slate-900 p-4 rounded-3xl border border-black flex flex-col justify-between">
+                      <div className="flex items-center gap-1.5 text-xs font-extrabold text-black">
+                        <TrendingUp className="w-3.5 h-3.5 text-black" />
                         <span>Arus Kas Masuk</span>
                       </div>
                       <div className="my-3 flex items-end gap-1.5 h-12">
-                        <div className="w-2.5 bg-orange-400 rounded-full h-6"></div>
-                        <div className="w-2.5 bg-orange-500 rounded-full h-9"></div>
-                        <div className="w-2.5 bg-orange-400 rounded-full h-5"></div>
-                        <div className="w-2.5 bg-orange-600 rounded-full h-12"></div>
-                        <div className="w-2.5 bg-orange-500 rounded-full h-8"></div>
+                        <div className="w-2.5 bg-orange-400 rounded-full h-6 border border-black"></div>
+                        <div className="w-2.5 bg-orange-500 rounded-full h-9 border border-black"></div>
+                        <div className="w-2.5 bg-orange-400 rounded-full h-5 border border-black"></div>
+                        <div className="w-2.5 bg-orange-600 rounded-full h-12 border border-black"></div>
+                        <div className="w-2.5 bg-orange-500 rounded-full h-8 border border-black"></div>
                       </div>
                       <div>
-                        <div className="text-xl font-fredoka font-bold text-slate-900">+Rp 100k</div>
-                        <span className="text-[10px] text-orange-900 font-semibold block">Periode Minggu 1</span>
+                        <div className="text-xl font-space font-extrabold text-black">+Rp 100k</div>
+                        <span className="text-[10px] text-slate-800 font-bold block">Periode Minggu 1</span>
                       </div>
                     </div>
 
                     {/* Lilac Card */}
-                    <div className="bg-[#DDD6FE] text-slate-900 p-4 rounded-3xl flex flex-col justify-between shadow-xs">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-violet-950">
-                        <ShieldCheck className="w-3.5 h-3.5 text-violet-800" />
+                    <div className="bg-[#EACEFF] text-slate-900 p-4 rounded-3xl border border-black flex flex-col justify-between">
+                      <div className="flex items-center gap-1.5 text-xs font-extrabold text-black">
+                        <ShieldCheck className="w-3.5 h-3.5 text-black" />
                         <span>Tingkat Disiplin</span>
                       </div>
                       <div className="my-3 flex items-end gap-1.5 h-12">
-                        <div className="w-3 bg-violet-300 rounded-md h-3"></div>
-                        <div className="w-3 bg-violet-400 rounded-md h-6"></div>
-                        <div className="w-3 bg-violet-500 rounded-md h-9"></div>
-                        <div className="w-3 bg-violet-600 rounded-md h-12"></div>
+                        <div className="w-3 bg-violet-300 rounded-md h-3 border border-black"></div>
+                        <div className="w-3 bg-violet-400 rounded-md h-6 border border-black"></div>
+                        <div className="w-3 bg-violet-500 rounded-md h-9 border border-black"></div>
+                        <div className="w-3 bg-violet-600 rounded-md h-12 border border-black"></div>
                       </div>
                       <div>
-                        <div className="text-xl font-fredoka font-bold text-violet-950">Tinggi</div>
-                        <span className="text-[10px] text-violet-800 font-semibold block">{duesPercentage}% Lunas</span>
+                        <div className="text-xl font-space font-extrabold text-black">Tinggi</div>
+                        <span className="text-[10px] text-slate-800 font-bold block">{duesPercentage}% Lunas</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Mint Voting Poll Card */}
-                  <div className="bg-[#BBF7D0] text-slate-900 p-5 rounded-3xl shadow-sm border border-emerald-300">
-                    <div className="flex items-center justify-between text-xs font-bold text-emerald-950 mb-2">
+                  {/* Mint Poll Card */}
+                  <div className="bg-[#B8FFA9] text-slate-900 p-5 rounded-3xl border-2 border-black">
+                    <div className="flex items-center justify-between text-xs font-extrabold text-black mb-2">
                       <div className="flex items-center gap-1.5">
-                        <MessageSquare className="w-4 h-4 text-emerald-800" />
+                        <MessageSquare className="w-4 h-4 text-black" />
                         <span>Musyawarah Kas Kelas</span>
                       </div>
-                      <span className="bg-white/80 px-2 py-0.5 rounded-full text-[10px] font-bold">Pertanyaan 1/3</span>
+                      <span className="bg-white px-2 py-0.5 rounded-full text-[10px] font-bold border border-black">Pertanyaan 1/3</span>
                     </div>
 
-                    <p className="font-fredoka font-bold text-slate-900 text-sm leading-snug">
+                    <p className="font-space font-bold text-black text-sm leading-snug">
                       "Apakah dana operasional kas ({formatRupiah(classData.alokasi.operasional)}) cukup untuk pembelian spidol & alat pel?"
                     </p>
 
                     <div className="flex gap-2.5 mt-4">
                       <button
                         onClick={() => setVotingSubmitted('yes')}
-                        className={`flex-1 font-bold py-2 px-4 rounded-xl text-xs transition-all ${
-                          votingSubmitted === 'yes' ? 'bg-slate-900 text-white' : 'bg-slate-800 text-white hover:bg-slate-900'
+                        className={`flex-1 font-extrabold py-2 px-4 rounded-xl text-xs transition-all border-2 border-black ${
+                          votingSubmitted === 'yes' ? 'bg-black text-white' : 'bg-slate-900 text-white hover:bg-black'
                         }`}
                       >
                         Sangat Cukup (Ya)
                       </button>
                       <button
                         onClick={() => setVotingSubmitted('no')}
-                        className={`flex-1 font-bold py-2 px-4 rounded-xl text-xs transition-all border border-emerald-400 ${
-                          votingSubmitted === 'no' ? 'bg-white text-slate-900' : 'bg-white/80 text-slate-900 hover:bg-white'
+                        className={`flex-1 font-extrabold py-2 px-4 rounded-xl text-xs transition-all border-2 border-black ${
+                          votingSubmitted === 'no' ? 'bg-white text-black' : 'bg-white/80 text-black hover:bg-white'
                         }`}
                       >
                         Perlu Tambahan
                       </button>
                     </div>
                     {votingSubmitted && (
-                      <div className="text-[11px] font-bold text-emerald-900 mt-2.5 text-center">
+                      <div className="text-[11px] font-bold text-black mt-2.5 text-center">
                         Suara Anda telah dicatat untuk musyawarah kelas.
                       </div>
                     )}
@@ -763,16 +778,16 @@ export const App: React.FC = () => {
 
               </div>
 
-              {/* Right Column (4 Cols): Calendar & Recent Ledger */}
+              {/* Right Column (4 Cols): Calendar & Ledger */}
               <div className="lg:col-span-4 space-y-6">
                 
-                <div className="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm">
+                <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="font-fredoka font-bold text-base text-slate-900">Kalender Kas</h3>
-                      <p className="text-xs text-slate-400 font-medium">September 2026</p>
+                      <h3 className="font-space font-extrabold text-base text-black">Kalender Kas</h3>
+                      <p className="text-xs text-slate-500 font-medium">September 2026</p>
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-black flex items-center justify-center text-black">
                       <Calendar className="w-4 h-4" />
                     </div>
                   </div>
@@ -781,44 +796,44 @@ export const App: React.FC = () => {
                     <div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div>
                   </div>
 
-                  <div className="grid grid-cols-7 gap-1.5 text-center text-xs font-semibold">
+                  <div className="grid grid-cols-7 gap-1.5 text-center text-xs font-bold">
                     <div className="p-2 rounded-xl bg-slate-50 text-slate-300">31</div>
-                    <div className="p-2 rounded-xl bg-[#BBF7D0] text-emerald-950 font-bold">1</div>
+                    <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black">1</div>
                     <div className="p-2 rounded-xl bg-slate-50 text-slate-600">2</div>
-                    <div className="p-2 rounded-xl bg-[#FED7AA] text-orange-950 font-bold">3</div>
-                    <div className="p-2 rounded-xl bg-[#BBF7D0] text-emerald-950 font-bold">4</div>
+                    <div className="p-2 rounded-xl bg-[#FFC6A8] text-black border border-black">3</div>
+                    <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black">4</div>
                     <div className="p-2 rounded-xl bg-slate-50 text-slate-600">5</div>
                     <div className="p-2 rounded-xl bg-slate-50 text-slate-600">6</div>
-                    <div className="p-2 rounded-xl bg-[#DDD6FE] text-violet-950 font-bold">7</div>
-                    <div className="p-2 rounded-xl bg-[#BBF7D0] text-emerald-950 font-bold">8</div>
+                    <div className="p-2 rounded-xl bg-[#EACEFF] text-black border border-black">7</div>
+                    <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black">8</div>
                     <div className="p-2 rounded-xl bg-slate-50 text-slate-600">9</div>
                     <div className="p-2 rounded-xl bg-slate-50 text-slate-600">10</div>
-                    <div className="p-2 rounded-xl bg-[#FEF08A] text-amber-950 font-bold ring-2 ring-amber-400">11</div>
+                    <div className="p-2 rounded-xl bg-[#FEF08A] text-black border-2 border-black ring-2 ring-black">11</div>
                     <div className="p-2 rounded-xl bg-slate-50 text-slate-600">12</div>
                     <div className="p-2 rounded-xl bg-slate-50 text-slate-600">13</div>
                   </div>
 
-                  <div className="mt-5 bg-emerald-50 border border-emerald-300 p-4 rounded-3xl flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#BBF7D0] flex items-center justify-center text-emerald-900 shrink-0">
+                  <div className="mt-5 bg-[#B8FFA9] border-2 border-black p-4 rounded-3xl flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-white border border-black flex items-center justify-center text-black shrink-0">
                       <ThumbsUp className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Ringkasan Bulan Ini</span>
-                      <h4 className="font-fredoka font-bold text-emerald-950 text-sm">Kas Sehat & Transparan</h4>
-                      <p className="text-[11px] text-emerald-800 leading-tight mt-0.5">Semua pemasukan & pengeluaran tercatat rapi tanpa selisih.</p>
+                      <span className="text-[10px] font-extrabold text-black uppercase tracking-wider block">Ringkasan Bulan Ini</span>
+                      <h4 className="font-space font-extrabold text-black text-sm">Kas Sehat & Transparan</h4>
+                      <p className="text-[11px] text-slate-800 leading-tight mt-0.5">Semua pemasukan & pengeluaran tercatat rapi tanpa selisih.</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Recent Feed */}
-                <div className="bg-white p-5 rounded-4xl border border-slate-200 shadow-sm">
+                <div className="bg-white p-5 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-fredoka font-bold text-sm text-slate-900">Mutasi Kas Terakhir</h3>
+                    <h3 className="font-space font-extrabold text-sm text-black">Mutasi Kas Terakhir</h3>
                     <button
                       onClick={() => setCurrentTab('transaksi')}
-                      className="text-xs text-slate-500 hover:text-slate-900 font-bold"
+                      className="text-xs text-black hover:underline font-extrabold"
                     >
-                      Lihat Semua →
+                      Buku Kas →
                     </button>
                   </div>
                   
@@ -826,23 +841,23 @@ export const App: React.FC = () => {
                     {transactions.slice(0, 4).map((tx) => {
                       const isIn = tx.type === 'in';
                       return (
-                        <div key={tx.id} className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+                        <div key={tx.id} className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
                           <div className="flex items-center gap-2.5">
                             <div
-                              className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                                isIn ? 'bg-[#BBF7D0] text-emerald-800' : 'bg-[#FED7AA] text-orange-800'
+                              className={`w-8 h-8 rounded-xl border border-black flex items-center justify-center ${
+                                isIn ? 'bg-[#B8FFA9] text-black' : 'bg-[#FFC6A8] text-black'
                               }`}
                             >
-                              <TrendingUp className={`w-4 h-4 ${!isIn ? 'rotate-180' : ''}`} />
+                              <TrendingUp className={`w-4 h-4 stroke-[2.2] ${!isIn ? 'rotate-180' : ''}`} />
                             </div>
                             <div>
-                              <div className="font-bold text-xs text-slate-900">{tx.description}</div>
-                              <div className="text-[10px] text-slate-400 font-medium">
+                              <div className="font-bold text-xs text-black">{tx.description}</div>
+                              <div className="text-[10px] text-slate-500 font-medium">
                                 Oleh {tx.inputBy} • Pos {tx.category}
                               </div>
                             </div>
                           </div>
-                          <span className={`font-fredoka font-bold text-xs ${isIn ? 'text-emerald-700' : 'text-orange-700'}`}>
+                          <span className={`font-space font-extrabold text-xs ${isIn ? 'text-emerald-800' : 'text-orange-900'}`}>
                             {isIn ? '+' : '-'}{formatRupiah(tx.amount)}
                           </span>
                         </div>
@@ -858,24 +873,24 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 2: BUKU KAS / TRANSAKSI & KOREKSI REVERSAL */}
+        {/* TAB 2: BUKU KAS UMUM & KOREKSI REVERSAL */}
         {currentTab === 'transaksi' && (
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm space-y-4">
+            <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
               
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-fredoka font-bold text-slate-900">Buku Kas Umum XI-F2</h2>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Seluruh riwayat mutasi kas masuk dan keluar (Append-only audit trail)
+                  <h2 className="text-xl font-space font-extrabold text-black">Buku Kas Umum XI-F2</h2>
+                  <p className="text-xs text-slate-600 font-medium mt-0.5">
+                    Seluruh riwayat transaksi masuk dan keluar (Append-only audit trail)
                   </p>
                 </div>
 
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="px-4 py-2.5 rounded-2xl bg-[#BBF7D0] text-emerald-950 font-bold text-xs border border-emerald-300 shadow-xs flex items-center gap-2"
+                  className="px-4 py-2.5 rounded-2xl bg-[#B8FFA9] text-black font-extrabold text-xs border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 tactile-bounce"
                 >
-                  <Plus className="w-4 h-4 text-emerald-800" />
+                  <Plus className="w-4 h-4 stroke-[2.5]" />
                   <span>Catat Transaksi Baru</span>
                 </button>
               </div>
@@ -889,7 +904,7 @@ export const App: React.FC = () => {
                     value={txSearchQuery}
                     onChange={(e) => setTxSearchQuery(e.target.value)}
                     placeholder="Cari transaksi berdasarkan keterangan atau pencatat..."
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="w-full text-xs bg-slate-50 border-2 border-black rounded-2xl pl-10 pr-4 py-2.5 font-bold text-black focus:outline-none focus:bg-white"
                   />
                 </div>
 
@@ -897,7 +912,7 @@ export const App: React.FC = () => {
                   <select
                     value={txTypeFilter}
                     onChange={(e) => setTxTypeFilter(e.target.value as any)}
-                    className="text-xs bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="text-xs bg-slate-50 border-2 border-black rounded-2xl px-3 py-2.5 font-bold text-black focus:outline-none"
                   >
                     <option value="all">Semua Jenis</option>
                     <option value="in">Hanya Pemasukan (+)</option>
@@ -907,7 +922,7 @@ export const App: React.FC = () => {
                   <select
                     value={txCategoryFilter}
                     onChange={(e) => setTxCategoryFilter(e.target.value)}
-                    className="text-xs bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="text-xs bg-slate-50 border-2 border-black rounded-2xl px-3 py-2.5 font-bold text-black focus:outline-none"
                   >
                     <option value="all">Semua Pos</option>
                     <option value="operasional">Pos Operasional</option>
@@ -919,9 +934,9 @@ export const App: React.FC = () => {
               </div>
 
               {/* Ledger Table */}
-              <div className="border border-slate-200 rounded-3xl overflow-hidden text-xs">
+              <div className="border-2 border-black rounded-3xl overflow-hidden text-xs">
                 <table className="w-full text-left">
-                  <thead className="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
+                  <thead className="bg-[#F1F5F9] font-extrabold text-black border-b-2 border-black">
                     <tr>
                       <th className="p-3.5">ID</th>
                       <th className="p-3.5">Jenis</th>
@@ -933,7 +948,7 @@ export const App: React.FC = () => {
                       <th className="p-3.5 text-right">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium">
+                  <tbody className="divide-y border-slate-200 font-medium">
                     {transactions
                       .filter((tx) => {
                         const matchQ =
@@ -945,29 +960,29 @@ export const App: React.FC = () => {
                       })
                       .map((tx) => (
                         <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="p-3.5 font-mono text-[11px] text-slate-400">#{tx.id}</td>
+                          <td className="p-3.5 font-mono text-[11px] text-slate-500 font-bold">#{tx.id}</td>
                           <td className="p-3.5">
                             <span
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                                tx.type === 'in' ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900'
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold border border-black ${
+                                tx.type === 'in' ? 'bg-[#B8FFA9] text-black' : 'bg-[#FECDD3] text-black'
                               }`}
                             >
                               {tx.type === 'in' ? 'Masuk' : 'Keluar'}
                             </span>
                           </td>
-                          <td className="p-3.5 text-slate-700 font-semibold uppercase text-[10px]">{tx.category}</td>
-                          <td className="p-3.5 text-slate-900 font-bold">{tx.description}</td>
-                          <td className={`p-3.5 text-right font-fredoka font-bold text-sm ${tx.type === 'in' ? 'text-emerald-700' : 'text-orange-700'}`}>
+                          <td className="p-3.5 text-black font-extrabold uppercase text-[10px]">{tx.category}</td>
+                          <td className="p-3.5 text-black font-bold">{tx.description}</td>
+                          <td className={`p-3.5 text-right font-space font-extrabold text-sm ${tx.type === 'in' ? 'text-emerald-800' : 'text-orange-800'}`}>
                             {tx.type === 'in' ? '+' : '-'}{formatRupiah(tx.amount)}
                           </td>
-                          <td className="p-3.5 text-slate-600">{tx.inputBy}</td>
+                          <td className="p-3.5 text-slate-700 font-medium">{tx.inputBy}</td>
                           <td className="p-3.5 text-center">
                             {tx.isReversed ? (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 line-through">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF08A] text-black border border-black line-through">
                                 Dikoreksi
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
                                 Sah
                               </span>
                             )}
@@ -977,7 +992,7 @@ export const App: React.FC = () => {
                               <button
                                 onClick={() => setReversalTargetTx(tx)}
                                 title="Koreksi transaksi ini"
-                                className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-amber-100 hover:text-amber-900 text-slate-600 font-bold text-[11px] transition-colors inline-flex items-center gap-1"
+                                className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-[#FEF08A] text-black font-bold text-[11px] border border-black transition-colors inline-flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
                               >
                                 <RotateCcw className="w-3 h-3" />
                                 <span>Koreksi</span>
@@ -997,36 +1012,36 @@ export const App: React.FC = () => {
         {/* TAB 3: TAGIHAN & IURAN SISWA */}
         {currentTab === 'tagihan' && (
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-4xl border border-slate-200 shadow-sm space-y-4">
+            <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-fredoka font-bold text-slate-900">
+                  <h2 className="text-xl font-space font-extrabold text-black">
                     Status Kelunasan Iuran Kas Siswa
                   </h2>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  <p className="text-xs text-slate-600 font-medium mt-0.5">
                     Target: Rp 10.000 / siswa • Terkoneksi otomatis dengan absensi resmi XI-F2
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#B8FFA9] text-black border border-black">
                     {paidCount} Siswa Lunas
                   </span>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-900 border border-rose-300">
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#FECDD3] text-black border border-black">
                     {unpaidCount} Belum Bayar
                   </span>
                 </div>
               </div>
 
               {/* Progress Bar */}
-              <div className="p-4 rounded-3xl bg-emerald-50 border border-emerald-200 space-y-2">
-                <div className="flex justify-between text-xs font-bold text-emerald-950">
+              <div className="p-4 rounded-3xl bg-[#F0FDF4] border-2 border-black space-y-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex justify-between text-xs font-extrabold text-black">
                   <span>Progres Kelunasan Minggu ke-1</span>
                   <span>{duesPercentage}% Tercapai</span>
                 </div>
-                <div className="w-full bg-emerald-200 rounded-full h-3 overflow-hidden">
+                <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden border border-black">
                   <div
-                    className="bg-emerald-700 h-3 rounded-full transition-all duration-500"
+                    className="bg-[#B8FFA9] h-3 rounded-full transition-all duration-500 border-r border-black"
                     style={{ width: `${duesPercentage}%` }}
                   ></div>
                 </div>
@@ -1039,7 +1054,7 @@ export const App: React.FC = () => {
                   value={studentSearchFilter}
                   onChange={(e) => setStudentSearchFilter(e.target.value)}
                   placeholder="Cari siswa berdasarkan nama atau NIS..."
-                  className="w-full sm:w-80 text-xs bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  className="w-full sm:w-80 text-xs bg-slate-50 border-2 border-black rounded-2xl px-4 py-2.5 font-bold text-black focus:outline-none focus:bg-white"
                 />
               </div>
 
@@ -1054,29 +1069,29 @@ export const App: React.FC = () => {
                   .map((student) => (
                     <div
                       key={student.nis}
-                      className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between ${
-                        student.paid ? 'bg-slate-50/80 border-slate-200' : 'bg-rose-50/60 border-rose-200'
+                      className={`p-3.5 rounded-2xl border-2 border-black transition-all flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
+                        student.paid ? 'bg-white' : 'bg-[#FFF1F2]'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
                         <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                            student.paid ? 'bg-[#BBF7D0] text-emerald-950' : 'bg-rose-200 text-rose-950'
+                          className={`w-7 h-7 rounded-full border border-black flex items-center justify-center text-xs font-bold ${
+                            student.paid ? 'bg-[#B8FFA9] text-black' : 'bg-[#FECDD3] text-black'
                           }`}
                         >
                           {student.paid ? <CheckCircle className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
                         </div>
                         <div>
-                          <div className="font-bold text-xs text-slate-900">{student.namaResmi}</div>
-                          <div className="text-[10px] text-slate-400 font-medium">NIS: {student.nis}</div>
+                          <div className="font-extrabold text-xs text-black">{student.namaResmi}</div>
+                          <div className="text-[10px] text-slate-500 font-bold">NIS: {student.nis}</div>
                         </div>
                       </div>
                       <button
                         onClick={() => toggleStudentPaid(student.nis)}
-                        className={`text-[11px] font-bold px-3 py-1 rounded-xl transition-all ${
+                        className={`text-[11px] font-extrabold px-3 py-1 rounded-xl transition-all border-2 border-black ${
                           student.paid
-                            ? 'text-emerald-800 bg-emerald-50 border border-emerald-300'
-                            : 'text-rose-800 bg-rose-100 border border-rose-300'
+                            ? 'text-black bg-[#B8FFA9] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                            : 'text-black bg-[#FECDD3] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
                         }`}
                       >
                         {student.paid ? 'Lunas' : 'Bayar'}

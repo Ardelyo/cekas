@@ -1,17 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  --color-mint: #B8FFA9;
+  --color-peach: #FFC6A8;
+  --color-lavender: #EACEFF;
+  --color-black: #0F172A;
+  --color-bg: #F5F3FF;
 }
 
-.font-fredoka {
-  font-family: 'Fredoka', cursive;
+.font-space {
+  font-family: 'Space Grotesk', sans-serif;
 }
 
-/* Custom animations for character emotions */
-@keyframes floatMascot {
+.font-display {
+  font-family: 'Space Grotesk', 'Fredoka', cursive;
+}
+
+/* Character Micro-Animations */
+@keyframes floatSoft {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-6px) rotate(1.5deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
 }
 
 @keyframes blinkEyes {
@@ -19,21 +28,44 @@
   95% { transform: scaleY(0.1); }
 }
 
-@keyframes pulseGlow {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.08); opacity: 0.85; }
+@keyframes wiggleCheek {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-4deg); }
+  75% { transform: rotate(4deg); }
+}
+
+@keyframes sparkSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
 .anim-float {
-  animation: floatMascot 4s ease-in-out infinite;
+  animation: floatSoft 4.5s ease-in-out infinite;
 }
 
 .anim-blink {
-  animation: blinkEyes 4.5s ease-in-out infinite;
+  animation: blinkEyes 4s ease-in-out infinite;
   transform-origin: center;
 }
 
-.anim-pulse-glow {
-  animation: pulseGlow 3s ease-in-out infinite;
+.anim-wiggle {
+  animation: wiggleCheek 3s ease-in-out infinite;
   transform-origin: center;
+}
+
+.anim-spark {
+  animation: sparkSpin 8s linear infinite;
+  transform-origin: center;
+}
+
+/* Tactile button bounce */
+.tactile-bounce {
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tactile-bounce:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+.tactile-bounce:active {
+  transform: translateY(1px) scale(0.97);
 }
