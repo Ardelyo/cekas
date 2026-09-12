@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   Coins,
-  ShieldCheck,
-  TrendingUp,
-  Clock,
-  FileText,
-  Calendar,
   Search,
   Plus,
   CheckCircle,
   AlertCircle,
-  Heart,
-  MessageSquare,
-  ThumbsUp,
   LogOut,
   LayoutDashboard,
   Receipt,
@@ -23,11 +15,11 @@ import {
 import { doc, collection, onSnapshot, runTransaction, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
 import { db } from './lib/firebase';
 import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserSession, AppTab } from './types';
-import { AnimatedMascot } from './components/AnimatedMascot';
 import { TransactionModal } from './components/TransactionModal';
 import { ReversalModal } from './components/ReversalModal';
 import { OnboardingHero } from './components/landing/OnboardingHero';
 import { AuthCard } from './components/landing/AuthCard';
+import { DashboardView } from './components/dashboard/DashboardView';
 import { LaporanView } from './components/LaporanView';
 
 const INITIAL_CLASS_STATE: ClassMetadata = {
@@ -118,7 +110,6 @@ export const App: React.FC = () => {
   const [txTypeFilter, setTxTypeFilter] = useState<'all' | 'in' | 'out'>('all');
   const [txCategoryFilter, setTxCategoryFilter] = useState<string>('all');
   const [studentSearchFilter, setStudentSearchFilter] = useState<string>('');
-  const [votingSubmitted, setVotingSubmitted] = useState<string | null>(null);
 
   // CONNECT TO FIRESTORE (onSnapshot Real-time Listener)
   useEffect(() => {
@@ -363,14 +354,10 @@ export const App: React.FC = () => {
   // ==============================================================
   // WORKFLOW STAGE 3: REAL MAIN PRODUCTION APPLICATION
   // ==============================================================
-  const totalSaldoSafe = classData.saldo > 0 ? classData.saldo : 1;
-  const opsPct = ((classData.alokasi.operasional / totalSaldoSafe) * 100).toFixed(1);
-  const sosPct = ((classData.alokasi.sosial / totalSaldoSafe) * 100).toFixed(1);
-
   const totalStudents = students.length;
   const paidCount = students.filter((s) => s.paid).length;
   const unpaidCount = totalStudents - paidCount;
-  const duesPercentage = ((paidCount / totalStudents) * 100).toFixed(1);
+  const duesPercentage = ((paidCount / (totalStudents > 0 ? totalStudents : 1)) * 100).toFixed(1);
 
   return (
     <div className="min-h-screen bg-[#F5F3FF] text-slate-900 antialiased flex flex-col font-space">
@@ -490,396 +477,15 @@ export const App: React.FC = () => {
         
         {/* TAB 1: DASHBOARD OVERVIEW */}
         {currentTab === 'dashboard' && (
-          <div className="space-y-6">
-            
-            {/* Top Metric Cards Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              
-              {/* Total Kas Card (Peach) */}
-              <div className="bg-[#FFC6A8] p-5 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-black uppercase tracking-wider">Total Kas Kelas</span>
-                  <div className="w-8 h-8 rounded-full bg-white border border-black flex items-center justify-center text-black">
-                    <Coins className="w-4 h-4 stroke-[2.2]" />
-                  </div>
-                </div>
-                <div className="my-3">
-                  <div className="text-3xl font-space font-extrabold text-black">{formatRupiah(classData.saldo)}</div>
-                  <span className="text-xs font-bold text-black flex items-center gap-1 mt-0.5">
-                    <TrendingUp className="w-3.5 h-3.5 text-emerald-800 stroke-[2.5]" />
-                    Surplus Real-Time Firestore
-                  </span>
-                </div>
-                <div className="w-full bg-black/10 rounded-full h-2 overflow-hidden flex border border-black/30">
-                  <div className="bg-orange-600 h-2 transition-all duration-500" style={{ width: `${opsPct}%` }}></div>
-                  <div className="bg-violet-600 h-2 transition-all duration-500" style={{ width: `${sosPct}%` }}></div>
-                </div>
-              </div>
-
-              {/* Pos Operasional (Mint) */}
-              <div className="bg-[#B8FFA9] p-5 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-black uppercase tracking-wider">Pos Operasional</span>
-                  <div className="w-8 h-8 rounded-full bg-white border border-black flex items-center justify-center text-black">
-                    <FileText className="w-4 h-4" />
-                  </div>
-                </div>
-                <div className="my-2">
-                  <div className="text-2xl font-space font-extrabold text-black">{formatRupiah(classData.alokasi.operasional)}</div>
-                  <span className="text-xs font-bold text-emerald-900">{opsPct}% dari total kas</span>
-                </div>
-                <p className="text-[11px] text-slate-800 font-medium">Spidol, penghapus, alat kebersihan KBM</p>
-              </div>
-
-              {/* Pos Sosial (Lilac) */}
-              <div className="bg-[#EACEFF] p-5 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-black uppercase tracking-wider">Pos Sosial & Peduli</span>
-                  <div className="w-8 h-8 rounded-full bg-white border border-black flex items-center justify-center text-black">
-                    <Heart className="w-4 h-4" />
-                  </div>
-                </div>
-                <div className="my-2">
-                  <div className="text-2xl font-space font-extrabold text-black">{formatRupiah(classData.alokasi.sosial)}</div>
-                  <span className="text-xs font-bold text-purple-900">{sosPct}% dari total kas</span>
-                </div>
-                <p className="text-[11px] text-slate-800 font-medium">Menjenguk siswa sakit, santunan duka</p>
-              </div>
-
-              {/* Tagihan Minggu 1 */}
-              <div className="bg-white p-5 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-black uppercase tracking-wider">Iuran Minggu ke-1</span>
-                  <div className="w-8 h-8 rounded-full bg-[#B8FFA9] border border-black flex items-center justify-center text-black">
-                    <CheckCircle className="w-4 h-4" />
-                  </div>
-                </div>
-                <div className="my-2">
-                  <div className="text-3xl font-space font-extrabold text-black">{duesPercentage}%</div>
-                  <p className="text-xs text-slate-600 font-bold mt-0.5">
-                    {paidCount} Lunas • {unpaidCount} Belum Bayar
-                  </p>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-black/20">
-                  <div className="bg-black h-2 rounded-full transition-all duration-500" style={{ width: `${duesPercentage}%` }}></div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Main Bento 3-Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              
-              {/* Left Column (3 Cols): Mascot Assistant */}
-              <div className="lg:col-span-3 space-y-6">
-                
-                <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
-                  <div>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#FEF08A] text-black border border-black mb-3">
-                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                      Asisten Finansial
-                    </div>
-                    <h2 className="text-2xl font-space font-extrabold text-black leading-tight">
-                      Kondisi Kas Kelas
-                    </h2>
-                    <p className="text-xs text-slate-600 font-medium mt-2">
-                      Maskot bereaksi otomatis mengikuti saldo, kelunasan, dan audit kas kelas.
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-2 border-t-2 border-slate-100">
-                    <AnimatedMascot mood={activeMood} />
-                  </div>
-
-                  <div className="mt-4">
-                    <button
-                      onClick={() => setCurrentTab('tagihan')}
-                      className="w-full bg-[#F1F5F9] hover:bg-[#E2E8F0] border-2 border-black rounded-full p-2.5 px-4 text-xs font-extrabold text-black transition-all text-center block shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                    >
-                      Buka Matriks Iuran Siswa →
-                    </button>
-                  </div>
-                </div>
-
-                {/* Telegram Bot Card */}
-                <div className="bg-black text-white p-5 rounded-3xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
-                      <MessageSquare className="w-5 h-5 text-[#B8FFA9]" />
-                    </div>
-                    <div>
-                      <h4 className="font-space font-extrabold text-sm text-white">Bot Telegram Gateway</h4>
-                      <p className="text-[11px] text-slate-400 font-medium">@kacekasbot • Live Sync</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                    Setiap mutasi kas di web otomatis mengirim push notification solo ke HP masing-masing siswa terdaftar.
-                  </p>
-                </div>
-
-              </div>
-
-              {/* Center Column (5 Cols): Greeting & Navy Pod */}
-              <div className="lg:col-span-5 space-y-6">
-                
-                <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[#EACEFF] border-2 border-black flex items-center justify-center font-space font-extrabold text-black text-base shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                        {userSession.role === 'bendahara' ? 'TR' : 'AS'}
-                      </div>
-                      <div>
-                        <span className="text-xs text-slate-500 font-medium">Selamat datang,</span>
-                        <h3 className="font-space font-extrabold text-black text-base leading-tight">
-                          {userSession.nama || 'Ardellio Satria Anindito'}
-                        </h3>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[11px] text-slate-400 block font-medium">11 September 2026</span>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#B8FFA9] text-black border border-black capitalize">
-                        {userSession.role} XI-F2
-                      </span>
-                    </div>
-                  </div>
-
-                  <h1 className="text-xl font-space font-extrabold text-black mt-5 leading-snug">
-                    Bagaimana kondisi kas kelas hari ini?
-                  </h1>
-
-                  {/* Financial Mood Selector Bar */}
-                  <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t-2 border-slate-100">
-                    <button
-                      onClick={() => setActiveMood('aman')}
-                      className={`p-2.5 rounded-2xl text-center transition-all ${
-                        activeMood === 'aman'
-                          ? 'bg-[#B8FFA9] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-extrabold'
-                          : 'bg-slate-50 border border-slate-200 hover:bg-slate-100 font-bold'
-                      }`}
-                    >
-                      <ShieldCheck className="w-5 h-5 mx-auto text-black" />
-                      <span className="text-[11px] text-black mt-1 block">Aman</span>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveMood('tagihan')}
-                      className={`p-2.5 rounded-2xl text-center transition-all ${
-                        activeMood === 'tagihan'
-                          ? 'bg-[#FFC6A8] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-extrabold'
-                          : 'bg-slate-50 border border-slate-200 hover:bg-slate-100 font-bold'
-                      }`}
-                    >
-                      <Clock className="w-5 h-5 mx-auto text-black" />
-                      <span className="text-[11px] text-black mt-1 block">Tagihan</span>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveMood('surplus')}
-                      className={`p-2.5 rounded-2xl text-center transition-all ${
-                        activeMood === 'surplus'
-                          ? 'bg-[#EACEFF] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-extrabold'
-                          : 'bg-slate-50 border border-slate-200 hover:bg-slate-100 font-bold'
-                      }`}
-                    >
-                      <TrendingUp className="w-5 h-5 mx-auto text-black" />
-                      <span className="text-[11px] text-black mt-1 block">Surplus</span>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveMood('audit')}
-                      className={`p-2.5 rounded-2xl text-center transition-all ${
-                        activeMood === 'audit'
-                          ? 'bg-[#FEF08A] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-extrabold'
-                          : 'bg-slate-50 border border-slate-200 hover:bg-slate-100 font-bold'
-                      }`}
-                    >
-                      <FileText className="w-5 h-5 mx-auto text-black" />
-                      <span className="text-[11px] text-black mt-1 block">Audit</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Dark Navy Pod */}
-                <div className="bg-[#0F172A] text-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-5">
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Peach Card */}
-                    <div className="bg-[#FFC6A8] text-slate-900 p-4 rounded-3xl border border-black flex flex-col justify-between">
-                      <div className="flex items-center gap-1.5 text-xs font-extrabold text-black">
-                        <TrendingUp className="w-3.5 h-3.5 text-black" />
-                        <span>Arus Kas Masuk</span>
-                      </div>
-                      <div className="my-3 flex items-end gap-1.5 h-12">
-                        <div className="w-2.5 bg-orange-400 rounded-full h-6 border border-black"></div>
-                        <div className="w-2.5 bg-orange-500 rounded-full h-9 border border-black"></div>
-                        <div className="w-2.5 bg-orange-400 rounded-full h-5 border border-black"></div>
-                        <div className="w-2.5 bg-orange-600 rounded-full h-12 border border-black"></div>
-                        <div className="w-2.5 bg-orange-500 rounded-full h-8 border border-black"></div>
-                      </div>
-                      <div>
-                        <div className="text-xl font-space font-extrabold text-black">+Rp 100k</div>
-                        <span className="text-[10px] text-slate-800 font-bold block">Periode Minggu 1</span>
-                      </div>
-                    </div>
-
-                    {/* Lilac Card */}
-                    <div className="bg-[#EACEFF] text-slate-900 p-4 rounded-3xl border border-black flex flex-col justify-between">
-                      <div className="flex items-center gap-1.5 text-xs font-extrabold text-black">
-                        <ShieldCheck className="w-3.5 h-3.5 text-black" />
-                        <span>Tingkat Disiplin</span>
-                      </div>
-                      <div className="my-3 flex items-end gap-1.5 h-12">
-                        <div className="w-3 bg-violet-300 rounded-md h-3 border border-black"></div>
-                        <div className="w-3 bg-violet-400 rounded-md h-6 border border-black"></div>
-                        <div className="w-3 bg-violet-500 rounded-md h-9 border border-black"></div>
-                        <div className="w-3 bg-violet-600 rounded-md h-12 border border-black"></div>
-                      </div>
-                      <div>
-                        <div className="text-xl font-space font-extrabold text-black">Tinggi</div>
-                        <span className="text-[10px] text-slate-800 font-bold block">{duesPercentage}% Lunas</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mint Poll Card */}
-                  <div className="bg-[#B8FFA9] text-slate-900 p-5 rounded-3xl border-2 border-black">
-                    <div className="flex items-center justify-between text-xs font-extrabold text-black mb-2">
-                      <div className="flex items-center gap-1.5">
-                        <MessageSquare className="w-4 h-4 text-black" />
-                        <span>Musyawarah Kas Kelas</span>
-                      </div>
-                      <span className="bg-white px-2 py-0.5 rounded-full text-[10px] font-bold border border-black">Pertanyaan 1/3</span>
-                    </div>
-
-                    <p className="font-space font-bold text-black text-sm leading-snug">
-                      "Apakah dana operasional kas ({formatRupiah(classData.alokasi.operasional)}) cukup untuk pembelian spidol & alat pel?"
-                    </p>
-
-                    <div className="flex gap-2.5 mt-4">
-                      <button
-                        onClick={() => setVotingSubmitted('yes')}
-                        className={`flex-1 font-extrabold py-2 px-4 rounded-xl text-xs transition-all border-2 border-black ${
-                          votingSubmitted === 'yes' ? 'bg-black text-white' : 'bg-slate-900 text-white hover:bg-black'
-                        }`}
-                      >
-                        Sangat Cukup (Ya)
-                      </button>
-                      <button
-                        onClick={() => setVotingSubmitted('no')}
-                        className={`flex-1 font-extrabold py-2 px-4 rounded-xl text-xs transition-all border-2 border-black ${
-                          votingSubmitted === 'no' ? 'bg-white text-black' : 'bg-white/80 text-black hover:bg-white'
-                        }`}
-                      >
-                        Perlu Tambahan
-                      </button>
-                    </div>
-                    {votingSubmitted && (
-                      <div className="text-[11px] font-bold text-black mt-2.5 text-center">
-                        Suara Anda telah dicatat untuk musyawarah kelas.
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t border-slate-800 font-medium">
-                    <span>Bendahara: <b className="text-slate-200">Tarina</b></span>
-                    <span>Wali Kelas: <b className="text-slate-200">Pembimbing XI-F2</b></span>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Right Column (4 Cols): Calendar & Ledger */}
-              <div className="lg:col-span-4 space-y-6">
-                
-                <div className="bg-white p-6 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="font-space font-extrabold text-base text-black">Kalender Kas</h3>
-                      <p className="text-xs text-slate-500 font-medium">September 2026</p>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-black flex items-center justify-center text-black">
-                      <Calendar className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 mb-2">
-                    <div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div>
-                  </div>
-
-                  <div className="grid grid-cols-7 gap-1.5 text-center text-xs font-bold">
-                    <div className="p-2 rounded-xl bg-slate-50 text-slate-300">31</div>
-                    <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black">1</div>
-                    <div className="p-2 rounded-xl bg-slate-50 text-slate-600">2</div>
-                    <div className="p-2 rounded-xl bg-[#FFC6A8] text-black border border-black">3</div>
-                    <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black">4</div>
-                    <div className="p-2 rounded-xl bg-slate-50 text-slate-600">5</div>
-                    <div className="p-2 rounded-xl bg-slate-50 text-slate-600">6</div>
-                    <div className="p-2 rounded-xl bg-[#EACEFF] text-black border border-black">7</div>
-                    <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black">8</div>
-                    <div className="p-2 rounded-xl bg-slate-50 text-slate-600">9</div>
-                    <div className="p-2 rounded-xl bg-slate-50 text-slate-600">10</div>
-                    <div className="p-2 rounded-xl bg-[#FEF08A] text-black border-2 border-black ring-2 ring-black">11</div>
-                    <div className="p-2 rounded-xl bg-slate-50 text-slate-600">12</div>
-                    <div className="p-2 rounded-xl bg-slate-50 text-slate-600">13</div>
-                  </div>
-
-                  <div className="mt-5 bg-[#B8FFA9] border-2 border-black p-4 rounded-3xl flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-white border border-black flex items-center justify-center text-black shrink-0">
-                      <ThumbsUp className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-extrabold text-black uppercase tracking-wider block">Ringkasan Bulan Ini</span>
-                      <h4 className="font-space font-extrabold text-black text-sm">Kas Sehat & Transparan</h4>
-                      <p className="text-[11px] text-slate-800 leading-tight mt-0.5">Semua pemasukan & pengeluaran tercatat rapi tanpa selisih.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Recent Feed */}
-                <div className="bg-white p-5 rounded-4xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-space font-extrabold text-sm text-black">Mutasi Kas Terakhir</h3>
-                    <button
-                      onClick={() => setCurrentTab('transaksi')}
-                      className="text-xs text-black hover:underline font-extrabold"
-                    >
-                      Buku Kas →
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-2.5">
-                    {transactions.slice(0, 4).map((tx) => {
-                      const isIn = tx.type === 'in';
-                      return (
-                        <div key={tx.id} className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
-                          <div className="flex items-center gap-2.5">
-                            <div
-                              className={`w-8 h-8 rounded-xl border border-black flex items-center justify-center ${
-                                isIn ? 'bg-[#B8FFA9] text-black' : 'bg-[#FFC6A8] text-black'
-                              }`}
-                            >
-                              <TrendingUp className={`w-4 h-4 stroke-[2.2] ${!isIn ? 'rotate-180' : ''}`} />
-                            </div>
-                            <div>
-                              <div className="font-bold text-xs text-black">{tx.description}</div>
-                              <div className="text-[10px] text-slate-500 font-medium">
-                                Oleh {tx.inputBy} • Pos {tx.category}
-                              </div>
-                            </div>
-                          </div>
-                          <span className={`font-space font-extrabold text-xs ${isIn ? 'text-emerald-800' : 'text-orange-900'}`}>
-                            {isIn ? '+' : '-'}{formatRupiah(tx.amount)}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
+          <DashboardView
+            classData={classData}
+            transactions={transactions}
+            students={students}
+            userSession={userSession}
+            activeMood={activeMood}
+            onSelectMood={setActiveMood}
+            onNavigateTab={(tab) => setCurrentTab(tab)}
+          />
         )}
 
         {/* TAB 2: BUKU KAS UMUM & KOREKSI REVERSAL */}
