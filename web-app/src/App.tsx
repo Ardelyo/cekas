@@ -418,12 +418,15 @@ export const App: React.FC = () => {
           <MobileDashboard
             classData={classData}
             transactions={transactions}
+            students={students}
             userSession={userSession}
             activeMood={activeMood}
             duesPercentage={duesPercentage}
             onSelectMood={setActiveMood}
             onOpenMenu={() => setIsDrawerOpen(true)}
             onOpenCatatModal={() => setIsModalOpen(true)}
+            onQuickTransaction={handleAddTransaction}
+            onExportExcel={handleExportExcel}
           />
         )}
 

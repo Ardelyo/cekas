@@ -4,28 +4,40 @@ import {
   ShieldCheck,
   Plus
 } from 'lucide-react';
-import type { ClassMetadata, Transaction, FinancialMood, UserSession } from '../../types';
+import type { ClassMetadata, Transaction, FinancialMood, UserSession, WhitelistStudent, CategoryAllocations } from '../../types';
+import { BendaharaToolkit } from './BendaharaToolkit';
 
 interface MobileDashboardProps {
   classData: ClassMetadata;
   transactions: Transaction[];
+  students: WhitelistStudent[];
   userSession: UserSession;
   activeMood: FinancialMood;
   duesPercentage: string;
   onSelectMood: (mood: FinancialMood) => void;
   onOpenMenu: () => void;
   onOpenCatatModal: () => void;
+  onQuickTransaction: (data: {
+    type: 'in' | 'out';
+    amount: number;
+    category: keyof CategoryAllocations;
+    description: string;
+  }) => void;
+  onExportExcel: () => void;
 }
 
 export const MobileDashboard: React.FC<MobileDashboardProps> = ({
   classData,
   transactions,
+  students,
   userSession,
   activeMood,
   duesPercentage,
   onSelectMood,
   onOpenMenu,
   onOpenCatatModal,
+  onQuickTransaction,
+  onExportExcel,
 }) => {
   const [voteSubmitted, setVoteSubmitted] = useState<'yes' | 'no' | null>(null);
 
@@ -244,6 +256,16 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
           </div>
 
         </div>
+
+        {/* ============================================================== */}
+        {/* BENDAHARA TOOLKIT: PENCATATAN PINTAS, FISIK, DAN TAGIHAN       */}
+        {/* ============================================================== */}
+        <BendaharaToolkit
+          classData={classData}
+          students={students}
+          onQuickTransaction={onQuickTransaction}
+          onExportExcel={onExportExcel}
+        />
 
         {/* Interactive Mint Card: Musyawarah Kas Quiz (Matching Reference!) */}
         <div className="bg-[#B8FFA9] p-4 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-2">
