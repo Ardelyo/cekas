@@ -1,11 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Search,
-  Plus,
-  CheckCircle,
-  AlertCircle,
-  RotateCcw
-} from 'lucide-react';
 import { doc, collection, onSnapshot, runTransaction, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { db } from './lib/firebase';
@@ -16,6 +9,8 @@ import { FirstPageOnboarding } from './components/FirstPageOnboarding';
 import { AuthCard } from './components/landing/AuthCard';
 import { MobileDashboard } from './components/mobile/MobileDashboard';
 import { MobileCalendarScreen } from './components/mobile/MobileCalendarScreen';
+import { MobileTagihanView } from './components/mobile/MobileTagihanView';
+import { MobileMutasiView } from './components/mobile/MobileMutasiView';
 import { MobileBottomNav } from './components/mobile/MobileBottomNav';
 import { MobileDrawerMenu } from './components/mobile/MobileDrawerMenu';
 
@@ -105,10 +100,6 @@ export const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [reversalTargetTx, setReversalTargetTx] = useState<Transaction | null>(null);
 
-  // FILTERS
-  const [txSearchQuery, setTxSearchQuery] = useState<string>('');
-  const [studentSearchFilter, setStudentSearchFilter] = useState<string>('');
-
   // CONNECT TO FIRESTORE (onSnapshot Real-time Listener)
   useEffect(() => {
     try {
@@ -157,10 +148,6 @@ export const App: React.FC = () => {
       console.warn('Firestore real-time listener:', err);
     }
   }, []);
-
-  const formatRupiah = (num: number) => {
-    return 'Rp ' + Math.abs(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  };
 
   // ADD NEW TRANSACTION
   const handleAddTransaction = async (data: {
@@ -397,7 +384,6 @@ export const App: React.FC = () => {
   // ==============================================================
   const totalStudents = students.length;
   const paidCount = students.filter((s) => s.paid).length;
-  const unpaidCount = totalStudents - paidCount;
   const duesPercentage = ((paidCount / (totalStudents > 0 ? totalStudents : 1)) * 100).toFixed(1);
 
   return (
@@ -438,180 +424,24 @@ export const App: React.FC = () => {
           />
         )}
 
-        {/* 3. DUES CHECKLIST TAB */}
+        {/* 3. DUES CHECKLIST TAB (REDESIGNED FOR MOBILITY & READABILITY) */}
         {currentTab === 'tagihan' && (
-          <div className="flex-1 flex flex-col p-4 space-y-4 pb-24 font-space">
-            
-            {/* Header */}
-            <div className="bg-white p-4 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-space font-extrabold text-sm text-black">Status Iuran Siswa</h3>
-                  <span className="text-[10px] text-slate-500 font-bold">Target: Rp 10.000 / siswa</span>
-                </div>
-                <div className="flex gap-1.5">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#B8FFA9] border border-black">
-                    {paidCount} Lunas
-                  </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FECDD3] border border-black">
-                    {unpaidCount} Nunggak
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress bar */}
-              <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden border border-black/40">
-                <div
-                  className="bg-[#B8FFA9] h-2.5 rounded-full transition-all duration-500 border-r border-black"
-                  style={{ width: `${duesPercentage}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-              <input
-                type="text"
-                value={studentSearchFilter}
-                onChange={(e) => setStudentSearchFilter(e.target.value)}
-                placeholder="Cari siswa atau NIS..."
-                className="w-full text-xs bg-white border-2 border-black rounded-2xl pl-10 pr-4 py-2.5 font-bold text-black focus:outline-none"
-              />
-            </div>
-
-            {/* Checklist List */}
-            <div className="space-y-2 flex-1 overflow-y-auto">
-              {students
-                .filter(
-                  (s) =>
-                    s.namaResmi.toLowerCase().includes(studentSearchFilter.toLowerCase()) ||
-                    s.nis.includes(studentSearchFilter)
-                )
-                .map((student) => (
-                  <div
-                    key={student.nis}
-                    className={`p-3 rounded-2xl border-2 border-black transition-all flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
-                      student.paid ? 'bg-white' : 'bg-[#FFF1F2]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-7 h-7 rounded-full border border-black flex items-center justify-center text-xs font-bold ${
-                          student.paid ? 'bg-[#B8FFA9] text-black' : 'bg-[#FECDD3] text-black'
-                        }`}
-                      >
-                        {student.paid ? <CheckCircle className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
-                      </div>
-                      <div>
-                        <div className="font-extrabold text-xs text-black">{student.namaResmi}</div>
-                        <div className="text-[9px] text-slate-500 font-bold">NIS: {student.nis}</div>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => toggleStudentPaid(student.nis)}
-                      className={`text-[10px] font-extrabold px-3 py-1 rounded-xl transition-all border-2 border-black ${
-                        student.paid
-                          ? 'text-black bg-[#B8FFA9] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
-                          : 'text-black bg-[#FECDD3] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
-                      }`}
-                    >
-                      {student.paid ? 'Lunas' : 'Bayar'}
-                    </button>
-                  </div>
-                ))}
-            </div>
-
-          </div>
+          <MobileTagihanView
+            students={students}
+            duesPercentage={duesPercentage}
+            onToggleStudentPaid={toggleStudentPaid}
+            onOpenCatatModal={() => setIsModalOpen(true)}
+          />
         )}
 
-        {/* 4. MUTASI / BUKU KAS TAB */}
+        {/* 4. MUTASI / BUKU KAS TAB (REDESIGNED FOR MOBILITY & READABILITY) */}
         {currentTab === 'transaksi' && (
-          <div className="flex-1 flex flex-col p-4 space-y-4 pb-24 font-space">
-            
-            {/* Header */}
-            <div className="bg-white p-4 rounded-3xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
-              <div>
-                <h3 className="font-space font-extrabold text-sm text-black">Buku Kas Umum</h3>
-                <span className="text-[10px] text-slate-500 font-bold">{transactions.length} Mutasi Tercatat</span>
-              </div>
-
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-[#B8FFA9] text-black font-extrabold text-xs border-2 border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1 tactile-bounce"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Tambah</span>
-              </button>
-            </div>
-
-            {/* Search */}
-            <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-              <input
-                type="text"
-                value={txSearchQuery}
-                onChange={(e) => setTxSearchQuery(e.target.value)}
-                placeholder="Cari transaksi..."
-                className="w-full text-xs bg-white border-2 border-black rounded-2xl pl-10 pr-4 py-2.5 font-bold text-black focus:outline-none"
-              />
-            </div>
-
-            {/* List */}
-            <div className="space-y-2 flex-1 overflow-y-auto">
-              {transactions
-                .filter((tx) =>
-                  tx.description.toLowerCase().includes(txSearchQuery.toLowerCase()) ||
-                  tx.inputBy.toLowerCase().includes(txSearchQuery.toLowerCase())
-                )
-                .map((tx) => {
-                  const isIn = tx.type === 'in';
-                  return (
-                    <div
-                      key={tx.id}
-                      className="p-3 rounded-2xl bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className={`w-7 h-7 rounded-xl border border-black flex items-center justify-center font-bold text-xs ${
-                            isIn ? 'bg-[#B8FFA9] text-black' : 'bg-[#FFC6A8] text-black'
-                          }`}
-                        >
-                          {isIn ? '+' : '-'}
-                        </div>
-                        <div>
-                          <div className="font-extrabold text-xs text-black leading-tight">{tx.description}</div>
-                          <div className="text-[9px] text-slate-500 font-bold">
-                            {tx.inputBy} • Pos {tx.category}
-                            {tx.isReversed && <span className="ml-1 text-rose-600 line-through">[Koreksi]</span>}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="text-right flex items-center gap-2">
-                        <span className={`font-space font-extrabold text-xs ${isIn ? 'text-emerald-800' : 'text-orange-900'}`}>
-                          {isIn ? '+' : '-'}{formatRupiah(tx.amount)}
-                        </span>
-
-                        {!tx.isReversed && !tx.isCorrection && (
-                          <button
-                            type="button"
-                            onClick={() => setReversalTargetTx(tx)}
-                            title="Koreksi Transaksi"
-                            className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-[#FEF08A] border border-black flex items-center justify-center text-black"
-                          >
-                            <RotateCcw className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-
-          </div>
+          <MobileMutasiView
+            transactions={transactions}
+            totalSaldo={classData.saldo}
+            onOpenCatatModal={() => setIsModalOpen(true)}
+            onSelectReversalTx={(tx) => setReversalTargetTx(tx)}
+          />
         )}
 
         {/* ============================================================== */}
