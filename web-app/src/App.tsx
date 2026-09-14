@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { doc, collection, onSnapshot, runTransaction, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
+import gsap from 'gsap';
 import { db } from './lib/firebase';
 import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserSession, AppTab } from './types';
 import { TransactionModal } from './components/TransactionModal';
@@ -14,6 +15,7 @@ import { MobileMutasiView } from './components/mobile/MobileMutasiView';
 import { MobileBottomNav } from './components/mobile/MobileBottomNav';
 import { MobileDrawerMenu } from './components/mobile/MobileDrawerMenu';
 import { DesktopAppLayout } from './components/desktop/DesktopAppLayout';
+import { DynamicIsland } from './components/common/DynamicIsland';
 
 const INITIAL_CLASS_STATE: ClassMetadata = {
   id: 'XI-F2',
@@ -120,6 +122,26 @@ export const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [reversalTargetTx, setReversalTargetTx] = useState<Transaction | null>(null);
 
+  // DYNAMIC ISLAND ALERT STATE (FOR GSAP MORPHING HUD)
+  const [recentAlert, setRecentAlert] = useState<{
+    type: 'in' | 'out' | 'info';
+    message: string;
+    amount?: number;
+  } | null>(null);
+
+  // PAGE CONTAINER REF FOR GSAP TRANSITIONS
+  const pageContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (pageContainerRef.current) {
+      gsap.fromTo(
+        pageContainerRef.current,
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
+      );
+    }
+  }, [workflowStage]);
+
   // CONNECT TO FIRESTORE (onSnapshot Real-time Listener)
   useEffect(() => {
     try {
@@ -203,6 +225,12 @@ export const App: React.FC = () => {
 
     setTransactions((prev) => [newTx, ...prev]);
 
+    setRecentAlert({
+      type: data.type,
+      message: data.type === 'in' ? 'Pemasukan Kas Berhasil Dicatat!' : 'Pengeluaran Kas Berhasil Dicatat!',
+      amount: data.amount,
+    });
+
     try {
       const classRef = doc(db, 'classes', 'XI-F2');
       const newTxRef = doc(collection(db, 'classes', 'XI-F2', 'transactions'));
@@ -275,6 +303,11 @@ export const App: React.FC = () => {
       corrTx,
       ...prev.map((t) => (t.id === txId ? { ...t, isReversed: true, reversalReason: reason } : t)),
     ]);
+
+    setRecentAlert({
+      type: 'info',
+      message: `Mutasi #${txId} Berhasil Dikoreksi!`,
+    });
   };
 
   // TOGGLE STUDENT PAID (1-CLICK DUES)
@@ -355,25 +388,27 @@ export const App: React.FC = () => {
   // ==============================================================
   if (workflowStage === 'onboarding') {
     return (
-      <FirstPageOnboarding
-        students={students}
-        onOpenLogin={() => {
-          setAuthInitialMode('login-siswa');
-          setWorkflowStage('auth');
-        }}
-        onOpenSignup={() => {
-          setAuthInitialMode('signup');
-          setWorkflowStage('auth');
-        }}
-        onEnterDashboard={() => {
-          setUserSession({
-            isLoggedIn: false,
-            role: 'tamu',
-            nama: 'Pengunjung Publik',
-          });
-          setWorkflowStage('app');
-        }}
-      />
+      <div ref={pageContainerRef}>
+        <FirstPageOnboarding
+          students={students}
+          onOpenLogin={() => {
+            setAuthInitialMode('login-siswa');
+            setWorkflowStage('auth');
+          }}
+          onOpenSignup={() => {
+            setAuthInitialMode('signup');
+            setWorkflowStage('auth');
+          }}
+          onEnterDashboard={() => {
+            setUserSession({
+              isLoggedIn: false,
+              role: 'tamu',
+              nama: 'Pengunjung Publik',
+            });
+            setWorkflowStage('app');
+          }}
+        />
+      </div>
     );
   }
 
@@ -382,19 +417,21 @@ export const App: React.FC = () => {
   // ==============================================================
   if (workflowStage === 'auth') {
     return (
-      <AuthCard
-        initialMode={authInitialMode}
-        students={students}
-        masterPin={classData.pinBendahara || '192837'}
-        onBack={() => setWorkflowStage('onboarding')}
-        onLoginSuccess={(session) => {
-          setUserSession(session);
-          setWorkflowStage('app');
-        }}
-        onRegisterStudent={(newStudent) => {
-          setStudents((prev) => [...prev, newStudent]);
-        }}
-      />
+      <div ref={pageContainerRef}>
+        <AuthCard
+          initialMode={authInitialMode}
+          students={students}
+          masterPin={classData.pinBendahara || '192837'}
+          onBack={() => setWorkflowStage('onboarding')}
+          onLoginSuccess={(session) => {
+            setUserSession(session);
+            setWorkflowStage('app');
+          }}
+          onRegisterStudent={(newStudent) => {
+            setStudents((prev) => [...prev, newStudent]);
+          }}
+        />
+      </div>
     );
   }
 
@@ -464,6 +501,15 @@ export const App: React.FC = () => {
 
       {/* CLEAN MOBILE CONTAINER (NO FAKE WI-FI/BATTERY STATUS BAR) */}
       <div className="w-full max-w-[430px] min-h-screen bg-[#F8FAFC] flex flex-col shadow-2xl relative md:my-6 md:rounded-[44px] md:border-3 md:border-black md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+
+        {/* INTERACTIVE GSAP DYNAMIC ISLAND HUD */}
+        <DynamicIsland
+          classData={classData}
+          duesPercentage={duesPercentage}
+          recentAlert={recentAlert}
+          onClearAlert={() => setRecentAlert(null)}
+          onOpenCatatModal={() => setIsModalOpen(true)}
+        />
 
         {/* ============================================================== */}
         {/* TAB ROUTER                                                     */}

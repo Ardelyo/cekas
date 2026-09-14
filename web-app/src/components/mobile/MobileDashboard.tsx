@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   TrendingUp,
   ShieldCheck,
   Plus
 } from 'lucide-react';
+import gsap from 'gsap';
 import type { ClassMetadata, Transaction, FinancialMood, UserSession, WhitelistStudent, CategoryAllocations } from '../../types';
 import { BendaharaToolkit } from './BendaharaToolkit';
 
@@ -40,6 +41,18 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
   onExportExcel,
 }) => {
   const [voteSubmitted, setVoteSubmitted] = useState<'yes' | 'no' | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // GSAP Entrance Animations
+  useEffect(() => {
+    if (containerRef.current) {
+      gsap.fromTo(
+        containerRef.current.querySelectorAll('.gsap-reveal'),
+        { opacity: 0, y: 16, scale: 0.98 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.08, ease: 'power2.out' }
+      );
+    }
+  }, []);
 
   // Formatting helpers with tabular numeric font
   const formatRupiahWhole = (num: number) => {
@@ -50,7 +63,7 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
   const sosPct = classData.saldo > 0 ? Math.round((classData.alokasi.sosial / classData.saldo) * 100) : 0;
 
   return (
-    <div className="flex-1 flex flex-col space-y-4 pb-24 font-space">
+    <div ref={containerRef} className="flex-1 flex flex-col space-y-4 pb-24 font-space">
       
       {/* ============================================================== */}
       {/* 1. TOP HEADER & MOOD LOGGER (WHITE SECTION - MATCH SCREEN 2)   */}
@@ -195,7 +208,7 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
       <div className="px-4 space-y-4">
         
         {/* Total Kas Card Banner (High-end Typography & Numeric Scale) */}
-        <div className="bg-[#B8FFA9] p-4.5 rounded-[32px] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-3">
+        <div className="gsap-reveal bg-[#B8FFA9] p-4.5 rounded-[32px] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-black text-black uppercase tracking-wider bg-white/80 px-2 py-0.5 rounded-full border border-black">
               Saldo Kas Berjalan
@@ -234,7 +247,7 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
         <div className="grid grid-cols-2 gap-3">
           
           {/* Peach Sleep/Arus Kas Widget */}
-          <div className="bg-[#FFC6A8] text-slate-900 p-4 rounded-[28px] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+          <div className="gsap-reveal bg-[#FFC6A8] text-slate-900 p-4 rounded-[28px] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-[11px] font-black text-black">
                 <TrendingUp className="w-3.5 h-3.5 text-black stroke-[2.5]" />
@@ -265,7 +278,7 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
           </div>
 
           {/* Lavender Stress/Disiplin Widget */}
-          <div className="bg-[#EACEFF] text-slate-900 p-4 rounded-[28px] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+          <div className="gsap-reveal bg-[#EACEFF] text-slate-900 p-4 rounded-[28px] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-[11px] font-black text-black">
                 <ShieldCheck className="w-3.5 h-3.5 text-black stroke-[2.5]" />
@@ -307,7 +320,7 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
         />
 
         {/* Interactive Mint Card: Musyawarah Kas Quiz (Matching Reference!) */}
-        <div className="bg-[#B8FFA9] p-4.5 rounded-[32px] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-2.5">
+        <div className="gsap-reveal bg-[#B8FFA9] p-4.5 rounded-[32px] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-2.5">
           <div className="flex items-center justify-between text-[11px] font-black text-black">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-black"></span>
@@ -353,7 +366,7 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
         </div>
 
         {/* Recent Transactions Feed */}
-        <div className="space-y-2 pt-1">
+        <div className="gsap-reveal space-y-2 pt-1">
           <div className="flex items-center justify-between text-xs font-black px-1">
             <span className="text-black font-space">Aktivitas Kas Terbaru</span>
             <button
