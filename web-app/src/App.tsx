@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, collection, onSnapshot, runTransaction, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { db } from './lib/firebase';
-import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserSession, AppTab, ViewportMode } from './types';
+import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserSession, AppTab } from './types';
 import { TransactionModal } from './components/TransactionModal';
 import { ReversalModal } from './components/ReversalModal';
 import { FirstPageOnboarding } from './components/FirstPageOnboarding';
@@ -13,7 +13,7 @@ import { MobileTagihanView } from './components/mobile/MobileTagihanView';
 import { MobileMutasiView } from './components/mobile/MobileMutasiView';
 import { MobileBottomNav } from './components/mobile/MobileBottomNav';
 import { MobileDrawerMenu } from './components/mobile/MobileDrawerMenu';
-import { DesktopDashboardView } from './components/desktop/DesktopDashboardView';
+import { DesktopAppLayout } from './components/desktop/DesktopAppLayout';
 
 const INITIAL_CLASS_STATE: ClassMetadata = {
   id: 'XI-F2',
@@ -57,8 +57,24 @@ export const App: React.FC = () => {
     nama: 'Ardellio Satria Anindito',
   });
 
-  // VIEWPORT MODE: MOBILE PHONE vs PC DESKTOP
-  const [viewportMode, setViewportMode] = useState<ViewportMode>('mobile');
+  // AUTOMATIC VIEWPORT: RESPONDS SEAMLESSLY TO SCREEN SIZE
+  const [isDesktopAuto, setIsDesktopAuto] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024;
+    }
+    return false;
+  });
+  const [forceMobilePreview, setForceMobilePreview] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktopAuto(window.innerWidth >= 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isDesktopView = isDesktopAuto && !forceMobilePreview;
 
   // ACTIVE TAB (MOBILE BOTTOM NAV)
   const [currentTab, setCurrentTab] = useState<AppTab>('dashboard');
@@ -389,15 +405,17 @@ export const App: React.FC = () => {
   const paidCount = students.filter((s) => s.paid).length;
   const duesPercentage = ((paidCount / (totalStudents > 0 ? totalStudents : 1)) * 100).toFixed(1);
 
-  // 3A. DESKTOP FULL-SCREEN BENTO DASHBOARD
-  if (viewportMode === 'desktop') {
+  // 3A. DESKTOP FULL-SCREEN BENTO DASHBOARD (AUTOMATIC ON PC >= 1024px)
+  if (isDesktopView) {
     return (
       <div className="min-h-screen bg-[#F5F3FF] font-space">
-        <DesktopDashboardView
+        <DesktopAppLayout
           classData={classData}
           transactions={transactions}
           students={students}
           userSession={userSession}
+          currentTab={currentTab}
+          onSelectTab={setCurrentTab}
           activeMood={activeMood}
           duesPercentage={duesPercentage}
           onSelectMood={setActiveMood}
@@ -407,7 +425,7 @@ export const App: React.FC = () => {
           onQuickTransaction={handleAddTransaction}
           onExportExcel={handleExportExcel}
           onSwitchAccount={() => setWorkflowStage('onboarding')}
-          onToggleViewport={() => setViewportMode('mobile')}
+          onSwitchToMobilePreview={() => setForceMobilePreview(true)}
         />
 
         {/* Transaction Modal */}
@@ -428,55 +446,24 @@ export const App: React.FC = () => {
     );
   }
 
-  // 3B. MOBILE-FIRST VIEWPORT WITH FLOATING DESKTOP SWITCHER
+  // 3B. NATIVE MOBILE-FIRST APPLICATION VIEW (AUTOMATIC ON MOBILE < 1024px)
   return (
     <div className="min-h-screen bg-[#F5F3FF] flex flex-col justify-center items-center font-space relative">
       
-      {/* Floating Desktop Switcher for Large Screens */}
-      <div className="hidden md:flex fixed top-4 right-4 z-50">
-        <button
-          onClick={() => setViewportMode('desktop')}
-          className="px-4 py-2 rounded-2xl bg-white hover:bg-slate-100 text-black border-2 border-black font-space font-black text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 tactile-bounce"
-        >
-          <span>🖥️</span>
-          <span>Beralih ke Mode Layar Penuh PC</span>
-        </button>
-      </div>
-
-      {/* MOBILE-FIRST CONTAINER (390-430px optimal phone viewport) */}
-      <div className="w-full max-w-[430px] min-h-screen bg-[#F8FAFC] flex flex-col shadow-2xl relative md:my-6 md:rounded-[44px] md:border-3 md:border-black md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-        
-        {/* Mobile OS Top Status Bar (9:41, Dynamic Island, Cellular, WiFi, Battery) */}
-        <div className="w-full bg-white px-6 pt-3.5 pb-2 flex items-center justify-between text-xs font-black select-none border-b border-slate-100 z-30">
-          <span className="font-space font-extrabold text-[13px] text-black tracking-tight">9:41</span>
-          
-          {/* Dynamic Island Pill */}
-          <div className="w-24 h-5 bg-black rounded-full flex items-center justify-end px-2.5 gap-1.5 shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-slate-900 border border-slate-800"></span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          </div>
-
-          {/* Right Status Icons */}
-          <div className="flex items-center gap-1.5 text-black">
-            {/* Cellular */}
-            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-              <rect x="2" y="16" width="3" height="6" rx="1" />
-              <rect x="7" y="12" width="3" height="10" rx="1" />
-              <rect x="12" y="8" width="3" height="14" rx="1" />
-              <rect x="17" y="4" width="3" height="18" rx="1" />
-            </svg>
-            {/* WiFi */}
-            <svg className="w-3.5 h-3.5 stroke-current fill-none stroke-2" viewBox="0 0 24 24">
-              <path d="M5 12.55a11 11 0 0 1 14.08 0" strokeLinecap="round" />
-              <path d="M8.53 16.11a6 6 0 0 1 6.95 0" strokeLinecap="round" />
-              <circle cx="12" cy="20" r="1.5" fill="currentColor" />
-            </svg>
-            {/* Battery */}
-            <div className="w-5 h-2.5 rounded-md border border-black p-0.5 flex items-center">
-              <div className="w-3 h-1.5 bg-black rounded-xs"></div>
-            </div>
-          </div>
+      {/* Return to Desktop Fullscreen button (if manually previewing on PC) */}
+      {isDesktopAuto && forceMobilePreview && (
+        <div className="fixed top-4 right-4 z-50">
+          <button
+            onClick={() => setForceMobilePreview(false)}
+            className="px-4 py-2 rounded-2xl bg-white hover:bg-slate-100 text-black border-2 border-black font-space font-black text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 tactile-bounce"
+          >
+            <span>🖥️ Kembali ke Layar Penuh PC</span>
+          </button>
         </div>
+      )}
+
+      {/* CLEAN MOBILE CONTAINER (NO FAKE WI-FI/BATTERY STATUS BAR) */}
+      <div className="w-full max-w-[430px] min-h-screen bg-[#F8FAFC] flex flex-col shadow-2xl relative md:my-6 md:rounded-[44px] md:border-3 md:border-black md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
 
         {/* ============================================================== */}
         {/* TAB ROUTER                                                     */}

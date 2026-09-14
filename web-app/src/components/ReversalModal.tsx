@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, RotateCcw, AlertTriangle } from 'lucide-react';
+import gsap from 'gsap';
 import type { Transaction } from '../types';
 
 interface ReversalModalProps {
@@ -16,6 +17,38 @@ export const ReversalModal: React.FC<ReversalModalProps> = ({
   onConfirmReversal,
 }) => {
   const [reason, setReason] = useState<string>('');
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (backdropRef.current) {
+        gsap.fromTo(
+          backdropRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.25, ease: 'power2.out' }
+        );
+      }
+      if (modalRef.current) {
+        gsap.fromTo(
+          modalRef.current,
+          { y: 40, opacity: 0, scale: 0.96 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(1.2)' }
+        );
+      }
+    }
+  }, [isOpen]);
+
+  // Handle ESC key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen || !transaction) return null;
 
@@ -30,67 +63,92 @@ export const ReversalModal: React.FC<ReversalModalProps> = ({
     onClose();
   };
 
+  const formatRupiah = (num: number) => {
+    return 'Rp ' + Math.abs(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-100 space-y-4">
-        
+    <div
+      ref={backdropRef}
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 font-space"
+      onClick={(e) => {
+        if (e.target === backdropRef.current) onClose();
+      }}
+    >
+      <div
+        ref={modalRef}
+        className="bg-white w-full sm:max-w-md rounded-t-[36px] sm:rounded-[36px] p-6 border-t-3 sm:border-3 border-black shadow-[0_-8px_24px_rgba(0,0,0,0.15)] sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] space-y-4 max-h-[90vh] overflow-y-auto"
+      >
+        {/* Mobile Pull Handle Indicator */}
+        <div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto block sm:hidden mb-1"></div>
+
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center">
-              <RotateCcw className="w-4 h-4" />
+        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-[#FEF08A] border-2 border-black text-black flex items-center justify-center shadow-xs">
+              <RotateCcw className="w-5 h-5 stroke-[2.4]" />
             </div>
             <div>
-              <h3 className="font-fredoka font-bold text-base text-slate-900 leading-tight">
-                Koreksi Transaksi (Append-Only)
+              <h3 className="font-space font-black text-base text-black leading-tight">
+                Koreksi Mutasi Kas
               </h3>
-              <p className="text-[11px] text-slate-400 font-medium">Audit Trail Transparan</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                Append-Only Reversal Ledger
+              </p>
             </div>
           </div>
+
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 border border-black/30 flex items-center justify-center text-slate-700 hover:text-black transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Warning Banner */}
-        <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5 font-medium leading-relaxed">
+        <div className="p-3 rounded-2xl bg-[#FFFBEB] border-2 border-black text-black text-xs flex items-start gap-2.5 font-bold leading-relaxed shadow-xs">
           <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
           <span>
-            Transaksi asal <b>tidak akan dihapus</b>. Sistem akan menerbitkan transaksi pembalik (*contra-entry*) secara atomik untuk memulihkan saldo kas.
+            Transaksi asal <u>tidak akan dihapus</u>. Sistem akan menerbitkan entri pembalik (*contra-entry*) secara atomik untuk memulihkan saldo kas.
           </span>
         </div>
 
         {/* Selected Transaction Summary */}
-        <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+        <div className="p-3.5 rounded-2xl bg-slate-50 border-2 border-black text-xs space-y-1 font-space">
           <div className="flex justify-between">
-            <span className="text-slate-400 font-medium">ID Transaksi:</span>
-            <span className="font-mono font-bold text-slate-800">#{transaction.id}</span>
+            <span className="text-slate-500 font-bold">ID Transaksi:</span>
+            <span className="font-mono font-black text-black">#{transaction.id}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-400 font-medium">Nominal:</span>
-            <span className="font-bold text-slate-900">
-              {transaction.type === 'in' ? '+' : '-'}Rp {transaction.amount.toLocaleString('id-ID')}
+            <span className="text-slate-500 font-bold">Nominal:</span>
+            <span className="font-num font-black text-black">
+              {transaction.type === 'in' ? '+' : '-'}{formatRupiah(transaction.amount)}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-400 font-medium">Keterangan:</span>
-            <span className="font-medium text-slate-800">{transaction.description}</span>
+            <span className="text-slate-500 font-bold">Keterangan:</span>
+            <span className="font-extrabold text-black truncate max-w-[200px]">{transaction.description}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-500 font-bold">Pos Anggaran:</span>
+            <span className="font-black uppercase text-[10px] text-slate-700">Pos {transaction.category}</span>
           </div>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
           <div>
-            <label className="font-bold text-slate-700 block mb-1">Alasan Koreksi Transaksi</label>
-            <textarea
-              rows={3}
+            <label className="font-black text-black block mb-1">
+              Alasan Koreksi / Pembatalan <span className="text-rose-600">*</span>
+            </label>
+            <input
+              type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="contoh: Salah ketik nominal, seharusnya Rp 10.000..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none"
+              placeholder="contoh: Salah ketik nominal kas..."
+              className="w-full bg-slate-50 border-2 border-black rounded-2xl p-3 font-bold text-black focus:outline-none focus:bg-white shadow-xs"
+              autoFocus
             />
           </div>
 
@@ -98,15 +156,15 @@ export const ReversalModal: React.FC<ReversalModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-600 transition-colors"
+              className="flex-1 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-xs font-black text-slate-700 border-2 border-black/30 transition-colors"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="flex-1 py-3 rounded-2xl bg-amber-600 hover:bg-amber-700 text-xs font-bold text-white shadow-xs transition-all"
+              className="flex-1 py-3 rounded-2xl bg-black hover:bg-slate-800 text-xs font-black text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all tactile-bounce"
             >
-              Terbitkan Koreksi
+              Konfirmasi Koreksi
             </button>
           </div>
         </form>
