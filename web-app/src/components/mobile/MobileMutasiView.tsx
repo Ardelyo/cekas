@@ -52,41 +52,41 @@ export const MobileMutasiView: React.FC<MobileMutasiViewProps> = ({
       {/* ============================================================== */}
       {/* 1. TOP HEADER & SUMMARY CARD                                   */}
       {/* ============================================================== */}
-      <div className="bg-white p-5 rounded-b-[36px] border-b-2 border-black shadow-[0_4px_12px_rgba(0,0,0,0.06)] space-y-4">
+      <div className="bg-white p-5 rounded-b-[36px] border-b-2 border-black shadow-[0_4px_16px_rgba(0,0,0,0.06)] space-y-4">
         
         {/* Title & Action */}
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
               Buku Kas Umum (Ledger)
             </span>
-            <h2 className="text-xl font-space font-extrabold text-black leading-tight">
+            <h2 className="text-xl font-space font-black text-black leading-tight tracking-tight">
               Mutasi & Riwayat Kas
             </h2>
           </div>
 
           <button
             onClick={onOpenCatatModal}
-            className="px-3.5 py-1.5 rounded-xl bg-[#B8FFA9] hover:bg-[#a3f792] text-black border-2 border-black font-extrabold text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 tactile-bounce"
+            className="px-3.5 py-1.5 rounded-xl bg-[#B8FFA9] hover:bg-[#a3f792] text-black border-2 border-black font-black text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 tactile-bounce"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Catat Kas</span>
           </button>
         </div>
 
-        {/* Balance Status Banner */}
-        <div className="p-3.5 rounded-2xl bg-[#FAF5FF] border-2 border-black flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+        {/* Balance Status Banner (Numeric Excellence) */}
+        <div className="p-4 rounded-3xl bg-[#FAF5FF] border-2 border-black flex items-center justify-between shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)]">
           <div>
-            <span className="text-[10px] text-slate-500 font-bold block">Saldo Kas Berjalan</span>
-            <span className="font-space font-extrabold text-lg text-black">{formatRupiah(totalSaldo)}</span>
+            <span className="text-[10px] text-slate-500 font-black uppercase tracking-tight block">Saldo Kas Berjalan</span>
+            <span className="font-num font-black text-2xl text-black block mt-0.5">{formatRupiah(totalSaldo)}</span>
           </div>
-          <span className="text-[11px] font-extrabold px-3 py-1 rounded-full bg-[#B8FFA9] text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+          <span className="text-[11px] font-black px-3 py-1 rounded-full bg-[#B8FFA9] text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] font-mono">
             {transactions.length} Mutasi Sah
           </span>
         </div>
 
         {/* Type Filter Pills */}
-        <div className="grid grid-cols-3 gap-1.5 bg-[#F1F5F9] p-1.5 rounded-2xl border-2 border-black text-xs font-extrabold">
+        <div className="grid grid-cols-3 gap-1.5 bg-[#F1F5F9] p-1.5 rounded-2xl border-2 border-black text-xs font-black">
           <button
             type="button"
             onClick={() => setTypeFilter('all')}
@@ -125,7 +125,7 @@ export const MobileMutasiView: React.FC<MobileMutasiViewProps> = ({
         </div>
 
         {/* Category Filter Horizontal Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px] font-extrabold">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px] font-black">
           {[
             { id: 'all', label: 'Semua Pos' },
             { id: 'operasional', label: 'Operasional' },
@@ -166,7 +166,7 @@ export const MobileMutasiView: React.FC<MobileMutasiViewProps> = ({
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-3 text-slate-400 hover:text-black"
+              className="absolute right-3 top-3.5 text-slate-400 hover:text-black"
             >
               <X className="w-4 h-4" />
             </button>
@@ -215,7 +215,7 @@ export const MobileMutasiView: React.FC<MobileMutasiViewProps> = ({
                   </div>
 
                   <div>
-                    <div className="font-space font-extrabold text-xs text-black leading-tight flex items-center gap-1.5">
+                    <div className="font-space font-black text-xs sm:text-sm text-black leading-tight flex items-center gap-1.5">
                       <span className={isReversed ? 'line-through text-slate-500' : ''}>
                         {tx.description}
                       </span>
@@ -227,7 +227,7 @@ export const MobileMutasiView: React.FC<MobileMutasiViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-tight">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight">
                         Pos {tx.category}
                       </span>
                       <span className="text-slate-300">•</span>
@@ -245,7 +245,7 @@ export const MobileMutasiView: React.FC<MobileMutasiViewProps> = ({
                 {/* Right: Amount & Koreksi Button */}
                 <div className="text-right flex items-center gap-2 shrink-0">
                   <div
-                    className={`font-space font-extrabold text-xs sm:text-sm ${
+                    className={`font-num font-black text-xs sm:text-sm tracking-tight ${
                       isReversed
                         ? 'line-through text-slate-400'
                         : isIn

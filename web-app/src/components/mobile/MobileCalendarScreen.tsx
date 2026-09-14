@@ -16,7 +16,7 @@ export const MobileCalendarScreen: React.FC<MobileCalendarScreenProps> = ({
       {/* ============================================================== */}
       {/* 1. TOP BAR (MATCHING RIGHT SCREEN HEADER)                      */}
       {/* ============================================================== */}
-      <div className="bg-white p-5 rounded-b-[36px] border-b-2 border-black shadow-[0_4px_12px_rgba(0,0,0,0.06)] space-y-4">
+      <div className="bg-white p-5 rounded-b-[36px] border-b-2 border-black shadow-[0_4px_16px_rgba(0,0,0,0.06)] space-y-4">
         
         <div className="flex items-center justify-between">
           <button
@@ -28,8 +28,8 @@ export const MobileCalendarScreen: React.FC<MobileCalendarScreenProps> = ({
           </button>
 
           <div className="text-center">
-            <h3 className="font-space font-extrabold text-base text-black">Kalender Kas</h3>
-            <span className="text-[10px] text-slate-500 font-bold block">September, 2026</span>
+            <h3 className="font-space font-black text-base text-black tracking-tight">Kalender Kas</h3>
+            <span className="text-[10px] text-slate-500 font-extrabold block uppercase tracking-wider">September, 2026</span>
           </div>
 
           <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
@@ -40,36 +40,36 @@ export const MobileCalendarScreen: React.FC<MobileCalendarScreenProps> = ({
         {/* 5-Week Calendar Grid Matrix */}
         <div className="pt-2">
           {/* Day of week headers */}
-          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 mb-2">
+          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-slate-400 mb-2 uppercase tracking-tight">
             <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
           </div>
 
           {/* 5-Week Day Matrix with Colored Mood/Kas Badges */}
-          <div className="grid grid-cols-7 gap-1.5 text-center text-xs font-extrabold">
+          <div className="grid grid-cols-7 gap-1.5 text-center text-xs font-num font-black">
             {/* Week 1 */}
             <div className="p-2 rounded-xl bg-slate-50 text-slate-300">-</div>
-            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black" title="Kas Masuk">1</div>
+            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black shadow-xs" title="Kas Masuk">1</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">2</div>
-            <div className="p-2 rounded-xl bg-[#FFC6A8] text-black border border-black" title="Beli Spidol">3</div>
-            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black" title="Iuran Siswa">4</div>
+            <div className="p-2 rounded-xl bg-[#FFC6A8] text-black border border-black shadow-xs" title="Beli Spidol">3</div>
+            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black shadow-xs" title="Iuran Siswa">4</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">5</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">6</div>
 
             {/* Week 2 */}
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">7</div>
-            <div className="p-2 rounded-xl bg-[#EACEFF] text-black border border-black" title="Donasi Sosial">8</div>
-            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black" title="Iuran Siswa">9</div>
+            <div className="p-2 rounded-xl bg-[#EACEFF] text-black border border-black shadow-xs" title="Donasi Sosial">8</div>
+            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black shadow-xs" title="Iuran Siswa">9</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">10</div>
-            {/* Today highlighted with Yellow pill & black ring */}
-            <div className="p-2 rounded-xl bg-[#FEF08A] text-black border-2 border-black ring-2 ring-black" title="Hari Ini">11</div>
+            {/* Today highlighted with Yellow pill & black double-border */}
+            <div className="p-2 rounded-xl bg-[#FEF08A] text-black border-2 border-black ring-2 ring-black font-black" title="Hari Ini">11</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">12</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">13</div>
 
             {/* Week 3 */}
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">14</div>
-            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black">15</div>
+            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black shadow-xs">15</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">16</div>
-            <div className="p-2 rounded-xl bg-[#FFC6A8] text-black border border-black">17</div>
+            <div className="p-2 rounded-xl bg-[#FFC6A8] text-black border border-black shadow-xs">17</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">18</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">19</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">20</div>
@@ -77,9 +77,9 @@ export const MobileCalendarScreen: React.FC<MobileCalendarScreenProps> = ({
             {/* Week 4 */}
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">21</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">22</div>
-            <div className="p-2 rounded-xl bg-[#EACEFF] text-black border border-black">23</div>
+            <div className="p-2 rounded-xl bg-[#EACEFF] text-black border border-black shadow-xs">23</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">24</div>
-            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black">25</div>
+            <div className="p-2 rounded-xl bg-[#B8FFA9] text-black border border-black shadow-xs">25</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">26</div>
             <div className="p-2 rounded-xl bg-slate-50 text-slate-600">27</div>
           </div>
@@ -93,16 +93,16 @@ export const MobileCalendarScreen: React.FC<MobileCalendarScreenProps> = ({
       <div className="px-4 space-y-4">
         
         {/* Monthly Kas Summary Card (Mint Green #B8FFA9) */}
-        <div className="bg-[#B8FFA9] border-2 border-black p-5 rounded-3xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-2 relative overflow-hidden">
+        <div className="bg-[#B8FFA9] border-2 border-black p-5 rounded-[32px] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] space-y-2 relative overflow-hidden">
           
-          <span className="text-[10px] font-extrabold text-black uppercase tracking-wider block">
+          <span className="text-[10px] font-black text-black uppercase tracking-wider block bg-white/70 px-2 py-0.5 rounded-full border border-black w-fit">
             Ringkasan Kas Bulanan
           </span>
-          <h4 className="font-space font-extrabold text-black text-xl">
+          <h4 className="font-space font-black text-black text-2xl tracking-tight">
             Kas Sehat & Surplus
           </h4>
-          <p className="text-xs text-slate-800 font-medium leading-relaxed max-w-[240px]">
-            Transparansi 100% terjaga di Cloud Firestore. Tidak ada selisih uang kas satu rupiah pun!
+          <p className="text-xs text-slate-800 font-bold leading-relaxed max-w-[230px]">
+            Transparansi 100% terjaga di Cloud Firestore. Tidak ada selisih kas fisik maupun tercatat!
           </p>
 
           {/* Minimalist Peaceful Face Illustration on Right */}
@@ -120,23 +120,23 @@ export const MobileCalendarScreen: React.FC<MobileCalendarScreenProps> = ({
         <div className="grid grid-cols-3 gap-2.5">
           
           {/* Column 1: Activity / Terkumpul */}
-          <div className="bg-white p-3 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-center">
-            <span className="text-[9px] text-slate-500 font-bold block uppercase tracking-tight">Terkumpul</span>
-            <span className="font-space font-extrabold text-sm text-black block mt-0.5">Rp 300k</span>
-            <span className="text-[9px] text-slate-400 font-bold block mt-0.5">Kas Masuk</span>
+          <div className="bg-white p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-center">
+            <span className="text-[9px] text-slate-500 font-black block uppercase tracking-tight">Terkumpul</span>
+            <span className="font-num font-black text-base text-black block mt-0.5">Rp 300k</span>
+            <span className="text-[9px] text-slate-400 font-bold block mt-0.5">Pekan Ini</span>
           </div>
 
           {/* Column 2: Therapy / Mutasi */}
-          <div className="bg-white p-3 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-center">
-            <span className="text-[9px] text-slate-500 font-bold block uppercase tracking-tight">Mutasi</span>
-            <span className="font-space font-extrabold text-sm text-black block mt-0.5">14 Log</span>
-            <span className="text-[9px] text-slate-400 font-bold block mt-0.5">Tercatat</span>
+          <div className="bg-white p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-center">
+            <span className="text-[9px] text-slate-500 font-black block uppercase tracking-tight">Mutasi</span>
+            <span className="font-num font-black text-base text-black block mt-0.5">14 Log</span>
+            <span className="text-[9px] text-slate-400 font-bold block mt-0.5">Tervalidasi</span>
           </div>
 
           {/* Column 3: Discipline / Kelunasan */}
-          <div className="bg-white p-3 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-center">
-            <span className="text-[9px] text-slate-500 font-bold block uppercase tracking-tight">Disiplin</span>
-            <span className="font-space font-extrabold text-sm text-emerald-800 block mt-0.5">{duesPercentage}%</span>
+          <div className="bg-white p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-center">
+            <span className="text-[9px] text-slate-500 font-black block uppercase tracking-tight">Disiplin</span>
+            <span className="font-num font-black text-base text-emerald-800 block mt-0.5">{duesPercentage}%</span>
             <span className="text-[9px] text-emerald-700 font-bold block mt-0.5">Lunas M1</span>
           </div>
 

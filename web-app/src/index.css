@@ -5,22 +5,68 @@
   --color-mint: #B8FFA9;
   --color-peach: #FFC6A8;
   --color-lavender: #EACEFF;
+  --color-lemon: #FEF08A;
   --color-black: #0F172A;
   --color-bg: #F5F3FF;
 }
 
 .font-space {
   font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .font-display {
   font-family: 'Space Grotesk', 'Fredoka', cursive;
+  letter-spacing: -0.03em;
+}
+
+.font-num {
+  font-family: 'Space Grotesk', 'Plus Jakarta Sans', monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "cv01" 1;
+}
+
+/* Neo-brutalist tactile shadows */
+.brutal-card {
+  border: 2.5px solid #000000;
+  box-shadow: 3.5px 3.5px 0px 0px #000000;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brutal-card-sm {
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.brutal-btn {
+  border: 2px solid #000000;
+  box-shadow: 2.5px 2.5px 0px 0px #000000;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.brutal-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3.5px 3.5px 0px 0px #000000;
+}
+
+.brutal-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0.5px 0.5px 0px 0px #000000;
+}
+
+/* Scrollbar hide */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Character Micro-Animations */
 @keyframes floatSoft {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(2deg); }
+  50% { transform: translateY(-6px) rotate(1.5deg); }
 }
 
 @keyframes blinkEyes {
@@ -30,13 +76,13 @@
 
 @keyframes wiggleCheek {
   0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-4deg); }
-  75% { transform: rotate(4deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
 }
 
 @keyframes sparkSpin {
   0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.15); }
+  50% { transform: rotate(180deg) scale(1.1); }
   100% { transform: rotate(360deg) scale(1); }
 }
 
@@ -61,11 +107,11 @@
 
 /* Tactile button bounce */
 .tactile-bounce {
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .tactile-bounce:hover {
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-1.5px) scale(1.01);
 }
 .tactile-bounce:active {
-  transform: translateY(1px) scale(0.97);
+  transform: translateY(1.5px) scale(0.98);
 }

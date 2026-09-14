@@ -8,66 +8,40 @@ interface MobileBottomNavProps {
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ currentTab, onSelectTab }) => {
+  const navItems: { id: AppTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { id: 'dashboard', label: 'Beranda', icon: LayoutDashboard },
+    { id: 'laporan', label: 'Kalender', icon: Calendar },
+    { id: 'tagihan', label: 'Tagihan', icon: CheckSquare },
+    { id: 'transaksi', label: 'Mutasi', icon: Receipt },
+  ];
+
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[390px] select-none">
-      <div className="bg-[#0F172A] border-2 border-black rounded-full px-5 py-3 shadow-[0_10px_25px_rgba(0,0,0,0.35),0_2px_4px_rgba(0,0,0,0.2)] flex items-center justify-around">
-        
-        {/* 1. Home Dashboard */}
-        <button
-          onClick={() => onSelectTab('dashboard')}
-          className={`flex flex-col items-center justify-center transition-all ${
-            currentTab === 'dashboard'
-              ? 'text-white scale-110'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-          title="Beranda Kas"
-        >
-          <LayoutDashboard className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[9px] font-space font-extrabold mt-0.5">Beranda</span>
-        </button>
+    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[390px] select-none font-space">
+      <div className="bg-[#0F172A] border-2 border-black rounded-[32px] px-3 py-2 shadow-[0_12px_28px_rgba(0,0,0,0.4),0_2px_6px_rgba(0,0,0,0.25)] flex items-center justify-between">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = currentTab === item.id;
 
-        {/* 2. Kalender Kas */}
-        <button
-          onClick={() => onSelectTab('laporan')} // Or dedicated calendar view
-          className={`flex flex-col items-center justify-center transition-all ${
-            currentTab === 'laporan'
-              ? 'text-white scale-110'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-          title="Kalender & Ringkasan"
-        >
-          <Calendar className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[9px] font-space font-extrabold mt-0.5">Kalender</span>
-        </button>
-
-        {/* 3. Iuran Siswa */}
-        <button
-          onClick={() => onSelectTab('tagihan')}
-          className={`flex flex-col items-center justify-center transition-all ${
-            currentTab === 'tagihan'
-              ? 'text-white scale-110'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-          title="Status Iuran Siswa"
-        >
-          <CheckSquare className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[9px] font-space font-extrabold mt-0.5">Tagihan</span>
-        </button>
-
-        {/* 4. Buku Kas / Transaksi */}
-        <button
-          onClick={() => onSelectTab('transaksi')}
-          className={`flex flex-col items-center justify-center transition-all ${
-            currentTab === 'transaksi'
-              ? 'text-white scale-110'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-          title="Buku Kas & Mutasi"
-        >
-          <Receipt className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[9px] font-space font-extrabold mt-0.5">Mutasi</span>
-        </button>
-
+          return (
+            <button
+              key={item.id}
+              onClick={() => onSelectTab(item.id)}
+              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 tactile-bounce relative ${
+                isActive
+                  ? 'text-white'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {isActive && (
+                <div className="absolute inset-0 bg-white/10 rounded-2xl border border-white/20 -z-10 shadow-xs"></div>
+              )}
+              <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-[#B8FFA9] stroke-[2.4]' : 'stroke-[2]'}`} />
+              <span className={`text-[10px] tracking-tight mt-0.5 ${isActive ? 'font-black text-white' : 'font-bold text-slate-400'}`}>
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

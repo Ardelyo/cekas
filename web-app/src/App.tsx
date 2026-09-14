@@ -392,8 +392,37 @@ export const App: React.FC = () => {
       {/* MOBILE-FIRST CONTAINER (390-430px optimal phone viewport) */}
       <div className="w-full max-w-[430px] min-h-screen bg-[#F8FAFC] flex flex-col shadow-2xl relative md:my-6 md:rounded-[44px] md:border-3 md:border-black md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
         
-        {/* Dynamic Island / Top Phone Notch (on Desktop frame) */}
-        <div className="hidden md:block w-28 h-6 bg-black rounded-b-2xl mx-auto absolute top-0 left-1/2 -translate-x-1/2 z-50"></div>
+        {/* Mobile OS Top Status Bar (9:41, Dynamic Island, Cellular, WiFi, Battery) */}
+        <div className="w-full bg-white px-6 pt-3.5 pb-2 flex items-center justify-between text-xs font-black select-none border-b border-slate-100 z-30">
+          <span className="font-space font-extrabold text-[13px] text-black tracking-tight">9:41</span>
+          
+          {/* Dynamic Island Pill */}
+          <div className="w-24 h-5 bg-black rounded-full flex items-center justify-end px-2.5 gap-1.5 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-slate-900 border border-slate-800"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          </div>
+
+          {/* Right Status Icons */}
+          <div className="flex items-center gap-1.5 text-black">
+            {/* Cellular */}
+            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+              <rect x="2" y="16" width="3" height="6" rx="1" />
+              <rect x="7" y="12" width="3" height="10" rx="1" />
+              <rect x="12" y="8" width="3" height="14" rx="1" />
+              <rect x="17" y="4" width="3" height="18" rx="1" />
+            </svg>
+            {/* WiFi */}
+            <svg className="w-3.5 h-3.5 stroke-current fill-none stroke-2" viewBox="0 0 24 24">
+              <path d="M5 12.55a11 11 0 0 1 14.08 0" strokeLinecap="round" />
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0" strokeLinecap="round" />
+              <circle cx="12" cy="20" r="1.5" fill="currentColor" />
+            </svg>
+            {/* Battery */}
+            <div className="w-5 h-2.5 rounded-md border border-black p-0.5 flex items-center">
+              <div className="w-3 h-1.5 bg-black rounded-xs"></div>
+            </div>
+          </div>
+        </div>
 
         {/* ============================================================== */}
         {/* TAB ROUTER                                                     */}
