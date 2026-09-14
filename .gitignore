@@ -1,9 +1,16 @@
 # Dependencies
 node_modules/
 functions/node_modules/
+web-app/node_modules/
+
+# Build artifacts
+dist/
+web-app/dist/
+.vercel/
 
 # Environment files with secrets
 .env
+.env.*
 functions/.env
 *.local
 *.key
