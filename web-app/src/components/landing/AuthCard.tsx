@@ -7,7 +7,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Lock,
-  ArrowRight
+  ArrowRight,
+  Eye,
+  Crown,
+  ShieldAlert
 } from 'lucide-react';
 import type { WhitelistStudent, UserSession } from '../../types';
 
@@ -29,6 +32,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
   onRegisterStudent,
 }) => {
   const [mode, setMode] = useState<'login-siswa' | 'login-bendahara' | 'signup'>(initialMode);
+  const [pengurusRole, setPengurusRole] = useState<'bendahara' | 'ketuakelas' | 'walikelas'>('bendahara');
   
   // Login form state
   const [nisLogin, setNisLogin] = useState<string>('');
@@ -54,25 +58,29 @@ export const AuthCard: React.FC<AuthCardProps> = ({
 
     onLoginSuccess({
       isLoggedIn: true,
-      role: student.role === 'bendahara' ? 'bendahara' : 'siswa',
+      role: student.role || 'siswa',
       nis: student.nis,
       nama: student.namaResmi,
     });
   };
 
-  const handleBendaharaLogin = (e: React.FormEvent) => {
+  const handlePengurusLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     if (pinLogin.trim() !== masterPin.trim()) {
-      setErrorMsg('PIN Otorisasi salah! Hubungi Wali Kelas atau Ketua Kelas.');
+      setErrorMsg('PIN Otorisasi salah! Hubungi Pengurus Kelas.');
       return;
     }
 
+    let roleName = 'Tarina (Bendahara Utama)';
+    if (pengurusRole === 'ketuakelas') roleName = 'Ketua Kelas XI-F2';
+    if (pengurusRole === 'walikelas') roleName = 'Wali Kelas XI-F2';
+
     onLoginSuccess({
       isLoggedIn: true,
-      role: 'bendahara',
-      nama: 'Tarina (Bendahara Utama)',
-      nis: '23241015',
+      role: pengurusRole,
+      nama: roleName,
+      nis: pengurusRole === 'bendahara' ? '23241015' : undefined,
     });
   };
 
@@ -142,53 +150,25 @@ export const AuthCard: React.FC<AuthCardProps> = ({
           <div>
             <h2 className="text-2xl sm:text-3xl font-space font-extrabold text-black leading-tight">
               {mode === 'login-siswa' && 'Masuk Sebagai Siswa'}
-              {mode === 'login-bendahara' && 'Otorisasi Bendahara'}
+              {mode === 'login-bendahara' && 'Otorisasi Pengurus Kelas'}
               {mode === 'signup' && 'Daftar Siswa Baru'}
             </h2>
             <p className="text-xs text-slate-600 font-medium mt-1">
               {mode === 'login-siswa' && 'Verifikasi kehadiran & pantau status kas mandiri'}
-              {mode === 'login-bendahara' && 'Aktivasi hak akses pembukuan dengan Master PIN'}
-              {mode === 'signup' && 'Pendaftaran akun baru ke daftar absensi resmi XI-F2'}
+              {mode === 'login-bendahara' && 'Masuk sebagai Bendahara, Ketua Kelas, atau Wali Kelas'}
+              {mode === 'signup' && 'Tambahkan nama & NIS Anda ke whitelist absensi kas'}
             </p>
           </div>
 
-          {/* Mini Reaction Mascot Avatar */}
-          <div
-            className="w-16 h-16 rounded-2xl border-2 border-black flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-            style={{
-              backgroundColor:
-                mode === 'login-siswa' ? '#B8FFA9' : mode === 'login-bendahara' ? '#EACEFF' : '#FFC6A8',
-            }}
-          >
-            {mode === 'login-siswa' && (
-              <svg className="w-10 h-10 select-none" viewBox="0 0 40 40" fill="none">
-                <circle cx="20" cy="20" r="16" fill="#B8FFA9" stroke="#000" strokeWidth="2.5" />
-                <path d="M14 18 C16 14 18 14 20 18" stroke="#000" strokeWidth="2" strokeLinecap="round" />
-                <path d="M22 18 C24 14 26 14 28 18" stroke="#000" strokeWidth="2" strokeLinecap="round" />
-                <path d="M17 24 C19 26 23 26 25 24" stroke="#000" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            )}
-            {mode === 'login-bendahara' && (
-              <svg className="w-10 h-10 select-none" viewBox="0 0 40 40" fill="none">
-                <circle cx="20" cy="20" r="16" fill="#EACEFF" stroke="#000" strokeWidth="2.5" />
-                <circle cx="16" cy="18" r="2" fill="#000" />
-                <circle cx="24" cy="18" r="2.5" fill="#000" />
-                <path d="M17 25 Q20 22 23 25" stroke="#000" strokeWidth="2" fill="none" strokeLinecap="round" />
-              </svg>
-            )}
-            {mode === 'signup' && (
-              <svg className="w-10 h-10 select-none" viewBox="0 0 40 40" fill="none">
-                <rect x="6" y="6" width="28" height="28" rx="8" fill="#FFC6A8" stroke="#000" strokeWidth="2.5" />
-                <line x1="12" y1="17" x2="16" y2="18" stroke="#000" strokeWidth="2" strokeLinecap="round" />
-                <line x1="28" y1="17" x2="24" y2="18" stroke="#000" strokeWidth="2" strokeLinecap="round" />
-                <circle cx="20" cy="24" r="2.5" fill="#000" />
-              </svg>
-            )}
+          <div className="w-14 h-14 rounded-2xl bg-[#B8FFA9] border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
+            {mode === 'login-siswa' && <UserCheck className="w-7 h-7 text-black stroke-[2.2]" />}
+            {mode === 'login-bendahara' && <Shield className="w-7 h-7 text-black stroke-[2.2]" />}
+            {mode === 'signup' && <UserPlus className="w-7 h-7 text-black stroke-[2.2]" />}
           </div>
         </div>
 
-        {/* Tab Pills (Siswa, Bendahara, Daftar) */}
-        <div className="grid grid-cols-3 gap-1.5 bg-[#F1F5F9] p-1.5 rounded-2xl border-2 border-black text-xs font-extrabold">
+        {/* Role Selector Tabs */}
+        <div className="grid grid-cols-3 gap-2 bg-[#F1F5F9] p-1.5 rounded-2xl border-2 border-black text-xs font-extrabold">
           <button
             type="button"
             onClick={() => { setMode('login-siswa'); setErrorMsg(''); setSuccessMsg(''); }}
@@ -198,7 +178,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                 : 'text-slate-700 hover:text-black'
             }`}
           >
-            <UserCheck className="w-3.5 h-3.5" />
+            <UserCheck className="w-3.5 h-3.5 text-[#B8FFA9]" />
             <span>Siswa (NIS)</span>
           </button>
 
@@ -211,8 +191,8 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                 : 'text-slate-700 hover:text-black'
             }`}
           >
-            <Shield className="w-3.5 h-3.5 text-[#EACEFF]" />
-            <span>Bendahara</span>
+            <Shield className="w-3.5 h-3.5 text-[#FFC6A8]" />
+            <span>Pengurus</span>
           </button>
 
           <button
@@ -267,14 +247,14 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                   Klik cepat nama siswa untuk mengisi NIS:
                 </span>
                 <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
-                  {students.slice(0, 6).map((s) => (
+                  {students.slice(0, 8).map((s) => (
                     <button
                       key={s.nis}
                       type="button"
                       onClick={() => setNisLogin(s.nis)}
-                      className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all ${
+                      className={`px-2.5 py-1 rounded-xl text-[10px] font-bold border transition-all ${
                         nisLogin === s.nis
-                          ? 'bg-[#B8FFA9] border-black text-black font-extrabold shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                          ? 'bg-[#B8FFA9] border-black text-black font-extrabold shadow-xs'
                           : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
                       }`}
                     >
@@ -287,56 +267,99 @@ export const AuthCard: React.FC<AuthCardProps> = ({
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-2xl bg-black hover:bg-slate-800 text-xs font-extrabold text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 tactile-bounce"
+              className="w-full py-3.5 rounded-2xl bg-black hover:bg-slate-800 text-white font-extrabold text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 tactile-bounce"
             >
-              <span>Masuk Sebagai Siswa</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Masuk Sebagai Siswa XI-F2</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </form>
         )}
 
         {/* ========================================================== */}
-        {/* FORM 2: LOGIN BENDAHARA (VIA MASTER PIN)                   */}
+        {/* FORM 2: LOGIN PENGURUS (BENDAHARA, KETUA KELAS, WALI KELAS) */}
         {/* ========================================================== */}
         {mode === 'login-bendahara' && (
-          <form onSubmit={handleBendaharaLogin} className="space-y-4 text-xs font-space">
+          <form onSubmit={handlePengurusLogin} className="space-y-4 text-xs font-space">
+            
+            {/* Level Administrasi Selector */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="font-extrabold text-black block">Master PIN Otorisasi Bendahara</label>
-                <span className="text-[10px] font-bold text-purple-800 bg-[#EACEFF] px-2 py-0.5 rounded-full border border-black">
-                  6-Digit PIN
-                </span>
+              <label className="font-extrabold text-black block mb-1.5">
+                Pilih Tingkat Jabatan / Level Administrasi:
+              </label>
+              <div className="grid grid-cols-3 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setPengurusRole('bendahara')}
+                  className={`p-2 rounded-xl border-2 font-black text-[11px] flex items-center justify-center gap-1 transition-all ${
+                    pengurusRole === 'bendahara'
+                      ? 'bg-[#B8FFA9] border-black text-black shadow-xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Bendahara</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPengurusRole('ketuakelas')}
+                  className={`p-2 rounded-xl border-2 font-black text-[11px] flex items-center justify-center gap-1 transition-all ${
+                    pengurusRole === 'ketuakelas'
+                      ? 'bg-[#EACEFF] border-black text-black shadow-xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <Crown className="w-3.5 h-3.5" />
+                  <span>Ketua Kelas</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPengurusRole('walikelas')}
+                  className={`p-2 rounded-xl border-2 font-black text-[11px] flex items-center justify-center gap-1 transition-all ${
+                    pengurusRole === 'walikelas'
+                      ? 'bg-[#FEF08A] border-black text-black shadow-xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>Wali Kelas</span>
+                </button>
               </div>
+            </div>
+
+            <div>
+              <label className="font-extrabold text-black block mb-1">Master PIN Keamanan</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="password"
                   value={pinLogin}
                   onChange={(e) => setPinLogin(e.target.value)}
-                  placeholder="Ketik PIN bendahara..."
-                  className="w-full bg-slate-50 border-2 border-black rounded-2xl pl-10 pr-4 py-3.5 font-extrabold text-black focus:outline-none focus:bg-white tracking-widest text-center text-base"
+                  placeholder="Masukkan 6-digit Master PIN (192837)..."
+                  className="w-full bg-slate-50 border-2 border-black rounded-2xl pl-10 pr-3.5 py-3 font-mono font-extrabold text-black focus:outline-none focus:bg-white text-sm"
                 />
               </div>
-              <p className="mt-2 text-[11px] text-slate-500 font-bold">
-                Default Master PIN: <code>192837</code> (Diperoleh dari Wali Kelas / Ketua Kelas)
-              </p>
+              <span className="text-[10px] text-slate-500 font-bold block mt-1">
+                *Demo PIN: <code className="bg-slate-100 px-1 py-0.5 rounded border border-black/20 font-black">192837</code>
+              </span>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-2xl bg-[#EACEFF] hover:bg-[#d8b4fe] text-xs font-extrabold text-black border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 tactile-bounce"
+              className="w-full py-3.5 rounded-2xl bg-black hover:bg-slate-800 text-white font-extrabold text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 tactile-bounce"
             >
-              <Shield className="w-4 h-4" />
-              <span>Aktivasi Hak Kelola Bendahara</span>
+              <Shield className="w-4 h-4 text-[#FFC6A8]" />
+              <span>Buka Hak Akses {pengurusRole.toUpperCase()}</span>
             </button>
           </form>
         )}
 
         {/* ========================================================== */}
-        {/* FORM 3: SIGNUP SISWA BARU                                  */}
+        {/* FORM 3: PENDAFTARAN SISWA BARU                             */}
         {/* ========================================================== */}
         {mode === 'signup' && (
-          <form onSubmit={handleSignup} className="space-y-3.5 text-xs font-space">
+          <form onSubmit={handleSignup} className="space-y-4 text-xs font-space">
             <div>
               <label className="font-extrabold text-black block mb-1">Nomor Induk Siswa (NIS)</label>
               <input
@@ -368,6 +391,26 @@ export const AuthCard: React.FC<AuthCardProps> = ({
             </button>
           </form>
         )}
+
+        {/* ========================================================== */}
+        {/* PUBLIC TRANSPARENCY QUICK LINK (ZERO LOGIN ACCESS)         */}
+        {/* ========================================================== */}
+        <div className="pt-2 text-center border-t-2 border-slate-100">
+          <button
+            type="button"
+            onClick={() => {
+              onLoginSuccess({
+                isLoggedIn: false,
+                role: 'tamu',
+                nama: 'Pengunjung Publik',
+              });
+            }}
+            className="text-xs font-black text-slate-600 hover:text-black underline flex items-center justify-center gap-1.5 mx-auto py-1"
+          >
+            <Eye className="w-3.5 h-3.5 text-black" />
+            <span>Hanya ingin memantau kas? Masuk ke Dashboard Publik (Tanpa Login) →</span>
+          </button>
+        </div>
 
       </div>
 

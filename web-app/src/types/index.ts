@@ -35,7 +35,7 @@ export interface Transaction {
 export interface WhitelistStudent {
   nis: string;
   namaResmi: string;
-  role: 'siswa' | 'bendahara' | 'walikelas';
+  role: 'siswa' | 'bendahara' | 'ketuakelas' | 'walikelas';
   paid?: boolean;
   statusKlaim?: boolean;
   claimedByTelegramId?: number | null;
@@ -43,10 +43,11 @@ export interface WhitelistStudent {
 
 export interface UserSession {
   isLoggedIn: boolean;
-  role: 'tamu' | 'siswa' | 'bendahara' | 'walikelas';
+  role: 'tamu' | 'siswa' | 'bendahara' | 'ketuakelas' | 'walikelas';
   nis?: string;
   nama?: string;
 }
 
 export type FinancialMood = 'aman' | 'tagihan' | 'surplus' | 'audit';
 export type AppTab = 'dashboard' | 'transaksi' | 'tagihan' | 'siswa' | 'laporan';
+export type ViewportMode = 'mobile' | 'desktop';

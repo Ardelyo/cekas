@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, collection, onSnapshot, runTransaction, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { db } from './lib/firebase';
-import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserSession, AppTab } from './types';
+import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserSession, AppTab, ViewportMode } from './types';
 import { TransactionModal } from './components/TransactionModal';
 import { ReversalModal } from './components/ReversalModal';
 import { FirstPageOnboarding } from './components/FirstPageOnboarding';
@@ -13,6 +13,7 @@ import { MobileTagihanView } from './components/mobile/MobileTagihanView';
 import { MobileMutasiView } from './components/mobile/MobileMutasiView';
 import { MobileBottomNav } from './components/mobile/MobileBottomNav';
 import { MobileDrawerMenu } from './components/mobile/MobileDrawerMenu';
+import { DesktopDashboardView } from './components/desktop/DesktopDashboardView';
 
 const INITIAL_CLASS_STATE: ClassMetadata = {
   id: 'XI-F2',
@@ -55,6 +56,9 @@ export const App: React.FC = () => {
     nis: '23241001',
     nama: 'Ardellio Satria Anindito',
   });
+
+  // VIEWPORT MODE: MOBILE PHONE vs PC DESKTOP
+  const [viewportMode, setViewportMode] = useState<ViewportMode>('mobile');
 
   // ACTIVE TAB (MOBILE BOTTOM NAV)
   const [currentTab, setCurrentTab] = useState<AppTab>('dashboard');
@@ -348,9 +352,8 @@ export const App: React.FC = () => {
         onEnterDashboard={() => {
           setUserSession({
             isLoggedIn: false,
-            role: 'siswa',
-            nama: 'Ardellio Satria Anindito',
-            nis: '23241001',
+            role: 'tamu',
+            nama: 'Pengunjung Publik',
           });
           setWorkflowStage('app');
         }}
@@ -380,15 +383,66 @@ export const App: React.FC = () => {
   }
 
   // ==============================================================
-  // STAGE 3: MOBILE-FIRST APPLICATION ROOT VIEW
+  // STAGE 3: APPLICATION ROOT VIEW (DESKTOP OR MOBILE-FIRST)
   // ==============================================================
   const totalStudents = students.length;
   const paidCount = students.filter((s) => s.paid).length;
   const duesPercentage = ((paidCount / (totalStudents > 0 ? totalStudents : 1)) * 100).toFixed(1);
 
+  // 3A. DESKTOP FULL-SCREEN BENTO DASHBOARD
+  if (viewportMode === 'desktop') {
+    return (
+      <div className="min-h-screen bg-[#F5F3FF] font-space">
+        <DesktopDashboardView
+          classData={classData}
+          transactions={transactions}
+          students={students}
+          userSession={userSession}
+          activeMood={activeMood}
+          duesPercentage={duesPercentage}
+          onSelectMood={setActiveMood}
+          onOpenCatatModal={() => setIsModalOpen(true)}
+          onSelectReversalTx={(tx) => setReversalTargetTx(tx)}
+          onToggleStudentPaid={toggleStudentPaid}
+          onQuickTransaction={handleAddTransaction}
+          onExportExcel={handleExportExcel}
+          onSwitchAccount={() => setWorkflowStage('onboarding')}
+          onToggleViewport={() => setViewportMode('mobile')}
+        />
+
+        {/* Transaction Modal */}
+        <TransactionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleAddTransaction}
+        />
+
+        {/* Reversal Modal */}
+        <ReversalModal
+          isOpen={!!reversalTargetTx}
+          transaction={reversalTargetTx}
+          onClose={() => setReversalTargetTx(null)}
+          onConfirmReversal={handleConfirmReversal}
+        />
+      </div>
+    );
+  }
+
+  // 3B. MOBILE-FIRST VIEWPORT WITH FLOATING DESKTOP SWITCHER
   return (
-    <div className="min-h-screen bg-[#F5F3FF] flex flex-col justify-center items-center font-space">
+    <div className="min-h-screen bg-[#F5F3FF] flex flex-col justify-center items-center font-space relative">
       
+      {/* Floating Desktop Switcher for Large Screens */}
+      <div className="hidden md:flex fixed top-4 right-4 z-50">
+        <button
+          onClick={() => setViewportMode('desktop')}
+          className="px-4 py-2 rounded-2xl bg-white hover:bg-slate-100 text-black border-2 border-black font-space font-black text-xs shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 tactile-bounce"
+        >
+          <span>🖥️</span>
+          <span>Beralih ke Mode Layar Penuh PC</span>
+        </button>
+      </div>
+
       {/* MOBILE-FIRST CONTAINER (390-430px optimal phone viewport) */}
       <div className="w-full max-w-[430px] min-h-screen bg-[#F8FAFC] flex flex-col shadow-2xl relative md:my-6 md:rounded-[44px] md:border-3 md:border-black md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
         
