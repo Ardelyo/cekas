@@ -28,3 +28,6 @@ ui-debug.log
 Thumbs.db
 .DS_Store
 __pycache__/
+*.db
+*.xlsx
+*.png

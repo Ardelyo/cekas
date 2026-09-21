@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CEKAS • Catatan Keuangan Digital {{ class_info.id }}</title>
+  
+  <!-- Typography: Plus Jakarta Sans & Fredoka -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Fredoka"', 'cursive'],
+          },
+          colors: {
+            navy: {
+              950: '#070B14',
+              900: '#0F172A',
+              850: '#151F36',
+              800: '#1E293B',
+              700: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-navy-950 text-slate-100 font-sans min-h-screen antialiased flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-navy-800 bg-navy-900/90 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-8">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-display font-bold text-xl text-navy-950 shadow-lg shadow-emerald-500/20">
+          CK
+        </div>
+        <div>
+          <h1 class="font-display font-bold text-lg text-white leading-tight">CEKAS</h1>
+          <p class="text-xs text-slate-400">{{ class_info.nama }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="/api/export/excel" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white flex items-center gap-1.5 transition">
+          📊 Unduh Excel
+        </a>
+        <a href="/api/export/chart" target="_blank" class="px-3 py-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 border border-navy-700 transition">
+          🖼️ Lihat Grafik
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:px-8 space-y-6">
+
+    <!-- Top Stats Banner -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Total Saldo Card -->
+      <div class="lg:col-span-1 rounded-2xl bg-gradient-to-br from-navy-900 to-navy-850 p-6 border border-navy-800 relative overflow-hidden flex flex-col justify-between">
+        <div class="space-y-1">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Kas Kelas Terpadu</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-1">
+            {{ format_rupiah(class_info.saldo) }}
+          </h2>
+          <p class="text-xs text-slate-400 mt-2">
+            Status Terverifikasi • Sistem Offline-First & Atomic ACID
+          </p>
+        </div>
+        <div class="pt-6 mt-6 border-t border-navy-800/80 flex items-center justify-between text-xs text-slate-400">
+          <span>Tahun Ajaran {{ class_info.tahun_ajaran }}</span>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">Aktif</span>
+        </div>
+      </div>
+
+      <!-- 4 Pocket Cards -->
+      <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% for p_key, meta in pockets.items() %}
+        {% set p_saldo = class_info.alokasi.get(p_key, 0) %}
+        {% set pct = (p_saldo / class_info.saldo * 100) if class_info.saldo > 0 else 0 %}
+        <div class="rounded-2xl bg-navy-900 p-4 border border-navy-800 flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-xs text-slate-400">{{ meta.icon }} {{ meta.label }}</span>
+              <h3 class="text-xl font-bold text-white mt-1">{{ format_rupiah(p_saldo) }}</h3>
+            </div>
+            <span class="text-xs font-bold px-2 py-1 rounded-lg bg-navy-800 text-slate-300">
+              {{ "%.1f"|format(pct) }}%
+            </span>
+          </div>
+          <div class="w-full bg-navy-800 h-2 rounded-full overflow-hidden mt-4">
+            <div class="h-full rounded-full" style="width: {{ pct }}%; background-color: {{ meta.color }};"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Middle Section: Manual Transaction Form & Dues Matrix -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Manual Transaction Form -->
+      <div class="lg:col-span-1 rounded-2xl bg-navy-900 p-6 border border-navy-800 space-y-4">
+        <div>
+          <h3 class="font-display font-bold text-lg text-white">Catat Mutasi Kas Manual</h3>
+          <p class="text-xs text-slate-400">Input transaksi langsung tanpa ketergantungan cloud/AI</p>
+        </div>
+        
+        <form action="/api/transaction/create" method="POST" class="space-y-3">
+          <div>
+            <label class="text-xs text-slate-300 block mb-1">Jenis Transaksi</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-navy-800 border border-navy-700 cursor-pointer has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10 text-xs font-semibold">
+                <input type="radio" name="type" value="in" checked class="hidden">
+                <span>📥 Pemasukan</span>
+              </label>
+              <label class="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-navy-800 border border-navy-700 cursor-pointer has-[:checked]:border-rose-500 has-[:checked]:bg-rose-500/10 text-xs font-semibold">
+                <input type="radio" name="type" value="out" class="hidden">
+                <span>📤 Pengeluaran</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-300 block mb-1">Nominal (Rupiah)</label>
+            <input type="text" name="nominal" placeholder="Contoh: 10k, 25.000, 50000" required
+              class="w-full px-3 py-2 rounded-xl bg-navy-800 border border-navy-700 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-300 block mb-1">Pos Anggaran</label>
+            <select name="category" class="w-full px-3 py-2 rounded-xl bg-navy-800 border border-navy-700 text-sm text-white focus:outline-none focus:border-emerald-500">
+              <option value="operasional">🧹 Operasional & KBM</option>
+              <option value="sosial">🤝 Sosial & Peduli</option>
+              <option value="event">🎪 Acara & Kegiatan</option>
+              <option value="cadangan">🛡️ Dana Cadangan</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-300 block mb-1">Keterangan / Alasan</label>
+            <input type="text" name="description" placeholder="Contoh: Beli spidol kelas" required
+              class="w-full px-3 py-2 rounded-xl bg-navy-800 border border-navy-700 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-300 block mb-1">Nama Pencatat (Bendahara)</label>
+            <input type="text" name="input_by" value="Tarina" required
+              class="w-full px-3 py-2 rounded-xl bg-navy-800 border border-navy-700 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition">
+            Simpan Transaksi Kas
+          </button>
+        </form>
+      </div>
+
+      <!-- Weekly Dues & Billing Tracker -->
+      <div class="lg:col-span-2 rounded-2xl bg-navy-900 p-6 border border-navy-800 flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 class="font-display font-bold text-lg text-white">Status Iuran Kas Mingguan</h3>
+              <p class="text-xs text-slate-400">Minggu Ke-{{ dues_status.week_num }} • Rp 10.000 / Siswa</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                {{ dues_status.paid_count }} Lunas
+              </span>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                {{ dues_status.unpaid_count }} Belum
+              </span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full bg-navy-800 h-2.5 rounded-full overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full" style="width: {{ dues_status.percentage }}%;"></div>
+          </div>
+
+          <!-- Students Matrix Table (Scrollable) -->
+          <div class="max-h-64 overflow-y-auto rounded-xl border border-navy-800 divide-y divide-navy-800">
+            {% for s in all_students %}
+            {% if s.role != 'wali_kelas' %}
+            {% set is_paid = (s in dues_status.paid_students) %}
+            <div class="px-4 py-2.5 flex items-center justify-between bg-navy-850/50 hover:bg-navy-800/50 transition">
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-mono text-slate-400">{{ s.nis }}</span>
+                <span class="text-sm font-medium text-slate-200">{{ s.nama_resmi }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                {% if is_paid %}
+                <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">LUNAS</span>
+                {% else %}
+                <form action="/api/dues/pay" method="POST" class="inline">
+                  <input type="hidden" name="nis" value="{{ s.nis }}">
+                  <input type="hidden" name="week_num" value="{{ dues_status.week_num }}">
+                  <button type="submit" class="text-xs px-2.5 py-1 rounded-lg bg-navy-700 hover:bg-emerald-600 text-slate-200 hover:text-white font-medium transition">
+                    Tandai Bayar
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-navy-800 text-xs text-slate-400 flex justify-between items-center">
+          <span>Total Siswa: {{ dues_status.total_students }} Siswa</span>
+          <span class="text-emerald-400 font-bold">{{ dues_status.percentage }}% Terkumpul</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section: Recent Transactions Ledger & Audit Trail -->
+    <div class="rounded-2xl bg-navy-900 p-6 border border-navy-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-display font-bold text-lg text-white">Buku Kas & Riwayat Mutasi</h3>
+          <p class="text-xs text-slate-400">Catatan transaksi append-only untuk transparansi kelas</p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-navy-800">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-navy-800 text-slate-400 text-xs uppercase font-semibold">
+            <tr>
+              <th class="px-4 py-3">ID</th>
+              <th class="px-4 py-3">Waktu</th>
+              <th class="px-4 py-3">Tipe</th>
+              <th class="px-4 py-3">Pos</th>
+              <th class="px-4 py-3">Keterangan</th>
+              <th class="px-4 py-3 text-right">Nominal</th>
+              <th class="px-4 py-3">Pencatat</th>
+              <th class="px-4 py-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-navy-800 font-medium">
+            {% for t in recent_transactions %}
+            <tr class="hover:bg-navy-850 transition">
+              <td class="px-4 py-3 text-xs font-mono text-slate-400">#{{ t.id }}</td>
+              <td class="px-4 py-3 text-xs text-slate-300">{{ t.created_at[:16] }}</td>
+              <td class="px-4 py-3 text-xs">
+                {% if t.type == 'in' %}
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">MASUK</span>
+                {% elif t.type == 'out' %}
+                <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-bold">KELUAR</span>
+                {% else %}
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">KOREKSI</span>
+                {% endif %}
+              </td>
+              <td class="px-4 py-3 text-xs text-slate-300 capitalize">{{ t.category }}</td>
+              <td class="px-4 py-3 text-slate-200 text-xs">{{ t.description }}</td>
+              <td class="px-4 py-3 text-right font-bold text-xs {{ 'text-emerald-400' if t.type == 'in' else ('text-rose-400' if t.type == 'out' else 'text-amber-300') }}">
+                {{ format_rupiah(t.amount) }}
+              </td>
+              <td class="px-4 py-3 text-xs text-slate-400">{{ t.input_by }}</td>
+              <td class="px-4 py-3 text-center">
+                {% if t.type != 'correction' and not t.is_reversal %}
+                <form action="/api/transaction/reverse" method="POST" onsubmit="return confirm('Yakin ingin mengoreksi transaksi #{{ t.id }}?')" class="inline">
+                  <input type="hidden" name="tx_id" value="{{ t.id }}">
+                  <input type="hidden" name="reason" value="Koreksi via Web Dashboard">
+                  <button type="submit" class="text-xs px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold transition">
+                    Batalkan
+                  </button>
+                </form>
+                {% else %}
+                <span class="text-xs text-slate-500">-</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-navy-800 bg-navy-900 py-4 px-4 text-center text-xs text-slate-500">
+    CEKAS • Kelompok 5 XI-F2 SMA Kartika XIX-1 Bandung • Arsitektur Pure Python (Offline-First)
+  </footer>
+
+</body>
+</html>
