@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>CEKAS • Catatan Keuangan Kelas {{ class_info.id }}</title>
   
+  <!-- Mobile Web App & PWA Settings -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#10B981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CEKAS">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+
   <!-- Typography: Plus Jakarta Sans & Fredoka -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -313,6 +321,13 @@
 
     function closeModal() {
       document.getElementById('txModal').classList.add('hidden');
+    }
+
+    // Register Service Worker for Mobile PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js').catch(err => console.log('SW registration error:', err));
+      });
     }
   </script>
 

@@ -7,6 +7,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from .config import CLASS_ID, CLASS_NAME, DB_PATH, POCKET_CONFIG
 from .database import CekasDB
@@ -16,7 +17,12 @@ from .generate_chart import generate_financial_chart
 
 app = FastAPI(title="CEKAS Web Dashboard", version="2.0.0")
 
-TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+TEMPLATES_DIR = BASE_DIR / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 # Global DB instance
