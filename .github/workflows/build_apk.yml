@@ -31,7 +31,7 @@ jobs:
 
       - name: Install Python Dependencies
         run: |
-          pip install jinja2 openpyxl matplotlib pillow
+          pip install jinja2 openpyxl matplotlib pillow python-dotenv
 
       - name: Build Web Bundle with Python
         run: |
