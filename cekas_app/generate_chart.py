@@ -33,10 +33,10 @@ def generate_financial_chart(db: CekasDB, class_id: str = CLASS_ID) -> BytesIO:
         labels = [f"{m['label']}\n(Rp 0)" for m in POCKET_CONFIG.values()]
 
     plt.style.use("fast")
-    fig, ax = plt.subplots(figsize=(8, 5.5), facecolor="#0F172A")
-    ax.set_facecolor("#0F172A")
+    fig, ax = plt.subplots(figsize=(8, 5.5), facecolor="#FFFFFF")
+    ax.set_facecolor("#FFFFFF")
 
-    # Donut chart
+    # Donut chart with white canvas and subtle pastel wedges
     wedges, texts, autotexts = ax.pie(
         sizes,
         labels=labels,
@@ -44,8 +44,8 @@ def generate_financial_chart(db: CekasDB, class_id: str = CLASS_ID) -> BytesIO:
         autopct="%1.1f%%",
         pctdistance=0.75,
         startangle=140,
-        textprops={"color": "#F8FAFC", "fontsize": 9, "weight": "bold"},
-        wedgeprops={"width": 0.45, "edgecolor": "#0F172A", "linewidth": 3}
+        textprops={"color": "#1E293B", "fontsize": 9, "weight": "bold"},
+        wedgeprops={"width": 0.45, "edgecolor": "#FFFFFF", "linewidth": 3}
     )
 
     for at in autotexts:
@@ -60,12 +60,12 @@ def generate_financial_chart(db: CekasDB, class_id: str = CLASS_ID) -> BytesIO:
         verticalalignment="center",
         fontsize=12,
         weight="bold",
-        color="#38BDF8"
+        color="#0F172A"
     )
 
     plt.title(
         f"ALOKASI POS KEUANGAN KAS {class_id}\nSMA Kartika XIX-1 Bandung",
-        color="#F8FAFC",
+        color="#0F172A",
         fontsize=14,
         weight="bold",
         pad=20
