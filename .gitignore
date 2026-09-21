@@ -31,3 +31,5 @@ __pycache__/
 *.db
 *.xlsx
 *.png
+*.db-shm
+*.db-wal

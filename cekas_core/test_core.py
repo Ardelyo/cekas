@@ -4,8 +4,12 @@ Verifies formatters, transaction processing, whitelist registration, and correct
 """
 
 import unittest
-from formatters import format_rupiah, parse_nominal, normalize_category, parse_transaction_args
-from database import CekasDB
+try:
+    from cekas_core.formatters import format_rupiah, parse_nominal, normalize_category, parse_transaction_args
+    from cekas_core.database import CekasDB
+except ImportError:
+    from formatters import format_rupiah, parse_nominal, normalize_category, parse_transaction_args
+    from database import CekasDB
 
 class TestCekasCore(unittest.TestCase):
     def test_format_rupiah(self):
