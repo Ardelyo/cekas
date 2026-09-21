@@ -29,37 +29,38 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Dependencies
+      - name: Install Python Dependencies
         run: |
-          npm install -g @capacitor/cli @capacitor/core @capacitor/android
+          pip install jinja2 openpyxl matplotlib pillow
 
-      - name: Create Web Distribution for Capacitor
+      - name: Build Web Bundle with Python
         run: |
-          mkdir -p www/static
-          cp cekas_app/templates/dashboard.html www/index.html
-          cp cekas_app/static/* www/static/
-          sed -i 's|/api/export/excel|#|g' www/index.html
-          sed -i 's|/api/export/chart|#|g' www/index.html
+          python scripts/build_mobile_bundle.py
 
-      - name: Initialize Capacitor Android Project
+      - name: Install Capacitor Locally
         run: |
-          npx cap init "CEKAS Kas" "id.sch.smakartika.cekas" --web-dir www
+          npm install --save @capacitor/core@latest @capacitor/android@latest
+          npm install --save-dev @capacitor/cli@latest
+
+      - name: Add Android Platform
+        run: |
           npx cap add android
 
       - name: Copy Icons to Android Res
         run: |
           mkdir -p android/app/src/main/res/mipmap-xxxhdpi/
-          cp cekas_app/static/icon-512.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          cp cekas_app/static/icon-512.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png || true
+          cp cekas_app/static/icon-512.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png || true
 
       - name: Build APK with Gradle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CEKAS-Android-APK
+          name: CEKAS-Kas-XI-F2-debug.apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error

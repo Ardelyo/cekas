@@ -33,3 +33,5 @@ __pycache__/
 *.png
 *.db-shm
 *.db-wal
+www/
+android/
