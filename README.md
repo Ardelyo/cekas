@@ -4,6 +4,17 @@
 
 ---
 
+> 🐍 **Mencari Versi Pure Python / Offline-First?**  
+> Sistem CEKAS memiliki edisi **Pure Python** (100% lokal tanpa ketergantungan Firebase/GCP, SQLite WAL mode, Web Dashboard lokal, CLI interaktif, export Excel otomatis, dan visualisasi grafik) di branch **`pure-python`**.  
+> 
+> Beralih ke branch tersebut:
+> ```bash
+> git checkout pure-python
+> ```
+> 📖 Pelajari dan lihat dokumentasi lengkapnya di: **[GitHub Branch: pure-python](https://github.com/Ardelyo/cekas/tree/pure-python)**.
+
+---
+
 ## 📌 Ringkasan Eksekutif MVP
 
 Aplikasi **CEKAS (Kace Kas)** dirancang untuk memecahkan friksi pengelolaan kas kelas konvensional yang sebelumnya masih manual (buku tulis). Dengan digitalisasi berbasis **Telegram Bot** yang terhubung langsung ke **Google Cloud Firestore**, setiap transaksi iuran dan pengeluaran dicatat secara instan, transparan, dan dihitung secara otomatis (*running balance*) tanpa risiko selisih kas (*cash mismatch*).
