@@ -9,6 +9,11 @@
  *   node scripts/polling_dev.js
  */
 
+const dns = require("dns");
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch (_) {}
+
 require("dotenv").config({ path: require("path").resolve(__dirname, "../functions/.env") });
 const { handleTelegramUpdate } = require("../functions/src/bot");
 
@@ -71,7 +76,11 @@ async function startPoller() {
           }
 
           // Dispatch update to standard CEKAS bot handler
-          await handleTelegramUpdate(update, botToken);
+          try {
+            await handleTelegramUpdate(update, botToken);
+          } catch (handlerErr) {
+            console.error(`⚠️ Error handling update ${update.update_id}:`, handlerErr.message || handlerErr);
+          }
         }
       } else if (!data.ok) {
         console.warn("⚠️ getUpdates returned not ok:", data);
@@ -89,7 +98,16 @@ process.on("SIGINT", () => {
   process.exit(0);
 });
 
-startPoller().catch((err) => {
-  console.error("❌ Fatal poller error:", err);
-  process.exit(1);
-});
+async function main() {
+  while (true) {
+    try {
+      await startPoller();
+      break;
+    } catch (err) {
+      console.error("⚠️ Connection error during poller start (retrying in 3s):", err.message || err);
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+  }
+}
+
+main();

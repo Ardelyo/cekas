@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { doc, collection, onSnapshot, runTransaction, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
-import * as XLSX from 'xlsx';
 import gsap from 'gsap';
 import { db } from './lib/firebase';
 import type { ClassMetadata, Transaction, WhitelistStudent, FinancialMood, UserSession, AppTab } from './types';
@@ -16,6 +15,7 @@ import { MobileBottomNav } from './components/mobile/MobileBottomNav';
 import { MobileDrawerMenu } from './components/mobile/MobileDrawerMenu';
 import { DesktopAppLayout } from './components/desktop/DesktopAppLayout';
 import { DynamicIsland } from './components/common/DynamicIsland';
+import { ExportCenterModal } from './components/export/ExportCenterModal';
 
 const INITIAL_CLASS_STATE: ClassMetadata = {
   id: 'XI-F2',
@@ -121,6 +121,7 @@ export const App: React.FC = () => {
   const [activeMood, setActiveMood] = useState<FinancialMood>('aman');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [reversalTargetTx, setReversalTargetTx] = useState<Transaction | null>(null);
+  const [isExportCenterOpen, setIsExportCenterOpen] = useState<boolean>(false);
 
   // DYNAMIC ISLAND ALERT STATE (FOR GSAP MORPHING HUD)
   const [recentAlert, setRecentAlert] = useState<{
@@ -331,56 +332,9 @@ export const App: React.FC = () => {
     );
   };
 
-  // EXPORT TO EXCEL
+  // OPEN EXPORT & REPORTING HUB MODAL
   const handleExportExcel = () => {
-    const wb = XLSX.utils.book_new();
-
-    const summaryData = [
-      ['LAPORAN KAS KELAS XI-F2 SMA KARTIKA XIX-1 BANDUNG'],
-      ['Tahun Ajaran: 2026/2027'],
-      ['Tanggal Cetak: ' + new Date().toLocaleDateString('id-ID')],
-      [],
-      ['Kategori Pos Anggaran', 'Saldo Terkini (Rp)', 'Keterangan'],
-      ['Pos Operasional & KBM', classData.alokasi.operasional, 'Spidol, penghapus, alat kebersihan'],
-      ['Pos Sosial & Peduli', classData.alokasi.sosial, 'Santunan duka cita, menjenguk siswa sakit'],
-      ['Pos Acara & Kegiatan', classData.alokasi.event, 'Tabungan bukber & perpisahan'],
-      ['Pos Dana Cadangan', classData.alokasi.cadangan, 'Dana darurat kelas'],
-      [],
-      ['TOTAL SALDO KAS KELAS', classData.saldo, 'Surplus Tercatat Firestore'],
-    ];
-    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan Kas');
-
-    const txRows = [
-      ['ID Transaksi', 'Waktu', 'Jenis', 'Nominal (Rp)', 'Pos Alokasi', 'Keterangan', 'Pencatat', 'Status Koreksi'],
-      ...transactions.map((tx) => [
-        tx.id,
-        tx.timestamp instanceof Date ? tx.timestamp.toLocaleString('id-ID') : String(tx.timestamp),
-        tx.type === 'in' ? 'Pemasukan' : 'Pengeluaran',
-        tx.amount,
-        tx.category,
-        tx.description,
-        tx.inputBy,
-        tx.isReversed ? 'DIKOREKSI' : 'NORMAL',
-      ]),
-    ];
-    const wsTx = XLSX.utils.aoa_to_sheet(txRows);
-    XLSX.utils.book_append_sheet(wb, wsTx, 'Buku Kas Umum');
-
-    const duesRows = [
-      ['No', 'NIS', 'Nama Siswa', 'Role', 'Status Iuran Minggu 1'],
-      ...students.map((s, idx) => [
-        idx + 1,
-        s.nis,
-        s.namaResmi,
-        s.role,
-        s.paid ? 'LUNAS' : 'BELUM BAYAR',
-      ]),
-    ];
-    const wsDues = XLSX.utils.aoa_to_sheet(duesRows);
-    XLSX.utils.book_append_sheet(wb, wsDues, 'Rekap Iuran Siswa');
-
-    XLSX.writeFile(wb, `Laporan_Kas_XIF2_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    setIsExportCenterOpen(true);
   };
 
   // ==============================================================
@@ -478,6 +432,16 @@ export const App: React.FC = () => {
           transaction={reversalTargetTx}
           onClose={() => setReversalTargetTx(null)}
           onConfirmReversal={handleConfirmReversal}
+        />
+
+        {/* Unified Export & Reporting Hub Modal */}
+        <ExportCenterModal
+          isOpen={isExportCenterOpen}
+          onClose={() => setIsExportCenterOpen(false)}
+          classData={classData}
+          transactions={transactions}
+          students={students}
+          duesPercentage={duesPercentage}
         />
       </div>
     );
@@ -592,6 +556,16 @@ export const App: React.FC = () => {
         transaction={reversalTargetTx}
         onClose={() => setReversalTargetTx(null)}
         onConfirmReversal={handleConfirmReversal}
+      />
+
+      {/* Unified Export & Reporting Hub Modal */}
+      <ExportCenterModal
+        isOpen={isExportCenterOpen}
+        onClose={() => setIsExportCenterOpen(false)}
+        classData={classData}
+        transactions={transactions}
+        students={students}
+        duesPercentage={duesPercentage}
       />
 
     </div>

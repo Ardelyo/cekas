@@ -3,6 +3,11 @@
  * Cloud Functions for Firebase - Telegram Webhook Entrypoint
  */
 
+const dns = require("dns");
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch (_) {}
+
 require("dotenv").config();
 const { onRequest } = require("firebase-functions/v2/https");
 const { handleTelegramUpdate } = require("./src/bot");

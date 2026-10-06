@@ -5,6 +5,8 @@
   "author": "Kelompok 5 (XI-F2 SMA Kartika XIX-1 Bandung)",
   "license": "MIT",
   "scripts": {
+    "start": "node scripts/dev_all.js",
+    "dev": "node scripts/dev_all.js",
     "test": "npm test --prefix functions",
     "seed": "node scripts/seed_members.js",
     "bot:dev": "node scripts/polling_dev.js",

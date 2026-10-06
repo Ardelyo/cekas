@@ -27,3 +27,6 @@ ui-debug.log
 # Operating System files
 Thumbs.db
 .DS_Store
+*.exe
+
+.vercel
