@@ -210,7 +210,17 @@ def build_app(db: CekasDB, token: str = TELEGRAM_BOT_TOKEN, class_id: str = CLAS
         if isinstance(update, Update) and update.effective_message:
             await update.effective_message.reply_text("Terjadi kesalahan. Coba lagi.")
 
-    app = ApplicationBuilder().token(token).build()
+    async def post_init(application: Application) -> None:
+        await application.bot.set_my_commands([
+            ("saldo", "Saldo kas"), ("alokasi", "Rincian pos"), ("riwayat", "10 mutasi terakhir"),
+            ("tagihan", "Status iuran mingguan"), ("grafik", "Infografis kas"), ("excel", "Buku kas Excel"),
+            ("daftar", "Daftar dengan NIS"), ("notif", "Notifikasi on/off"),
+            ("tambah", "Catat pemasukan (bendahara)"), ("kurang", "Catat pengeluaran (bendahara)"),
+            ("bayar", "Catat iuran siswa (bendahara)"), ("koreksi", "Koreksi transaksi (bendahara)"),
+            ("klaimbendahara", "Aktifkan akses bendahara"),
+        ])
+
+    app = ApplicationBuilder().token(token).post_init(post_init).build()
     for name, fn in {
         "start": start, "help": start, "saldo": saldo, "alokasi": alokasi, "riwayat": riwayat,
         "tagihan": tagihan, "grafik": grafik, "excel": excel, "daftar": daftar, "notif": notif,
