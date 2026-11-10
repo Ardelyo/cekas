@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<section class="card" style="max-width:420px;margin:0 auto">
+  <h2>Login Bendahara</h2>
+  <form action="/login" method="post">
+    <label for="nama">Nama pencatat</label>
+    <input id="nama" name="nama" value="Bendahara" maxlength="40" required>
+    <label for="pin">PIN Bendahara</label>
+    <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+    <p><button>Masuk</button> <a class="btn ghost" href="/">Kembali</a></p>
+  </form>
+</section>
+{% endblock %}

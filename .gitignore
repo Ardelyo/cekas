@@ -1,32 +1,10 @@
-# Dependencies
-node_modules/
-functions/node_modules/
-web-app/node_modules/
-
-# Build artifacts
-dist/
-web-app/dist/
-.vercel/
-
-# Environment files with secrets
+__pycache__/
+*.pyc
+.venv/
 .env
-.env.*
-functions/.env
-*.local
-*.key
-*.pem
-service-account*.json
-
-# Firebase logs and cache
-.firebase/
-firebase-debug.log
-firebase-debug.*.log
-firestore-debug.log
-ui-debug.log
-
-# Operating System files
-Thumbs.db
-.DS_Store
-*.exe
-
-.vercel
+*.db
+*.db-shm
+*.db-wal
+*.xlsx
+*.png
+.pytest_cache/

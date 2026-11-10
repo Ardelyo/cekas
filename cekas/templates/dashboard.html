@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <div class="sub">Total saldo kas {{ info.nama }}</div>
+  <div class="saldo">{{ info.saldo | rupiah }}</div>
+  <div class="grid" style="margin-top:14px">
+    {% for key, p in pockets.items() %}
+      {% set val = info.alokasi[key] %}
+      <div class="pocket" style="background:{{ p.color }}14">
+        <span class="sub">{{ p.label }}</span>
+        <b>{{ val | rupiah }}</b>
+        <div class="bar"><i style="width:{{ (val / info.saldo * 100) if info.saldo > 0 and val > 0 else 0 }}%;background:{{ p.color }}"></i></div>
+      </div>
+    {% endfor %}
+  </div>
+  <p class="sub"><a href="/grafik.png">Lihat grafik</a>{% if session %} &middot; <a href="/export/excel">Unduh Excel</a>{% endif %}</p>
+</section>
+
+{% if session %}
+<section class="card">
+  <details>
+    <summary>+ Catat transaksi</summary>
+    <form action="/transaksi" method="post">
+      <div class="two">
+        <div><label for="tipe">Jenis</label>
+          <select id="tipe" name="tipe"><option value="in">Pemasukan</option><option value="out">Pengeluaran</option></select></div>
+        <div><label for="pos">Pos</label>
+          <select id="pos" name="pos">{% for key, p in pockets.items() %}<option value="{{ key }}">{{ p.label }}</option>{% endfor %}</select></div>
+      </div>
+      <label for="nominal">Nominal (contoh: 10000, 10k, 15rb)</label>
+      <input id="nominal" name="nominal" required>
+      <label for="ket">Keterangan</label>
+      <input id="ket" name="keterangan" required maxlength="200">
+      <p><button>Simpan</button></p>
+    </form>
+  </details>
+</section>
+{% endif %}
+
+<section class="card">
+  <h2>Iuran mingguan &mdash; minggu ke-{{ week }}</h2>
+  <form class="row" method="get" action="/" style="margin-bottom:12px">
+    <input type="number" name="week" min="1" max="60" value="{{ week }}" style="width:90px">
+    <button class="ghost">Tampilkan</button>
+    <span class="sub">{{ dues.paid_count }}/{{ dues.total_students }} lunas ({{ dues.percentage }}%)</span>
+  </form>
+  <div class="bar" style="height:8px;margin-bottom:12px"><i style="width:{{ dues.percentage }}%;background:var(--ok)"></i></div>
+  <table>
+    <tr><th>Nama</th><th>NIS</th><th>Status</th></tr>
+    {% for s in dues.paid_students %}
+      <tr><td>{{ s.nama_resmi }}</td><td>{{ s.nis }}</td><td class="in">Lunas</td></tr>
+    {% endfor %}
+    {% for s in dues.unpaid_students %}
+      <tr><td>{{ s.nama_resmi }}</td><td>{{ s.nis }}</td>
+        <td>{% if session %}
+          <form action="/iuran" method="post"><input type="hidden" name="nis" value="{{ s.nis }}"><input type="hidden" name="week" value="{{ week }}"><button class="sm">Tandai lunas</button></form>
+          {% else %}<span class="out">Belum</span>{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+</section>
+
+<section class="card">
+  <h2>Mutasi terakhir</h2>
+  <table>
+    <tr><th>ID</th><th>Keterangan</th><th class="r">Nominal</th><th>Waktu</th></tr>
+    {% for t in txs %}
+      <tr>
+        <td>#{{ t.id }}</td>
+        <td>{{ t.description }}
+          <div class="sub">{{ pockets[t.category].label if t.category in pockets else t.category }} &middot; {{ t.input_by }}
+            {% if t.is_correction %}<span class="tag">koreksi</span>{% elif t.reversed_by_tx_id %}<span class="tag">dikoreksi #{{ t.reversed_by_tx_id }}</span>{% endif %}</div>
+          {% if session and not t.is_correction and not t.reversed_by_tx_id %}
+            <details class="mini"><summary>Koreksi</summary>
+              <form action="/koreksi" method="post" class="row" style="margin-top:6px">
+                <input type="hidden" name="tx_id" value="{{ t.id }}">
+                <input name="alasan" placeholder="Alasan koreksi" required style="flex:1;min-width:140px">
+                <button class="sm">Batalkan</button>
+              </form>
+            </details>
+          {% endif %}
+        </td>
+        <td class="r {{ 'in' if t.type == 'in' else 'out' }}">{{ '+' if t.type == 'in' else '-' }}{{ t.amount | rupiah }}</td>
+        <td class="sub">{{ t.created_at | wib }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4" class="sub">Belum ada transaksi.</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock %}

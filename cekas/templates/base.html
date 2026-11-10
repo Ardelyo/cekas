@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}CEKAS{% endblock %} - Kas Kelas</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+<header class="top">
+  <div><h1>CEKAS &middot; Kas Kelas</h1><div class="sub">SMA Kartika XIX-1 Bandung</div></div>
+  <div class="row">
+    {% if session %}
+      <span class="sub">Bendahara: {{ session.nama }}</span>
+      <form action="/logout" method="post"><button class="ghost sm">Keluar</button></form>
+    {% else %}
+      <a class="btn sm ghost" href="/login" style="padding:5px 12px;border-radius:10px">Login Bendahara</a>
+    {% endif %}
+  </div>
+</header>
+{% if msg %}<div class="flash ok">{{ msg }}</div>{% endif %}
+{% if err %}<div class="flash err">{{ err }}</div>{% endif %}
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>
